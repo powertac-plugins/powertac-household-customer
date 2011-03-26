@@ -1,0 +1,5 @@
+--Output from testCreationAndSubscriptionToDefault--
+--Output from testPowerConsumption--
+--Output from testChangingSubscriptions--
+--Output from testRevokingSubscriptions--
+--Output from testTariffPublication--
