@@ -1,6 +1,6 @@
 package powertac.household.customer
 
-import consumers.Environment
+import org.powertac.consumers.Environment
 import grails.test.*
 
 import org.joda.time.DateTime
@@ -11,6 +11,7 @@ import org.junit.Before
 import org.junit.Test
 import org.powertac.common.Broker
 import org.powertac.common.HourlyCharge
+import org.powertac.common.configurations.Config;
 import org.powertac.common.enumerations.PowerType
 import org.powertac.common.enumerations.CustomerType
 import org.powertac.common.enumerations.TariffTransactionType
@@ -29,7 +30,6 @@ import org.powertac.common.msg.TariffStatus
 import org.powertac.common.msg.VariableRateUpdate
 import org.powertac.tariffmarket.TariffMarketService
 import org.powertac.common.TimeService
-import persons.Config
 
 
 class CustomerTests extends GroovyTestCase 
@@ -52,15 +52,15 @@ class CustomerTests extends GroovyTestCase
   {
 	
     super.setUp()
-	TariffSpecification.list()*.delete()
-	Tariff.list()*.delete()
+    TariffSpecification.list()*.delete()
+    Tariff.list()*.delete()
     broker1 = new Broker(username: "Joe")
     broker1.save()
     broker2 = new Broker(username: "Anna")
     broker2.save()
 
     now = new DateTime(2011, 1, 10, 0, 0, 0, 0, DateTimeZone.UTC)
-	timeService.start = now.toInstant().millis
+    timeService.start = now.toInstant().millis
     timeService.currentTime = now.toInstant()
 
     exp = new Instant(now.millis + TimeService.WEEK * 10)
@@ -84,9 +84,9 @@ class CustomerTests extends GroovyTestCase
   
 	//Reading the config file
 	Scanner sc = new Scanner(System.in);
-	conf = new persons.Config();
+	conf = new org.powertac.common.configurations.Config();
 	conf.readConf();
-	assertFalse("Config File Read and HashMap created", conf.hm == null)
+	assertFalse("Config File Read and HashMap created", conf.variablesHashMap == null)
 	
   }
 
@@ -97,11 +97,11 @@ class CustomerTests extends GroovyTestCase
   void testCreationAndSubscriptionToDefault(){
 	    
 	  def env = new Environment()
-	  env.initialize(conf.hm)
+	  env.initialize(conf.variablesHashMap)
 	  assert env.save()
 	  
-	  assertEquals("Two Villages Created", conf.hm.get("NumberOfVillages"), AbstractCustomer.count())
-	  assertEquals("Two Villages Created", conf.hm.get("NumberOfVillages"), env.villages.size())
+	  assertEquals("Two Villages Created", conf.variablesHashMap.get("NumberOfVillages"), AbstractCustomer.count())
+	  assertEquals("Two Villages Created", conf.variablesHashMap.get("NumberOfVillages"), env.villages.size())
 	  
 	  env.villages*.subscribeDefault()
 	    
@@ -117,7 +117,7 @@ class CustomerTests extends GroovyTestCase
 
 	  
 	  def env = new Environment()
-	  env.initialize(conf.hm)
+	  env.initialize(conf.variablesHashMap)
 	  assert env.save()
 	  
 	  env.villages*.subscribeDefault()
@@ -133,14 +133,14 @@ class CustomerTests extends GroovyTestCase
 			  
 	  }  
   
-	  assertEquals("Tariff Transactions Created", conf.hm.get("NumberOfVillages"), TariffTransaction.findByTxType(TariffTransactionType.CONSUME).count())
+	  assertEquals("Tariff Transactions Created", conf.variablesHashMap.get("NumberOfVillages"), TariffTransaction.findByTxType(TariffTransactionType.CONSUME).count())
   }
    
   void testChangingSubscriptions(){
 	  
 
 	  def env = new Environment()
-	  env.initialize(conf.hm)
+	  env.initialize(conf.variablesHashMap)
 	  assert env.save()
 	  
 	  env.villages*.subscribeDefault()
@@ -178,7 +178,7 @@ class CustomerTests extends GroovyTestCase
   void testRevokingSubscriptions(){
 	  
 	  def env = new Environment()
-	  env.initialize(conf.hm)
+	  env.initialize(conf.variablesHashMap)
 	  assert env.save()
 	  
 	  env.villages*.subscribeDefault()
@@ -272,7 +272,7 @@ class CustomerTests extends GroovyTestCase
 	  start = new DateTime(2011, 1, 1, 12, 0, 0, 0, DateTimeZone.UTC).toInstant()
 	    
 	  def env = new Environment()
-	  env.initialize(conf.hm)
+	  env.initialize(conf.variablesHashMap)
 	  assert env.save()
 	  
 	  env.villages*.subscribeDefault()
@@ -281,7 +281,7 @@ class CustomerTests extends GroovyTestCase
 	  tariffMarketService.publicationInterval = 3 // hours
 	  assertEquals("newTariffs list is empty", 0, tariffMarketService.newTariffs.size())
 	
-	  assertEquals("All villages registered", conf.hm.get("NumberOfVillages"), tariffMarketService.registrations.size())
+	  assertEquals("All villages registered", conf.variablesHashMap.get("NumberOfVillages"), tariffMarketService.registrations.size())
 	  
 	  env.villages.each {
 		  
