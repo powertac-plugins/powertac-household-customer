@@ -4,7 +4,7 @@ General Variables
 
 PublicVacationDuration = 10
 PublicVacationDays = (if we want them to be specific) 
-NumberOfHouses = 10
+NumberOfHouses = 100
 NumberOfVillages = 2
 
 OnePersonConsumption = 1973
