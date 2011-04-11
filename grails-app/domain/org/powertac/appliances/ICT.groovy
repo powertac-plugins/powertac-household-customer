@@ -1,42 +1,42 @@
 /*
-* Copyright 2009-2010 the original author or authors.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an
-* "AS IS" BASIS,  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-* either express or implied. See the License for the specific language
-* governing permissions and limitations under the License.
-*/
+ * Copyright 2009-2010 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an
+ * "AS IS" BASIS,  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language
+ * governing permissions and limitations under the License.
+ */
 
 
 package org.powertac.appliances
 
-import java.util.HashMap;
+import java.util.HashMap
+
 import org.powertac.common.configurations.Constants
 
 /**
-* ICT are the appliances that are utilized mainly for work or to communicate with others
-* from the household such as computers, telephone devices etc. They works only when
-* someone is at home and uses them. So it's a not shifting appliance.
-*
-* @author Antonios Chrysopoulos
-* @version 1, 13/02/2011
-*/
+ * ICT are the appliances that are utilized mainly for work or to communicate with others
+ * from the household such as computers, telephone devices etc. They works only when
+ * someone is at home and uses them. So it's a not shifting appliance.
+ *
+ * @author Antonios Chrysopoulos
+ * @version 1, 13/02/2011
+ */
 
 class ICT extends NotShiftingAppliance{
 
   @ Override
-	def initialize(HashMap hm) 
-	{
+  def initialize(HashMap hm) {
     // Creating Auxiliary Variables
     Random gen = ensureRandomSeed()
-    
+
     // Filling the base variables
     name = "ICT"
     saturation = (float)hm.get("ICTSaturation")
@@ -50,16 +50,15 @@ class ICT extends NotShiftingAppliance{
     probabilitySeason = fillSeason(Constants.ICT_POSSIBILITY_SEASON_1,Constants.ICT_POSSIBILITY_SEASON_2,Constants.ICT_POSSIBILITY_SEASON_3)
     probabilityWeekday = fillDay(Constants.ICT_POSSIBILITY_DAY_1,Constants.ICT_POSSIBILITY_DAY_2,Constants.ICT_POSSIBILITY_DAY_3)
     createWeeklyOperationVector(cycleDuration + applianceOf.members.size())
-	}
-	
+  }
+
   @ Override
-  def fillDailyFunction(int weekday) 
-	{
+  def fillDailyFunction(int weekday) {
     // Initializing and Creating auxiliary variables
     loadVector = new Vector()
     dailyOperation = new Vector()
     Vector operation = operationVector.get(weekday)
-    
+
     // For each quarter of a day
     for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
       if (operation.get(i) == true) {
@@ -79,23 +78,21 @@ class ICT extends NotShiftingAppliance{
           }
         }
       } else  {
-      	loadVector.add(0)
-				dailyOperation.add(false)
+        loadVector.add(0)
+        dailyOperation.add(false)
       }
     }
     weeklyLoadVector.add(loadVector)
     weeklyOperation.add(dailyOperation)
   }
-	
-	@ Override
-  def refresh() 
-	{
+
+  @ Override
+  def refresh() {
     createWeeklyOperationVector(times + applianceOf.members.size())
     fillWeeklyFunction()
     System.out.println("ICT refreshed")
   }
-	
+
   static constraints = {
   }
-  
 }
