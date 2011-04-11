@@ -73,11 +73,9 @@ class Person {
    * 
    * @return
    */
-	def isSleeping() {
-		
-		if (status == Status.Sleeping) {
-			return true
-		}
+	def isSleeping() 
+	{
+		if (status == Status.Sleeping) return true
 		else return false
 	}
 	
@@ -85,11 +83,9 @@ class Person {
    * 
    * @return
    */
-  def isAtWork() {
-		
-		if (status == Status.Working) {
-			return true
-		}
+  def isAtWork() 
+	{
+		if (status == Status.Working) return true
 		else return false
 	}
 	
@@ -97,11 +93,9 @@ class Person {
    * 
    * @return
    */
-	def isLeisure() {
-		
-		if (status == Status.Leisure) {
-			return true
-		}
+	def isLeisure() 
+	{
+		if (status == Status.Leisure) return true
 		else return false
 	}
 	
@@ -109,11 +103,9 @@ class Person {
    * 
    * @return
    */
-	def isVacation() {
-		
-		if (status == Status.Vacation) {
-			return true
-		}
+	def isVacation() 
+	{
+		if (status == Status.Vacation) return true
 		else return false
 	}
 	
@@ -121,11 +113,9 @@ class Person {
    * 
    * @return
    */
-	def isSick() {
-		
-		if (status == Status.Sick) {
-			return true
-		}
+	def isSick() 
+	{
+		if (status == Status.Sick) return true
 		else return false
 	}
 	
@@ -138,25 +128,18 @@ class Person {
    * @return
    */
    
-	def createLeisureVector(int counter) {
-		
+	def createLeisureVector(int counter) 
+	{
     // Create auxiliary variable
     Vector v = new Vector()
     Random gen = ensureRandomSeed()
-    
     //Loop for the amount of days
 		for (int i = 0; i < counter; i++) {
-
 			int day = gen.nextInt(Constants.DAYS_OF_WEEK)
 			v.add(day)
-		
 		}
-		
-		// Sort the days we choose
 		java.util.Collections.sort(v);
-        
 		return v
-		
 	}
 	
   /** This function fills out the daily routine of the person, taking into
@@ -167,142 +150,72 @@ class Person {
    * @return
    */
    
-	def fillDailyRoutine(int day, float vacationAbsence) {
-				
+	def fillDailyRoutine(int day, float vacationAbsence) 
+	{
 		// Create auxiliary variable
 		Vector v = new Vector(Constants.QUARTERS_OF_DAY)
     Status st
     Random gen = ensureRandomSeed()
     
-    // Find the weekday
 		int weekday = day % Constants.DAYS_OF_WEEK
-    
-    // Call for the function to fill the daily routine
 		setDailyRoutine(new Vector())
-    
-
-		// case that this day the person is sick
 		if (sicknessVector.contains(day)) {
-		
-      // We will the daily routine accordingly
       fillSick()
-		
-    // case not sick
 		} else  {
-		
-		  // Check if this day is a vacation for this person
 			if (publicVacationVector.contains(day) || (this instanceof WorkingPerson && vacationVector.contains(day))) {
-		
-        // Checking if he is out of house for vacation or just relaxing at home
 				if (gen.nextFloat() < vacationAbsence ) {
-	
-          // This is a loop.
           for (int i = 0;i < Constants.QUARTERS_OF_DAY; i++) {
-		
-            // Change status to vacation
             st = Status.Vacation
             dailyRoutine.add(st)
-		
           }
-        // case he stays home for vacation
         } else  {
-		
-					// Stays at home and does his leisure normally
 					normalFill()
 					addLeisure(weekday)
         }
-		
-      // case it is not a vacation day  
 			} else  {
-		
-			  // Fill day as if he doesn't work
 				normalFill()
-		
-				// case he is working
 				if (this instanceof WorkingPerson) {
-		
 					int index = workingDays.indexOf(weekday)
-		
-					// Case he works this day of the week
 					if (index > -1) {
-		
-            // Fill the day with the working hours and leisure activity
 						fillWork()
 						addLeisureWorking(weekday)
-		
-          // case he doesn't work that day  
 					} else  {
-		
-					  // Fill just the leisure activity if there is any for that day
 						addLeisure(weekday)
-		
 					}
-		
-        // case he is not working type of person  
 				} else  {
-		
-					// Fill just the leisure activity if there is any for that day
 					addLeisure(weekday)
-		
 				}
-		
 			}
-		
 		}
-			
 	}
 	
-  
-  
   /** This function fills out the daily routine of the person, taking into
    * account the different variables and occupations, if he is sick or working etc.
    * @param mean
    * @param dev
    * @return
    */
-	def createSicknessVector(float mean, float dev) {
-		
+	def createSicknessVector(float mean, float dev) 
+	{
     // Create auxiliary variables
 		Random gen = ensureRandomSeed()
 		int days = (int) (dev * gen.nextGaussian() + mean)
 		Vector v = new Vector(days)
     Random r = new Random();
-		
-		// Loop through the amount of days that he will be sick
 		for (int i = 0; i < days; i++) {
-		
-      // This is a task.
       int x = gen.nextInt(Constants.DAYS_OF_YEAR) + 1;
 			ListIterator iter = v.listIterator();
-		
-			// If there are previous days in the list
 			while (iter.hasNext()) {
-		
-				// This is a task.
 				int temp = (int)iter.next()
-		
-        // Case we have already that day
 				if (x == temp) {
-		
-					// Move sickness to the next day
 					x = x + 1
 					iter = v.listIterator();
-		
 				}
-	
 			}
-		
-      // Add day to the vector
       v.add(x)
-		
     }
-		
-    // Sort the list of days
     java.util.Collections.sort(v);
-				
-    // Return the results.
     return v
-		
 	}
 	
   /** This function fills out the daily routine with the leisure activity of the day,
@@ -310,76 +223,42 @@ class Person {
    * @param weekday
    * @return
    */
-  def addLeisure(int weekday) {
-		
-		
+  def addLeisure(int weekday) 
+	{
 		// Create auxiliary variables
 		ListIterator iter = leisureVector.listIterator();
 		Status st
     Random gen = ensureRandomSeed()
-    
-		// While there are more days of leisure in the list
 		while (iter.hasNext()) {
-		
-		
-      // case the day is the current day
 			if (iter.next() == weekday) {
-		
-        // Find random hour to begin the leisure activity
 				int start = Constants.START_OF_LEISURE  + gen.nextInt(Constants.LEISURE_WINDOW)
-		
-				// Add the leisure activity for the correct duration of time
 				for (int i = start;i < start + leisureDuration;i++) {
-
 					st = Status.Leisure
 					dailyRoutine.set(i,st)
-		
 				}
-		
 			} 		
-		
 		}	
-		
 	}
 	
   /** This function fills out the daily routine of the person as if 
    * he stays in the house all day long.
    * @return
    */
-	def normalFill() {
-		
-
-				// Create auxiliary variables
-				Status st
-		
-				// Filling the first period of sleeping
-				for (int i = Constants.START_OF_SLEEPING_1;i < Constants.END_OF_SLEEPING_1;i++) {
-		
-					// This is a task.
-					st = Status.Sleeping
-					dailyRoutine.add(st)
-		
-				}
-
-				// Filling the period of being at house
-				for (int i = Constants.END_OF_SLEEPING_1;i < Constants.START_OF_SLEEPING_2;i++) {
-		
-					st = Status.Normal
-					dailyRoutine.add(st)
-		
-				}
-		
-		
-				// Filling the second period of sleeping
-				for (int i = Constants.START_OF_SLEEPING_2;i < Constants.END_OF_SLEEPING_2;i++) {
-		
-					// This is a task.
-					st = Status.Sleeping
-					dailyRoutine.add(st)
-		
-				}
-		
-		
+	def normalFill() 
+	{
+		Status st
+		for (int i = Constants.START_OF_SLEEPING_1;i < Constants.END_OF_SLEEPING_1;i++) {
+			st = Status.Sleeping
+			dailyRoutine.add(st)
+		}
+		for (int i = Constants.END_OF_SLEEPING_1;i < Constants.START_OF_SLEEPING_2;i++) {
+			st = Status.Normal
+			dailyRoutine.add(st)
+		}
+		for (int i = Constants.START_OF_SLEEPING_2;i < Constants.END_OF_SLEEPING_2;i++) {
+			st = Status.Sleeping
+			dailyRoutine.add(st)
+		}		
 	}
 	
   
@@ -387,35 +266,21 @@ class Person {
    * for the day.
    * @return
    */
-	def fillSick() {
-		
-		
-    // Create auxiliary variables
+	def fillSick() 
+	{
 		Status st
-		
-    // Filling the first period of sleeping
 		for (int i = Constants.START_OF_SLEEPING_1;i < Constants.END_OF_SLEEPING_1;i++) {
-		
 			st = Status.Sleeping
 			dailyRoutine.add(st)
-		
     }
-		
-		// Filling the period of being at house
 		for (int i = Constants.END_OF_SLEEPING_1;i < Constants.START_OF_SLEEPING_2;i++) {
-		
 			st = Status.Sick
 			dailyRoutine.add(st)
 		}
-			
-	  // Filling the second period of sleeping
 		for (int i = Constants.START_OF_SLEEPING_2;i < Constants.END_OF_SLEEPING_2;i++) {
-		
       st = Status.Sleeping
 			dailyRoutine.add(st)
-		
 		}
-		
 	}
 	
   
@@ -424,22 +289,16 @@ class Person {
    * @param vacationAbsence
    * @return
    */
-	def fillWeeklyRoutine(float vacationAbsence) {
-		
-
+	def fillWeeklyRoutine(float vacationAbsence) 
+	{
     // Create auxiliary variable
 		Vector v = new Vector()
-		
     // Fill out each day for the week
 		for (int i = 0;i < Constants.DAYS_OF_WEEK;i++) {
-		
       fillDailyRoutine(i,vacationAbsence)
 			v.add(dailyRoutine)
-					
 	  }
-		
 		return v
-		
 	}
 	
   /** This is the function utilized to show the information regarding
@@ -473,13 +332,12 @@ class Person {
     return randomGen
   }
   
-  
-    static constraints = {
+  static constraints = {
 		
 		name()
 		status()
 		
-    }
+  }
 	
 	static mapping = {
 		sort "name"

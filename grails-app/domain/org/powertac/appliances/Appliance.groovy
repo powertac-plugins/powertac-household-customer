@@ -107,7 +107,8 @@ class Appliance {
    * @param hour
    * @return
    */
-	def getProbability(String season, String day, int hour) {
+	def getProbability(String season, String day, int hour) 
+	{
 
     float pseason = (float) probabilitySeason.get(season);
     float pday = (float) probabilityWeekday.get(day);
@@ -138,7 +139,8 @@ class Appliance {
    * @param saturday
    * @return
    */
-	def fillDay(float sunday, float workingday, float saturday) {
+	def fillDay(float sunday, float workingday, float saturday) 
+	{
 		
 		HashMap hm = new HashMap();
 		hm.put("Saturday", new Float(saturday));
@@ -148,7 +150,6 @@ class Appliance {
 		hm.put("Wednesday", new Float(workingday));
 		hm.put("Thursday", new Float(workingday));
 		hm.put("Friday", new Float(workingday));
-		
     return hm
 				
 	}
@@ -160,13 +161,13 @@ class Appliance {
    * @param transition
    * @return
    */
-	def fillSeason(float summer, float winter, float transition) {
+	def fillSeason(float summer, float winter, float transition) 
+	{
 
      HashMap hm = new HashMap();
      hm.put("Winter", new Float(winter));
      hm.put("Transition", new Float(transition));
      hm.put("Summer", new Float(summer));
-     
      return hm
         
    }
@@ -183,9 +184,8 @@ class Appliance {
    * @return
    */
 
-	def showStatus() {
-		
-						
+	def showStatus() 
+	{	
 		// Printing base variables
 		System.out.println("Name = " + name)
 		System.out.println("Member Of = " + applianceOf.getName())
@@ -201,59 +201,35 @@ class Appliance {
 		Set set = probabilitySeason.entrySet();
 		Iterator it = set.iterator();
 		System.out.println("Probability Season = ")
-		
 		while (it.hasNext()) {
-		
       Map.Entry me = (Map.Entry)it.next();
 			System.out.println(me.getKey() + " : " + me.getValue() );
-		
     }
 		
 		set = probabilityWeekday.entrySet();
 		it = set.iterator();
 		System.out.println("Probability Weekday = ")
-		
 		while (it.hasNext()) {
-		
-			// This is a task.
 			Map.Entry me = (Map.Entry)it.next();
 			System.out.println(me.getKey() + " : " + me.getValue() );
-		
 		}
 		
 		// Printing weekly Operation Vector
 		System.out.println("Weekly Operation Vector = ")
-		
 		for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
-		
 			System.out.println("Day " + (i))
 			ListIterator iter =operationVector.get(i).listIterator();
-
-			for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) {
-		
-				System.out.println("Quarter : " + (j+1) + "  " + iter.next())
-		
-			}
-		
+			for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) System.out.println("Quarter : " + (j+1) + "  " + iter.next())
 		}
 		
     // Printing Weekly Function Vector and Load
 		System.out.println("Weekly Operation Vector and Load = ")
-		
 		for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
-		
 			System.out.println("Day " + (i))
 			ListIterator iter = weeklyOperation.get(i).listIterator();
 			ListIterator iter2 = weeklyLoadVector.get(i).listIterator();
-		
-			for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) {
-		
-        System.out.println("Quarter " + (j+1) + " = " + iter.next() + "   Load = " + iter2.next())
-		
-			}
-		
+			for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) System.out.println("Quarter " + (j+1) + " = " + iter.next() + "   Load = " + iter2.next())
 		}
-
 	}
 	
   /** This function fills out the daily function of an appliance for the day. */
@@ -271,8 +247,9 @@ class Appliance {
   * @return
   */
   private Random ensureRandomSeed ()
-  {
+	{
     String requestClass
+		
     if (randomGen == null) {
       if (this instanceof CirculationPump) requestClass = 'CirculationPump'
       if (this instanceof ConsumerElectronics) requestClass = 'ConsumerElectronics'
@@ -289,9 +266,9 @@ class Appliance {
       if (this instanceof WaterHeater) requestClass = 'WaterHeater'
       long randomSeed = randomSeedService.nextSeed(requestClass, name, 'model')
       randomGen = new Random(randomSeed)
-      //println(requestClass)
     }
-    return randomGen
+		
+		return randomGen
   }
  
   
