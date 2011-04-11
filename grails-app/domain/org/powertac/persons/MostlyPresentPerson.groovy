@@ -42,8 +42,8 @@ class MostlyPresentPerson extends Person {
    * @param publicVacationVector
    * @return
    */
-  def initialize(String AgentName, HashMap hm, Vector publicVacationVector) {
-
+  def initialize(String AgentName, HashMap hm, Vector publicVacationVector) 
+  {
     // Variables Taken from the configuration file
     float sicknessMean = ((float)hm.get("SicknessMean"))
     float sicknessDev = ((float)hm.get("SicknessDev"))
@@ -55,82 +55,50 @@ class MostlyPresentPerson extends Person {
     name = AgentName
     status = Status.Normal
     Random gen = ensureRandomSeed()
-
-    // Filling the sickness and public Vacation Vectors
     sicknessVector = createSicknessVector(sicknessMean, sicknessDev)
     this.publicVacationVector = publicVacationVector
-
-    // Filling the leisure variables
     int x = (int) (gen.nextGaussian() + MPLeisure)
     leisureVector = createLeisureVector(x)
     leisureDuration = (int) (leisureDurationDev * gen.nextGaussian() + leisureDurationMean)
-
   }
 
 
   @ Override
-  def showInfo() {
-
-
+  def showInfo() 
+  {
     // Printing base variables
     System.out.println("Name = " + name)
 
     // Printing Sickness variables
     System.out.println("Sickness Days = ")
     ListIterator iter = sicknessVector.listIterator();
-
-    while (iter.hasNext()) {
-
-      System.out.println(iter.next());
-
-    }
+    while (iter.hasNext()) System.out.println(iter.next());
 
     // Printing Leisure variables
     System.out.println("Leisure Days of Week = ");
     iter = leisureVector.listIterator();
-
-    while (iter.hasNext()) {
-
-      System.out.println(iter.next());
-
-    }
-
+    while (iter.hasNext()) System.out.println(iter.next());		
     System.out.println("Leisure Duration = " + leisureDuration);
 
     // Printing Public Vacation Variables
     System.out.println("Public Vacation of Year = ");
-    iter = publicVacationVector.listIterator();
-
-    while (iter.hasNext()) {
-
-      System.out.println(iter.next());
-
-    }
+    iter = publicVacationVector.listIterator();	
+    while (iter.hasNext()) System.out.println(iter.next());
 
     // Printing Weekly Schedule
     System.out.println("Weekly Routine Length : " + weeklyRoutine.size())
     System.out.println("Weekly Routine : ")
 
-
     for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
-
       System.out.println("Day " + (i))
       iter = weeklyRoutine.get(i).listIterator();
-
-      for (int j =0;j < Constants.QUARTERS_OF_DAY;j++) {
-
-
-        System.out.println("Quarter : " + (j+1) + " Status : " + iter.next())
-
-      }
-
+      for (int j =0;j < Constants.QUARTERS_OF_DAY;j++) System.out.println("Quarter : " + (j+1) + " Status : " + iter.next())	
     }
-
   }
 
-
   @ Override
-  def refresh(HashMap hm) {
+  def refresh(HashMap hm) 
+  {
 
     Random rand = new Random()
 
@@ -139,12 +107,10 @@ class MostlyPresentPerson extends Person {
     float leisureDurationDev = ((int)hm.get("LeisureDurationDev"))
     float MPLeisure = ((int)hm.get("MPLeisure"))
     float vacationAbsence = ((float)hm.get("VacationAbsence"))
-
     int x = (int) (rand.nextGaussian() + MPLeisure)
     leisureDuration = (int) (leisureDurationDev * rand.nextGaussian() + leisureDurationMean)
     leisureVector = createLeisureVector(x)
     weeklyRoutine = fillWeeklyRoutine(vacationAbsence)
-
   }
 
   static constraints = {

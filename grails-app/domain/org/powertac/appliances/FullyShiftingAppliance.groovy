@@ -34,14 +34,9 @@ class FullyShiftingAppliance extends Appliance{
    * 
    * @return
    */
-  def fillWeeklyFunction() {
-
-    for (int i = 0;i < Constants.DAYS_OF_WEEK; i++) {
-
-      fillDailyFunction(i)
-
-    }
-
+  def fillWeeklyFunction() 
+  {
+    for (int i = 0;i < Constants.DAYS_OF_WEEK; i++) fillDailyFunction(i)	
   }
 
   /** This function creates the weekly operation vector after the shifting for each day of the week
@@ -51,11 +46,7 @@ class FullyShiftingAppliance extends Appliance{
    */
   def createWeeklyOperationVector(int times) {
 
-    for (int i = 0;i < Constants.DAYS_OF_WEEK; i++) {
-
-      operationVector.add(createDailyOperationVector(times))
-
-    }
+    for (int i = 0;i < Constants.DAYS_OF_WEEK; i++) operationVector.add(createDailyOperationVector(times))
 
   }
 
@@ -71,22 +62,14 @@ class FullyShiftingAppliance extends Appliance{
     Vector v = new Vector(Constants.QUARTERS_OF_DAY)
 
     // First initialize all to false
-    for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
-
-      v.add(false)
-
-    }
+    for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) v.add(false)
 
     // Then for the times it work add function quarters
-    for (int i = 0;i < times;i++) {
-
+    for (int i = 0;i < times;i++) {   
       int quarter = gen.nextInt(Constants.QUARTERS_OF_DAY)
       v.set(quarter,true)
-
     }
-
     return v
-
   }
 
   static constraints = {

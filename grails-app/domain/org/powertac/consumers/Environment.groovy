@@ -57,45 +57,25 @@ class Environment {
                      * @param days
                      * @return
                      */
-                    def createPublicVacationVector(int days) {
-
+                    def createPublicVacationVector(int days) 
+  {
     // Creating auxiliary variables
     Vector v = new Vector(days)
     Random gen = ensureRandomSeed()
-
-    // For as many days we have vacation
     for (int i = 0; i < days; i++) {
-
-
-      // This is a task.
       int x = gen.nextInt(Constants.DAYS_OF_YEAR)
       ListIterator iter = v.listIterator();
-
-
-      // Filling the vector
       while (iter.hasNext()) {
-
-        // Choose random day
         int temp = (int)iter.next()
-
-        // case the day already is added
         if (x == temp) {
-
           x = x + 1
           iter = v.listIterator();
-
         } 
-
       }
-
       v.add(x)
-
     }
-
-    // Sorting List
     java.util.Collections.sort(v);
-    return v
-
+    return v	
   }
 
   /** This is the initialization function. It uses the variable values for the
@@ -105,18 +85,15 @@ class Environment {
    * @param hash
    * @return
    */
-  def initialize(HashMap hash) {
-
+  def initialize(HashMap hash) 
+  {
     // Initializing basic variables
     setHm(hash)
     int number = (int)hm.get("NumberOfVillages")
     int days = (int)hm.get("PublicVacationDuration")
     setPublicVacationVector(createPublicVacationVector(days))
     float vacationAbsence = (float)hm.get("VacationAbsence")
-
-    // For each village
     for (int i = 1; i < number+1;i++){
-
       def villageInfo = new CustomerInfo(Name: "Village " + i,customerType: CustomerType.CustomerHousehold, powerType: PowerType.CONSUMPTION)
       villageInfo.save()
       def village = new Village(CustomerInfo: villageInfo)					
@@ -126,14 +103,10 @@ class Environment {
       this.addToVillages(village)		
       village.fillAggWeeklyLoad()
       village.showAggWeeklyLoad()
-
     }
-
     System.out.println("End of initialization")
     System.out.println()
-
     this.save()
-
   }
 
   /** This function represents the actions performed by each entity that exists in the 
@@ -141,72 +114,42 @@ class Environment {
    * @param counter
    * @return
    */
-  def step() {
-
+  def step() 
+  {
     // Finding time step
     int counter = ((timeService.currentTime.millis - timeService.start)/3600000) + 1
     int day = (int) (counter / Constants.QUARTERS_OF_DAY)+1
     int quarter = (int) (counter %  Constants.QUARTERS_OF_DAY)
     int week = (int) (day / Constants.DAYS_OF_WEEK)+1
     int weekday = (int) (day % Constants.DAYS_OF_WEEK)
-
-    // This is a task.
     int dayOfWeek
-
-    // case this is the first day of the week, make it sunday
     if (weekday == 0) {
-
-      // This is a task.
       dayOfWeek = Constants.DAYS_OF_WEEK
-
-      // case it is not, leave it as is
     } else  {
-
-      // This is a task.
       dayOfWeek = weekday
-
     }
-
-    // case this is the first quarter make it the last of the previous day
     if (quarter == 0) {
-
       quarter = Constants.QUARTERS_OF_DAY
       dayOfWeek--
       day--
-
     } 
-
-    // For each village
     this.villages.each{
-
       System.out.print("Day: " + day + " Week: " + week + " Weekday: " + dayOfWeek + "  Quarter: " + quarter)
       System.out.println()
       it.step(weekday,quarter)
-
-      // case it is the last quarter of the day
       if (quarter == Constants.QUARTERS_OF_DAY) {
-
-
         System.out.println()
         System.out.println("Summary of Daily Load for day " + day)
-
         it.printDailyLoad(weekday)
-
       }
-
-      // If this is the last quarter of the week
       if (dayOfWeek == (Constants.DAYS_OF_WEEK-1) && quarter == Constants.QUARTERS_OF_DAY) {
-
         System.out.println("Refreshing Village Weekly Load")
         System.out.println()
         it.refresh(hm)
         it.fillAggWeeklyLoad()
         it.showAggWeeklyLoad()
-
       } 
-
     }
-
   }
 
   private Random ensureRandomSeed ()

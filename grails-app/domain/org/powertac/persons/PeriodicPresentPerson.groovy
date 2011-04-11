@@ -40,8 +40,8 @@ class PeriodicPresentPerson extends WorkingPerson {
    * @param publicVacationVector
    * @return
    */
-  def initialize(String AgentName, HashMap hm, Vector publicVacationVector) {
-
+  def initialize(String AgentName, HashMap hm, Vector publicVacationVector) 
+  {
     // Variables Taken from the configuration file
     float sicknessMean = ((float)hm.get("SicknessMean"))
     float sicknessDev = ((float)hm.get("SicknessDev"))
@@ -52,27 +52,22 @@ class PeriodicPresentPerson extends WorkingPerson {
     int workingDurationDev = ((int)hm.get("WorkingDurationDev"))
     int vacationDurationMean = ((int)hm.get("VacationDurationMean"))
     int vacationDurationDev = ((int)hm.get("VacationDurationDev"))
-
     // Filling the main variables
     name = AgentName
     status = Status.Normal
     Random gen = ensureRandomSeed()
-
     // Filling the sickness and public Vacation Vectors
     sicknessVector = createSicknessVector(sicknessMean,sicknessDev)
     this.publicVacationVector = publicVacationVector
-
     // Filling the leisure variables
     int x = (int) (gen.nextGaussian() + PPLeisure)
     leisureVector = createLeisureVector(x)
     leisureDuration = (int) (leisureDurationDev * gen.nextGaussian() + leisureDurationMean)
-
     // Filling Working variables
     workingStartHour = Constants.START_OF_WORK
     int work = workingDaysRandomizer(hm)
     workingDays = createWorkingDaysVector(work)
     workingDuration = (int) (workingDurationDev * gen.nextGaussian() + workingDurationMean)
-
     // Filling Vacation Variables
     vacationDuration = (int) (vacationDurationDev * gen.nextGaussian() + vacationDurationMean)
     vacationVector = createVacationVector(vacationDuration)
@@ -84,8 +79,8 @@ class PeriodicPresentPerson extends WorkingPerson {
    * @param weekday
    * @return
    */
-  def addLeisureWorking(int weekday) {
-
+  def addLeisureWorking(int weekday) 
+  {
 
     // Create auxiliary variables
     ListIterator iter = leisureVector.listIterator();
@@ -94,63 +89,42 @@ class PeriodicPresentPerson extends WorkingPerson {
 
     // Check each day on leisure vector
     while (iter.hasNext()) {
-
-
-      // case current day has leisure activities
       if (iter.next() == weekday) {
-
-        // Check the working hours
         int start = workingStartHour + workingDuration
         int startq = gen.nextInt(Math.max(1 ,75 - start)) + start
-
-        // Start leisure activity afterwards
         for (int i = startq;i < startq +leisureDuration;i++) {
-
           st = Status.Leisure
           dailyRoutine.set(i,st)
           if (i == Constants.QUARTERS_OF_DAY - 1) break
         }
-
       } 
-
     }
-
   }
 
-
   @ Override
-  def fillWork() {
-
-
+  def fillWork() 
+  {
     // Create auxiliary variables
     Status st
-
-    // Fill the working hours
     for (int i = workingStartHour;i < workingStartHour + workingDuration;i++) {
-
       st = Status.Working
       dailyRoutine.set(i,st)
-
     }
-
   }
 
   @ Override
-  void refresh(HashMap hm) {
-
+  void refresh(HashMap hm) 
+  {
     Random gen = ensureRandomSeed()
-
     // Renew Variables
     float leisureDurationMean = ((int)hm.get("LeisureDurationMean"))
     float leisureDurationDev = ((int)hm.get("LeisureDurationDev"))
     float PPLeisure = ((int)hm.get("PPLeisure"))
     float vacationAbsence = ((float)hm.get("VacationAbsence"))
-
     int x = (int) (gen.nextGaussian() + PPLeisure)
     leisureDuration = (int) (leisureDurationDev * gen.nextGaussian() + leisureDurationMean)
     leisureVector = createLeisureVector(x)
     weeklyRoutine = fillWeeklyRoutine(vacationAbsence)
-
   }
 
   static constraints = {

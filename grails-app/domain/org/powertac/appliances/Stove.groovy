@@ -32,33 +32,30 @@ import org.powertac.common.configurations.Constants
 class Stove extends NotShiftingAppliance{
 
   @ Override
-  def initialize(HashMap hm) {
-
+  def initialize(HashMap hm) 
+  {
     // Creating Auxiliary Variables
     Random gen = ensureRandomSeed()
 
     // Filling the base variables
     name = "Stove"
       saturation = (float)hm.get("StoveSaturation")
-
       consumptionShare = (float) (Constants.PERCENTAGE * (Constants.STOVE_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.STOVE_CONSUMPTION_SHARE_MEAN))
       baseLoadShare = Constants.PERCENTAGE * Constants.STOVE_BASE_LOAD_SHARE
       power = (int) (Constants.STOVE_POWER_VARIANCE * gen.nextGaussian() + Constants.STOVE_POWER_MEAN)
       cycleDuration = Constants.STOVE_DURATION_CYCLE
-
       od = false
       inUse = false
       probabilitySeason = fillSeason(Constants.STOVE_POSSIBILITY_SEASON_1,Constants.STOVE_POSSIBILITY_SEASON_2,Constants.STOVE_POSSIBILITY_SEASON_3)
       probabilityWeekday = fillDay(Constants.STOVE_POSSIBILITY_DAY_1,Constants.STOVE_POSSIBILITY_DAY_2,Constants.STOVE_POSSIBILITY_DAY_3)
-
       times = (int)hm.get("StoveDailyTimes")
       createWeeklyOperationVector(times)
-
   }
 
 
   @ Override
-  def createDailyOperationVector(int times) {
+  def createDailyOperationVector(int times) 
+  {
 
     // Creating Auxiliary Variables
     Random rand = new Random()
@@ -66,23 +63,12 @@ class Stove extends NotShiftingAppliance{
     Random gen = ensureRandomSeed()
 
     // First initialize all to false
-    for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
-
-      v.add(false)
-
-    }
-
-
-    // Then for the times it work add function quarters
+    for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) v.add(false)
     for (int i = 0;i < times;i++) {
-
       int quarter = gen.nextInt(Constants.QUARTERS_OF_DAY - 2)
       v.set(quarter,true)
-
     }
-
-    return v
-
+    return v	
   }
 
   @ Override
@@ -95,78 +81,40 @@ class Stove extends NotShiftingAppliance{
 
     // Check all quarters of the day
     for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
-
-      // case the appliance should function on that day
       if (operation.get(i) == true) {
-
-        // Creating auxiliary variable
         boolean flag = true
         int counter = 0
-
-        // Fill the function schedule
         while ((flag) && (i < Constants.QUARTERS_OF_DAY) && (counter >= 0)) {
-
-          // case the house is not empty for the next 45 minutes
           if (applianceOf.isEmpty(i+1) == false && applianceOf.isEmpty(i+2) == false) {
-
             loadVector.add(power)
             dailyOperation.add(true)
             loadVector.add(power)
             dailyOperation.add(true)
-
             counter--
             i = dailyOperation.size() - 1
-
-            // case there are not shifted functions
-            if (counter < 0) {
-
-              flag = false
-
-            } 
-
-            // case the house is empty for the next 45 minutes
+            if (counter < 0) flag = false
           } else  {
-
-            // Set load and operation accordingly
             loadVector.add(0)
             dailyOperation.add(false)
             i++
-
-            // increase the shifting counter
-            if (i < Constants.QUARTERS_OF_DAY && operation.get(i) == true) {
-
-              counter++
-
-            } 
-
+            if (i < Constants.QUARTERS_OF_DAY && operation.get(i) == true) counter++
           }
-
         }
-
-        // case the appliance should function on that day
       } else  {
-
-        // This is a task.
         loadVector.add(0)
         dailyOperation.add(false)
-
       }
-
     }
-
-    // Save the vectors just created
     weeklyLoadVector.add(loadVector)
     weeklyOperation.add(dailyOperation)
-
   }
 
   @ Override
-  def refresh() {
-
+  def refresh() 
+  {
     createWeeklyOperationVector(times)
     fillWeeklyFunction()
     System.out.println("Stove refreshed")
-
   }
 
   static constraints = {

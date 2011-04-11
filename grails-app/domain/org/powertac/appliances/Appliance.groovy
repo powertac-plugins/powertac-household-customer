@@ -16,12 +16,11 @@
 
 package org.powertac.appliances
 
-import java.util.HashMap
-import java.util.Random
-import java.util.Vector
-
-import org.powertac.common.configurations.Constants
+import java.util.HashMap;
+import java.util.Random;
+import java.util.Vector;
 import org.powertac.consumers.*
+import org.powertac.common.configurations.Constants
 
 /**
  * A appliance domain instance represents a single appliance inside a household. There
@@ -93,14 +92,13 @@ class Appliance {
 
   static belongsTo = [applianceOf:Household]
 
-  /** This function is used to create the operation vector of the appliance for the week
-   * taking into consideration the times that this appliance has to function.
-   * @param times
-   * @return
-   */
+                      /** This function is used to create the operation vector of the appliance for the week
+                       * taking into consideration the times that this appliance has to function.
+                       * @param times
+                       * @return
+                       */
 
-  def createOperationVector(int times) {
-  }
+                      def createOperationVector(int times) {}
 
   /** This function takes into consideration the year season, the weekday and the
    * hour of day and returns the possibility for an appliance to be functioning.
@@ -109,20 +107,21 @@ class Appliance {
    * @param hour
    * @return
    */
-  def getProbability(String season, String day, int hour) {
+  def getProbability(String season, String day, int hour) 
+  {
 
     float pseason = (float) probabilitySeason.get(season);
     float pday = (float) probabilityWeekday.get(day);
     float phour = (float) probabilityDaytime.get(hour);
     return pseason * pday * phour
+
   }
 
   /** This is the initialization function. It uses the variable values for the
    * configuration file to create the appliance as it should for this type.
    * @return
    */
-  def initialize() {
-  }
+  def initialize() {}
 
   /** This is a complex function that changes the appliance's function
    * in order to save energy and money. There is no implementation ready
@@ -130,8 +129,7 @@ class Appliance {
    * @param v
    * @return
    */
-  def shiftingOperation(Vector v) {
-  }
+  def shiftingOperation(Vector v) {}
 
 
   /** This is the filling function of the HashMap for the Days of the Week possibilities.
@@ -141,7 +139,8 @@ class Appliance {
    * @param saturday
    * @return
    */
-  def fillDay(float sunday, float workingday, float saturday) {
+  def fillDay(float sunday, float workingday, float saturday) 
+  {
 
     HashMap hm = new HashMap();
     hm.put("Saturday", new Float(saturday));
@@ -151,8 +150,8 @@ class Appliance {
     hm.put("Wednesday", new Float(workingday));
     hm.put("Thursday", new Float(workingday));
     hm.put("Friday", new Float(workingday));
-
     return hm
+
   }
 
   /** This is the filling function of the HashMap for the Seasons of the year possibilities.
@@ -162,22 +161,22 @@ class Appliance {
    * @param transition
    * @return
    */
-  def fillSeason(float summer, float winter, float transition) {
+  def fillSeason(float summer, float winter, float transition) 
+  {
 
     HashMap hm = new HashMap();
     hm.put("Winter", new Float(winter));
     hm.put("Transition", new Float(transition));
     hm.put("Summer", new Float(summer));
-
     return hm
+
   }
 
   /** This is the filling function of the HashMap for the Hours of the Day possibilities.
    * 
    * @return
    */
-  def fillHour() {
-  }
+  def fillHour() {}
 
 
   /** This is the function utilized to show the information regarding
@@ -185,9 +184,8 @@ class Appliance {
    * @return
    */
 
-  def showStatus() {
-
-
+  def showStatus() 
+  {	
     // Printing base variables
     System.out.println("Name = " + name)
     System.out.println("Member Of = " + applianceOf.getName())
@@ -203,9 +201,7 @@ class Appliance {
     Set set = probabilitySeason.entrySet();
     Iterator it = set.iterator();
     System.out.println("Probability Season = ")
-
     while (it.hasNext()) {
-
       Map.Entry me = (Map.Entry)it.next();
       System.out.println(me.getKey() + " : " + me.getValue() );
     }
@@ -213,81 +209,65 @@ class Appliance {
     set = probabilityWeekday.entrySet();
     it = set.iterator();
     System.out.println("Probability Weekday = ")
-
     while (it.hasNext()) {
-
-      // This is a task.
       Map.Entry me = (Map.Entry)it.next();
       System.out.println(me.getKey() + " : " + me.getValue() );
-
     }
 
     // Printing weekly Operation Vector
     System.out.println("Weekly Operation Vector = ")
-
     for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
-
       System.out.println("Day " + (i))
       ListIterator iter =operationVector.get(i).listIterator();
-
-      for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) {
-
-        System.out.println("Quarter : " + (j+1) + "  " + iter.next())
-      }
+      for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) System.out.println("Quarter : " + (j+1) + "  " + iter.next())
     }
 
     // Printing Weekly Function Vector and Load
     System.out.println("Weekly Operation Vector and Load = ")
-
     for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
-
       System.out.println("Day " + (i))
       ListIterator iter = weeklyOperation.get(i).listIterator();
       ListIterator iter2 = weeklyLoadVector.get(i).listIterator();
-
-      for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) {
-
-        System.out.println("Quarter " + (j+1) + " = " + iter.next() + "   Load = " + iter2.next())
-      }
+      for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) System.out.println("Quarter " + (j+1) + " = " + iter.next() + "   Load = " + iter2.next())
     }
   }
 
   /** This function fills out the daily function of an appliance for the day. */
-  def fillDailyFunction() {
-  }
+  def fillDailyFunction() {}
 
   /** At the end of each week the appliance models refresh their schedule. This way
    * we have a realistic and dynamic model, changing function hours, consuming power
    * and so on.
    * @return
    */
-  def refresh() {
-  }
+  def refresh() {}
 
   /** Random Number Creator Initializer.
    *
    * @return
    */
-  private Random ensureRandomSeed () {
+  private Random ensureRandomSeed ()
+  {
     String requestClass
+
     if (randomGen == null) {
       if (this instanceof CirculationPump) requestClass = 'CirculationPump'
-      if (this instanceof ConsumerElectronics) requestClass = 'ConsumerElectronics'
-      if (this instanceof Dishwasher) requestClass = 'Dishwasher'
-      if (this instanceof Dryer) requestClass = 'Dryer'
-      if (this instanceof Freezer) requestClass = 'Freezer'
-      if (this instanceof ICT) requestClass = 'ICT'
-      if (this instanceof Lights) requestClass = 'Lights'
-      if (this instanceof Others) requestClass = 'Others'
-      if (this instanceof Refrigerator) requestClass = 'Refrigerator'
-      if (this instanceof SpaceHeater) requestClass = 'SpaceHeater'
-      if (this instanceof Stove) requestClass = 'Stove'
-      if (this instanceof WashingMachine) requestClass = 'WashingMachine'
-      if (this instanceof WaterHeater) requestClass = 'WaterHeater'
-      long randomSeed = randomSeedService.nextSeed(requestClass, name, 'model')
-      randomGen = new Random(randomSeed)
-      //println(requestClass)
+        if (this instanceof ConsumerElectronics) requestClass = 'ConsumerElectronics'
+          if (this instanceof Dishwasher) requestClass = 'Dishwasher'
+            if (this instanceof Dryer) requestClass = 'Dryer'
+              if (this instanceof Freezer) requestClass = 'Freezer'
+                if (this instanceof ICT) requestClass = 'ICT'
+                  if (this instanceof Lights) requestClass = 'Lights'
+                    if (this instanceof Others) requestClass = 'Others'
+                      if (this instanceof Refrigerator) requestClass = 'Refrigerator'
+                        if (this instanceof SpaceHeater) requestClass = 'SpaceHeater'
+                          if (this instanceof Stove) requestClass = 'Stove'
+                            if (this instanceof WashingMachine) requestClass = 'WashingMachine'
+                              if (this instanceof WaterHeater) requestClass = 'WaterHeater'
+                                long randomSeed = randomSeedService.nextSeed(requestClass, name, 'model')
+                                randomGen = new Random(randomSeed)
     }
+
     return randomGen
   }
 
@@ -300,11 +280,15 @@ class Appliance {
     cycleDuration()
     inUse()
     randomGen(nullable:true)
+
   }
 
-  static mapping = { sort "name" }
+  static mapping = {
+    sort "name"
+  }
 
   String toString(){
     "${name}, ${Household} (${inUse})"
   }
+
 }

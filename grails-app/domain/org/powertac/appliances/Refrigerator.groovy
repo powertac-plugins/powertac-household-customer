@@ -32,69 +32,52 @@ import org.powertac.common.configurations.Constants
 class Refrigerator extends FullyShiftingAppliance {
 
   @ Override
-  def initialize(HashMap hm) {
-
+  def initialize(HashMap hm) 
+  {
     // Creating Auxiliary Variables
     Random gen = ensureRandomSeed()
 
     // Filling the base variables
     name = "Refrigerator"
       saturation =  (float)hm.get("RefrigeratorSaturation")
-
       consumptionShare = (float) (Constants.PERCENTAGE * (Constants.REFRIDGERATOR_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.REFRIDGERATOR_CONSUMPTION_SHARE_MEAN))
       baseLoadShare = Constants.PERCENTAGE * Constants.REFRIDGERATOR_BASE_LOAD_SHARE
       power = (int) (Constants.REFRIDGERATOR_POWER_VARIANCE * gen.nextGaussian() + Constants.REFRIDGERATOR_POWER_MEAN)
       cycleDuration = Constants.REFRIDGERATOR_DURATION_CYCLE
-
       od = false
       inUse = false
       probabilitySeason = fillSeason(Constants.REFRIDGERATOR_POSSIBILITY_SEASON_1,Constants.REFRIDGERATOR_POSSIBILITY_SEASON_2,Constants.REFRIDGERATOR_POSSIBILITY_SEASON_3)
       probabilityWeekday = fillDay(Constants.REFRIDGERATOR_POSSIBILITY_DAY_1,Constants.REFRIDGERATOR_POSSIBILITY_DAY_2,Constants.REFRIDGERATOR_POSSIBILITY_DAY_3)
-
   }
 
   @ Override
-  def fillDailyFunction(int weekday) {
-
+  def fillDailyFunction(int weekday) 
+  {
     // Initializing Variables
     loadVector = new Vector()
     dailyOperation = new Vector()
     Random gen = ensureRandomSeed()
     int k = 0;
-
     if (gen.nextFloat() > 0.5) k = 1
-
     for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
-
-      // Working the half quarters of a day
       if (i+k % 2 == 0) {
-
-        // This is a task.
         loadVector.add(power)
         dailyOperation.add(true)
-
       } else  {
-
         loadVector.add(0)
         dailyOperation.add(false)
-
       }
-
     }
-
-    // Save the vectors just created
     weeklyLoadVector.add(loadVector)
     weeklyOperation.add(dailyOperation)
     operationVector.add(dailyOperation)
-
   }
 
   @ Override
-  def refresh() {
-
+  def refresh() 
+  {
     fillWeeklyFunction()
     System.out.println("Refridgerator refreshed")
-
   }
 
   static constraints = {
