@@ -29,8 +29,7 @@ import org.powertac.common.configurations.Constants
 * @version 1, 13/02/2011
 */
 
-class CirculationPump extends NotShiftingAppliance 
-{
+class CirculationPump extends NotShiftingAppliance {
 
   /** Variable that presents the mean possibility to utilize the appliance each hour of the day 
    * that someone is present in the housesold.
@@ -39,8 +38,7 @@ class CirculationPump extends NotShiftingAppliance
 	
   
   @ Override
-	def initialize(HashMap hm) 
-	{
+	def initialize(HashMap hm) {
 		
     // Creating Auxiliary Variables
     Random gen = ensureRandomSeed()
@@ -49,10 +47,12 @@ class CirculationPump extends NotShiftingAppliance
 		name = "CirculationPump"
 		saturation = (float)hm.get("CirculationPumpSaturation")
 		percentage = ((float)hm.get("CirculationPumpPercentage"))
+		    
 		consumptionShare = (float) (Constants.PERCENTAGE * (Constants.CIRCULATION_PUMP_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.CIRCULATION_PUMP_CONSUMPTION_SHARE_MEAN))
 		baseLoadShare = Constants.PERCENTAGE * Constants.CIRCULATION_PUMP_BASE_LOAD_SHARE
 		power = (int) (Constants.CIRCULATION_PUMP_POWER_VARIANCE * gen.nextGaussian() + Constants.CIRCULATION_PUMP_POWER_MEAN)
 		cycleDuration = Constants.CIRCULATION_PUMP_DURATION_CYCLE
+
 		od = false
 		inUse = false
 		probabilitySeason = fillSeason(Constants.CIRCULATION_PUMP_POSSIBILITY_SEASON_1,Constants.CIRCULATION_PUMP_POSSIBILITY_SEASON_2,Constants.CIRCULATION_PUMP_POSSIBILITY_SEASON_3)
@@ -61,8 +61,7 @@ class CirculationPump extends NotShiftingAppliance
 	}
 	
   @ Override
-	def fillDailyFunction(int weekday) 
-	{
+	def fillDailyFunction(int weekday) {
 		
 		// Initializing and Creating auxiliary variables
 		loadVector = new Vector()
@@ -72,16 +71,26 @@ class CirculationPump extends NotShiftingAppliance
     
 		// For each quarter of a day
 		for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
+		
+      // case someone is at household and using the circulation pump
 			if (applianceOf.isEmpty(i+1) == false && (gen.nextFloat() > percentage)) {
+		
 				loadVector.add(power)
 				dailyOperation.add(true)
 				v.add(true)
+		
+      // case household empty or not using the pump
 			} else  {
+		
+				// This is a task.
 				loadVector.add(0)
 				dailyOperation.add(false)
 				v.add(false)
+		
 			}
+		
 		}
+		
 		weeklyLoadVector.add(loadVector)
 		weeklyOperation.add(dailyOperation)
 		operationVector.add(v)
@@ -89,10 +98,11 @@ class CirculationPump extends NotShiftingAppliance
 	}
 	
   @ Override
-	def refresh() 
-	{
+	def refresh() {
+		
 		fillWeeklyFunction()
 		System.out.println("Circulation Pump refreshed")
+	
 	}
 	
 	

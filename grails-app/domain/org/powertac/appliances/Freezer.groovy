@@ -33,52 +33,69 @@ import org.powertac.common.configurations.Constants
 class Freezer extends FullyShiftingAppliance{
 
 	@ Override
-	def initialize(HashMap hm) 
-	{
+	def initialize(HashMap hm) {
+		
 		// Creating Auxiliary Variables
 		Random gen = ensureRandomSeed()
 		
 		// Filling the base variables
 		name = "Freezer"
 		saturation = (float)hm.get("FreezerSaturation")
+
 		consumptionShare = (float) (Constants.PERCENTAGE * (Constants.FREEZER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.FREEZER_CONSUMPTION_SHARE_MEAN))
     baseLoadShare = Constants.PERCENTAGE * Constants.FREEZER_BASE_LOAD_SHARE
     power = (int) (Constants.FREEZER_POWER_VARIANCE * gen.nextGaussian() + Constants.FREEZER_POWER_MEAN)
     cycleDuration = Constants.FREEZER_DURATION_CYCLE
+
     od = false
     inUse = false
     probabilitySeason = fillSeason(Constants.FREEZER_POSSIBILITY_SEASON_1,Constants.FREEZER_POSSIBILITY_SEASON_2,Constants.FREEZER_POSSIBILITY_SEASON_3)
     probabilityWeekday = fillDay(Constants.FREEZER_POSSIBILITY_DAY_1,Constants.FREEZER_POSSIBILITY_DAY_2,Constants.FREEZER_POSSIBILITY_DAY_3)
+    
 	}
 	
 	@ Override
-	def fillDailyFunction(int weekday) 
-	{
+	def fillDailyFunction(int weekday) {
+		
 		// Initializing Variables
 		loadVector = new Vector()
 		dailyOperation = new Vector()
     Random gen = ensureRandomSeed()
 		int k = 0;
+    
     if (gen.nextFloat() > 0.5) k = 1
+    
 		for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
+		    
+			// Working the half quarters of a day
 			if (i+k % 2 == 0) {
+		
+				// This is a task.
 				loadVector.add(power)
 				dailyOperation.add(true)
+		
 			} else  {
+		
 				loadVector.add(0)
 				dailyOperation.add(false)
+		
 			}
+		
 		}
+		
+		// Save the vectors just created
 		weeklyLoadVector.add(loadVector)
 		weeklyOperation.add(dailyOperation)
 		operationVector.add(dailyOperation)
+		
 	}
 	
 	@ Override
-	def refresh() 
-	{
+	def refresh() {
+
 		fillWeeklyFunction()
 		System.out.println("Freezer refreshed")
+		
 	}
 	
   static constraints = {

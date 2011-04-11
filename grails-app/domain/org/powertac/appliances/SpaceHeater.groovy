@@ -37,8 +37,7 @@ class SpaceHeater extends FullyShiftingAppliance{
 	float percentage
 	
 	@ Override
-	def initialize(HashMap hm) 
-	{
+	def initialize(HashMap hm) {
 		
 		// Creating Auxiliary Variables
 		Random gen = ensureRandomSeed()
@@ -47,14 +46,18 @@ class SpaceHeater extends FullyShiftingAppliance{
 		name = "SpaceHeater"
 		saturation = (float)hm.get("SpaceHeaterSaturation")
 		float percentage = (float)hm.get("SpaceHeaterPercentage")
+		
 		consumptionShare = (float) (Constants.PERCENTAGE * (Constants.SPACE_HEATER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.SPACE_HEATER_CONSUMPTION_SHARE_MEAN))
     baseLoadShare = Constants.PERCENTAGE * Constants.SPACE_HEATER_BASE_LOAD_SHARE
     power = (int) (Constants.SPACE_HEATER_POWER_VARIANCE * gen.nextGaussian() + Constants.SPACE_HEATER_POWER_MEAN)
     cycleDuration = Constants.SPACE_HEATER_DURATION_CYCLE
+
     od = false
     inUse = false
     probabilitySeason = fillSeason(Constants.SPACE_HEATER_POSSIBILITY_SEASON_1,Constants.SPACE_HEATER_POSSIBILITY_SEASON_2,Constants.SPACE_HEATER_POSSIBILITY_SEASON_3)
     probabilityWeekday = fillDay(Constants.SPACE_HEATER_POSSIBILITY_DAY_1,Constants.SPACE_HEATER_POSSIBILITY_DAY_2,Constants.SPACE_HEATER_POSSIBILITY_DAY_3)
+
+		
 	}
 	
 	@ Override
@@ -64,35 +67,95 @@ class SpaceHeater extends FullyShiftingAppliance{
 		loadVector = new Vector()
 		dailyOperation = new Vector()
 		Random gen = ensureRandomSeed()
+		
+		// case the tenants are on Vacation or not in use today
 		if (applianceOf.isOnVacation(1) || gen.nextFloat() > percentage) {
+		
+		
+			// Initialize all quarters
 			for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
+		
 				loadVector.add(0)
 				dailyOperation.add(false)
+		
 			}
+		
 			weeklyLoadVector.add(loadVector)
 			weeklyOperation.add(dailyOperation)
 			operationVector.add(dailyOperation)
+		
+		// case in use today
 		} else  {
+		
+		
+			// This is a loop.
 			for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
+		
+				// This is a task.
 				loadVector.add(0)
 				dailyOperation.add(true)
+		
 		  }
-			for (int i = 0;i < Constants.SPACE_HEATER_PHASE_1;i++) loadVector.set(i,power)
-			for (int i = Constants.SPACE_HEATER_PHASE_1;i < Constants.SPACE_HEATER_PHASE_2;i++) loadVector.set(i,power - Constants.SPACE_HEATER_PHASE_LOAD * (i - Constants.SPACE_HEATER_PHASE_4 - 1))
-			for (int i = Constants.SPACE_HEATER_PHASE_2;i < Constants.SPACE_HEATER_PHASE_3; i++) loadVector.set(i,power - Constants.SPACE_HEATER_PHASE_LOAD * (Constants.SPACE_HEATER_PHASE_4 - 1))
-			for (int i=Constants.SPACE_HEATER_PHASE_3;i < Constants.SPACE_HEATER_PHASE_4;i++) loadVector.set(i, power - 2 * Constants.SPACE_HEATER_PHASE_LOAD*(Constants.SPACE_HEATER_PHASE_4 - 1 - i))
-			for (int i= Constants.SPACE_HEATER_PHASE_4;i < Constants.QUARTERS_OF_DAY;i++) loadVector.set(i,power)
+		
+			// This is a loop.
+			for (int i = 0;i < Constants.SPACE_HEATER_PHASE_1;i++) {
+		
+				// This is a task.
+				loadVector.set(i,power)
+		
+			}
+		
+		
+			// This is a loop.
+			for (int i = Constants.SPACE_HEATER_PHASE_1;i < Constants.SPACE_HEATER_PHASE_2;i++) {
+		
+				// This is a task.
+				loadVector.set(i,power - Constants.SPACE_HEATER_PHASE_LOAD * (i - Constants.SPACE_HEATER_PHASE_4 - 1))
+		
+			}
+		
+		
+			// This is a loop.
+			for (int i = Constants.SPACE_HEATER_PHASE_2;i < Constants.SPACE_HEATER_PHASE_3; i++) {
+		
+				// This is a task.
+				loadVector.set(i,power - Constants.SPACE_HEATER_PHASE_LOAD * (Constants.SPACE_HEATER_PHASE_4 - 1))
+		
+			}
+		
+		
+			// This is a loop.
+			for (int i=Constants.SPACE_HEATER_PHASE_3;i < Constants.SPACE_HEATER_PHASE_4;i++) {
+		
+					// This is a task.
+					loadVector.set(i, power - 2 * Constants.SPACE_HEATER_PHASE_LOAD*(Constants.SPACE_HEATER_PHASE_4 - 1 - i))
+		
+			}
+		
+		
+			// This is a loop.
+			for (int i= Constants.SPACE_HEATER_PHASE_4;i < Constants.QUARTERS_OF_DAY;i++) {
+		
+				// This is a task.
+				loadVector.set(i,power)
+		
+			}
+		
+			// This is a task.
 			weeklyLoadVector.add(loadVector)
 			weeklyOperation.add(dailyOperation)
 			operationVector.add(dailyOperation)
+		
 		}
+		
 	}
 	
 	@ Override
-	def refresh() 
-	{
+	def refresh() {
+		
 		fillWeeklyFunction()
 		System.out.println("Space Heater refreshed")
+		
 	}
 	
   static constraints = {

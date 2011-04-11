@@ -40,14 +40,25 @@ class NotShiftingAppliance extends Appliance {
     // Creating Auxiliary Variables
     Random gen = ensureRandomSeed()
     Vector v = new Vector(Constants.QUARTERS_OF_DAY)
-    for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) v.add(false)
+
+    // First initialize all to false
+    for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
+
+      v.add(false)
+
+    }
+
 
     // Then for the times it work add function quarters
     for (int i = 0;i < times;i++) {
+
       int quarter = gen.nextInt(Constants.QUARTERS_OF_DAY)
       v.set(quarter,true)
+
     }
+
     return v
+        
   }
 	
   
@@ -56,18 +67,31 @@ class NotShiftingAppliance extends Appliance {
    * @param times
    * @return
    */
-	def createWeeklyOperationVector(int times) 
-	{
-    for (int i = 0;i < Constants.DAYS_OF_WEEK; i++) operationVector.add(createDailyOperationVector(times))
+	def createWeeklyOperationVector(int times) {
+
+
+    // This is a loop.
+    for (int i = 0;i < Constants.DAYS_OF_WEEK; i++) {
+
+      // This is a task.
+      operationVector.add(createDailyOperationVector(times))
+
+     }
+
   }
 	
   /** This function fills out all the days of the appliance functions for each day of the week.
    * 
    * @return
    */
-	def fillWeeklyFunction() 
-	{
-		for (int i = 0;i < Constants.DAYS_OF_WEEK; i++) fillDailyFunction(i)	
+	def fillWeeklyFunction() {
+		
+		for (int i = 0;i < Constants.DAYS_OF_WEEK; i++) {
+		
+      fillDailyFunction(i)
+		
+		}
+		
 	}
 	
 	

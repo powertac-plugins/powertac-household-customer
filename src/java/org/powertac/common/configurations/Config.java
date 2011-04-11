@@ -52,27 +52,34 @@ public class Config {
 		this.findVariable("PublicVacationDuration");
 		this.findVariable("NumberOfHouses");
 		this.findVariable("NumberOfVillages");
+		
 		this.findVariable("OnePersonConsumption");
 		this.findVariable("TwoPersonsConsumption");
 		this.findVariable("ThreePersonsConsumption");
 		this.findVariable("FourPersonsConsumption");
 		this.findVariable("FivePersonsConsumption");
+		
 		this.findVariable("OnePerson");
 		this.findVariable("TwoPersons");
 		this.findVariable("ThreePersons");
 		this.findVariable("FourPersons");
 		this.findVariable("FivePersons");
+		
 		this.findVariable("PeriodicPresent");
 		this.findVariable("MostlyPresent");
 		this.findVariable("RandomlyAbsent");
+		
 		this.findVariable("SicknessMean");
 		this.findVariable("SicknessDev");
+		
 		this.findVariable("PPLeisure");
 		this.findVariable("MPLeisure");
 		this.findVariable("RALeisure");
 		this.findVariable("LeisureDev");
+		
 		this.findVariable("LeisureDurationMean");
 		this.findVariable("LeisureDurationDev");
+		
 		this.findVariable("OneDay");
 		this.findVariable("TwoDays");
 		this.findVariable("ThreeDays");
@@ -80,34 +87,49 @@ public class Config {
 		this.findVariable("FiveDays");
 		this.findVariable("SixDays");
 		this.findVariable("SevenDays");
+		
 		this.findVariable("WorkingDurationMean");
 		this.findVariable("WorkingDurationDev");
+		
 		this.findVariable("VacationDurationMean");
 		this.findVariable("VacationDurationDev");
 		this.findVariable("VacationAbsence");
+		
 		this.findVariable("RefrigeratorSaturation");
+		
 		this.findVariable("FreezerSaturation");
+		
 		this.findVariable("DishwasherSaturation");
 		this.findVariable("DishwasherWeeklyTimes");
+		
 		this.findVariable("StoveSaturation");
 		this.findVariable("StoveDailyTimes");
+
 		this.findVariable("WashingMachineSaturation");
 		this.findVariable("WashingMachineWeeklyTimes");
+
 		this.findVariable("DryerSaturation");
 		this.findVariable("DryerWeeklyTimes");
+
 		this.findVariable("ConsumerElectronicsSaturation");
 		this.findVariable("ConsumerElectronicsDailyTimes");
+
 		this.findVariable("ICTSaturation");
 		this.findVariable("ICTDailyTimes");
+
 		this.findVariable("WaterHeaterSaturation");
 		this.findVariable("InstantHeater");
 		this.findVariable("StorageHeater");
 		this.findVariable("InstantHeaterDailyTimes");
+
 		this.findVariable("CirculationPumpSaturation");
 		this.findVariable("CirculationPumpPercentage");
+
 		this.findVariable("SpaceHeaterSaturation");
 		this.findVariable("SpaceHeaterPercentage");
+		
 		this.findVariable("LightsDailyTimes");
+		
 		this.findVariable("OthersDailyTimes");
 		
 		fileScanner.close();
@@ -126,18 +148,27 @@ public class Config {
 		String test3 = "";
 		
 		// Loop through each line of the configuration file
-		while (fileScanner.hasNext()){			
+		while (fileScanner.hasNext()){
+			
 			test1 = fileScanner.next();
+			
+			// Case we found the correct variable
 			if (test1.equals(str)) {
+				
 				test2 = fileScanner.next();
 				test3 = fileScanner.next();
-				variablesHashMap.put(str, new Float(test3));	
+				variablesHashMap.put(str, new Float(test3));
+						
 				break;
 			}
 		}
 		
 		// Case we didn't find the variable in the file
-		if (test3.equals("")) System.out.println("Variable " + str + " not found in file");
+		if (test3.equals("")) {
+			
+		  System.out.println("Variable " + str + " not found in file");
+		
+		}
 		
 	}
 	
@@ -150,7 +181,10 @@ public class Config {
 		
 		Set set = variablesHashMap.entrySet();
 		Iterator it = set.iterator();
+		
 		while (it.hasNext()) {
+
+		  // This is a task.
       Map.Entry me = (Map.Entry)it.next();
       System.out.println(me.getKey() + " : " + me.getValue() );
 

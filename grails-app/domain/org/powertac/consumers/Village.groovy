@@ -60,16 +60,20 @@ class Village extends AbstractCustomer{
 	 * @param publicVacationVector
 	 */
   
-	void initialize(HashMap hm, Vector publicVacationVector)
-	{
+	void initialize(HashMap hm, Vector publicVacationVector){
+		
     // Initializeing variables
 		int houses = (int)hm.get("NumberOfHouses")
 		setNumberOfHouses(houses)	
+	
+    // For each household we create it and add it to the village
 		for (i in 0..houses-1) {
+				
 				System.out.println("Initializing House " + i)
 				def hh = new Household()
 				this.addToHouses(hh)
 				hh.initialize("House" + i,hm, publicVacationVector)
+			
 		}
 
 	}
@@ -79,51 +83,79 @@ class Village extends AbstractCustomer{
   * 
   * @return
   */
-	def fillAggWeeklyLoad() 
-	{
+	def fillAggWeeklyLoad() {
+		
 		for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
+		
 			setAggDailyLoad(fillAggDailyLoad(i))
 			aggWeeklyLoad.add(aggDailyLoad)
 			setAggDailyLoadInHours(fillAggDailyLoadInHours())
 			aggWeeklyLoadInHours.add(aggDailyLoadInHours)
+				
 		}
+		
 	}
 	
   /** This function is used in order to print the aggregated load of the village households.
    * 
    * @return
    */
-	def showAggWeeklyLoad() 
-	{
+	def showAggWeeklyLoad() {
+
     for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
+
       System.out.println("Day " + (i))
       ListIterator iter = aggWeeklyLoad.get(i).listIterator();
-      for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) System.out.println("Quarter : " + (j+1) + " Load : " + iter.next())
+
+      for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) {
+
+        System.out.println("Quarter : " + (j+1) + " Load : " + iter.next())
+
+      }
+
    }
+
    for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
+
+
      System.out.println("Day " + (i))
      ListIterator iter = aggWeeklyLoadInHours.get(i).listIterator();
-     for (int j = 0;j < Constants.HOURS_OF_DAY; j++) System.out.println("Hour : " + (j+1) + " Load : " + iter.next())
+           
+
+     for (int j = 0;j < Constants.HOURS_OF_DAY; j++) {
+
+			 // This is a task.
+			 System.out.println("Hour : " + (j+1) + " Load : " + iter.next())
+
+     }
+	 	
 	 }
+	 
 	}
 	
   @ Override
-	void consumePower()
-	{
+	void consumePower(){
+		
     // Checking the time in the competition.
 		int serial = ((timeService.currentTime.millis - timeService.start)/3600000) + 1
 		
 		int day = (int) (serial / Constants.QUARTERS_OF_DAY)+1
 		int hour = (int) (serial % Constants.QUARTERS_OF_DAY)
 		int weekday = (int) (day % Constants.DAYS_OF_WEEK)
+
     println(serial + " " + hour + " " + weekday)
+		
+    // Find the current aggregated load
 		double ran = this.aggWeeklyLoadInHours.get(weekday).getAt(hour)
 		
     // For each subscription 
 		subscriptions.each {
+			
 				println(ran);
 				it.usePower(ran)
+			
 		}
+
 	}
 	
   /** This function is used in order to fill the aggregated daily Load of the village
@@ -131,16 +163,28 @@ class Village extends AbstractCustomer{
    * @param weekday
    * @return
    */
-	def fillAggDailyLoad(int weekday) 
-	{
+	def fillAggDailyLoad(int weekday) {
+
     // Creating auxiliary variables
     Vector v = new Vector(Constants.QUARTERS_OF_DAY)
     int sum = 0
+
+    // For each quarter of the day
     for (int i = 0;i < Constants.QUARTERS_OF_DAY; i++) {
+
       sum = 0 
-      this.houses.each sum = sum + it.weeklyLoad.get(weekday).get(i)
+
+      // Summarizing the load of all the households of the village
+      this.houses.each {
+
+        sum = sum + it.weeklyLoad.get(weekday).get(i)
+				
+      }
+
       v.add(sum)
+
     }
+
     return v
 	}
 	
@@ -148,17 +192,24 @@ class Village extends AbstractCustomer{
    * for each hour.
    * @return
    */
-	def fillAggDailyLoadInHours() 
-	{
+	def fillAggDailyLoadInHours() {
+
 		// Creating auxiliary variables
     Vector v = new Vector()
     int sum = 0
+
+    // Aggregating the quarters in hours
     for (int i = 0;i < Constants.HOURS_OF_DAY; i++) {
+
+      // This is a task.
       sum = 0 
       sum = aggDailyLoad.get(i*Constants.QUARTERS_OF_HOUR) + aggDailyLoad.get(i*Constants.QUARTERS_OF_HOUR +1) + aggDailyLoad.get(i*Constants.QUARTERS_OF_HOUR+2) + aggDailyLoad.get(i*Constants.QUARTERS_OF_HOUR+3)
       v.add(sum)
+
     }
+
     return v
+   
   }
 	
   /** At the end of each week the village households' models refresh their schedule. 
@@ -167,9 +218,15 @@ class Village extends AbstractCustomer{
    * @param hm
    * @return
    */
-	def refresh(HashMap hm) 
-	{
-		this.houses.each it.refresh(hm)
+	def refresh(HashMap hm) {
+		
+		// For each household of the village
+		this.houses.each {
+		
+			it.refresh(hm)
+		
+		}
+		
 	}
 	
   /** This function prints to the screen the daily load of the village's households for the
@@ -177,9 +234,15 @@ class Village extends AbstractCustomer{
   * @param weekday
   * @return
   */
-	def printDailyLoad(int weekday) 
-	{
-		this.houses.each it.printDailyLoad(weekday)		
+	def printDailyLoad(int weekday) {
+		
+		// For each household of the village
+		this.houses.each {
+		
+			it.printDailyLoad(weekday)
+		
+		}
+		
 	}
 	
   /** This function represents the function that shows the status of all the households
@@ -188,9 +251,15 @@ class Village extends AbstractCustomer{
    * @param quarter
    * @return
    */
-	def step(int weekday, int quarter) 
-	{
-		this.houses.each it.step(weekday,quarter)
+	def step(int weekday, int quarter) {
+		
+		// For each household of the village
+		this.houses.each {
+		
+			it.step(weekday,quarter)
+		
+		}
+		
 	}
 	
 	static auditable = true

@@ -32,12 +32,11 @@ import org.powertac.common.configurations.Constants
 class ConsumerElectronics extends NotShiftingAppliance {
 
   @ Override
-	def initialize(HashMap hm) 
-	{
+	def initialize(HashMap hm) {
 		
     // Creating Auxiliary Variables
     Random gen = ensureRandomSeed()
- 
+    
     // Filling the base variables
     name = "ConsumerElectronics"
     saturation = (float)hm.get("ConsumerElectronicsSaturation")
@@ -51,12 +50,13 @@ class ConsumerElectronics extends NotShiftingAppliance {
     inUse = false
     probabilitySeason = fillSeason(Constants.CONSUMER_ELECTRONICS_POSSIBILITY_SEASON_1,Constants.CONSUMER_ELECTRONICS_POSSIBILITY_SEASON_2,Constants.CONSUMER_ELECTRONICS_POSSIBILITY_SEASON_3)
     probabilityWeekday = fillDay(Constants.CONSUMER_ELECTRONICS_POSSIBILITY_DAY_1,Constants.CONSUMER_ELECTRONICS_POSSIBILITY_DAY_2,Constants.CONSUMER_ELECTRONICS_POSSIBILITY_DAY_3)
+    
     createWeeklyOperationVector(times + applianceOf.members.size())
+		
 	}
 	
   @ Override
-	def fillDailyFunction(int weekday) 
-	{
+	def fillDailyFunction(int weekday) {
 		
 		// Initializing and Creating auxiliary variables
 		loadVector = new Vector()
@@ -65,37 +65,74 @@ class ConsumerElectronics extends NotShiftingAppliance {
 		
 		// For each quarter of a day
 		for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
+		
+			// case the appliance should begin functioning
 			if (operation.get(i) == true) {
+		
+				// Creating auxiliary variables
 				boolean flag = true
 				int counter = 0
+		
+				// While it should be working
 				while ((flag) && (i < Constants.QUARTERS_OF_DAY) && (counter >= 0)) {
+		
+          // case the house is not empty
 					if (applianceOf.isEmpty(i+1) == false) {
+		
 						loadVector.add(power)
 						dailyOperation.add(true)
 						counter--
-						if (counter < 0) flag = false
+		
+						// case it doesn't have shifting operations waiting
+						if (counter < 0) {
+		
+							flag = false
+		
+						} 
+		
+          // 
           } else  {
+		
+
 					  loadVector.add(0)
             dailyOperation.add(false)
             i++
-					  if (i < Constants.QUARTERS_OF_DAY && operation.get(i) == true) counter++
+		
+					  // case the appliance should function but the household is empty
+					  if (i < Constants.QUARTERS_OF_DAY && operation.get(i) == true) {
+		
+              // This is a task.
+              counter++
+		
+            } 
+			
           }
+		
         }
+      
+      // the appliance isn't supposed to operate
       } else  {
-				loadVector.add(0)
-				dailyOperation.add(false)		
+		
+			loadVector.add(0)
+			dailyOperation.add(false)
+		
       }
+		
     }
+		
+
     weeklyLoadVector.add(loadVector)
 		weeklyOperation.add(dailyOperation)
+		
 	}
 	
   @ Override
-	def refresh() 
-	{
+	def refresh() {
+		
 		createWeeklyOperationVector(times + applianceOf.members.size())
 		fillWeeklyFunction()
 		System.out.println("Consumer Electronics refreshed")
+		
 	}
 	
 	
