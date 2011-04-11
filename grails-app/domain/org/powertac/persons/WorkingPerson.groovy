@@ -1,18 +1,18 @@
 /*
- * Copyright 2009-2010 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an
- * "AS IS" BASIS,  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific language
- * governing permissions and limitations under the License.
- */
+* Copyright 2009-2010 the original author or authors.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an
+* "AS IS" BASIS,  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+* either express or implied. See the License for the specific language
+* governing permissions and limitations under the License.
+*/
 
 package org.powertac.persons
 
@@ -21,83 +21,83 @@ import java.util.Vector;
 import org.powertac.common.configurations.Constants;
 
 /**
- * This is the instance of the person type that works. In addition to the simple
- * persons they are working certain hours a day and they have less time for leisure
- * activities.
- * 
- * @author Antonios Chrysopoulos
- * @version 1, 13/02/2011
- **/
+* This is the instance of the person type that works. In addition to the simple
+* persons they are working certain hours a day and they have less time for leisure
+* activities.
+* 
+* @author Antonios Chrysopoulos
+* @version 1, 13/02/2011
+**/
 
 class WorkingPerson extends Person{
 
   /** A vector the contains the working days of the week **/
-  Vector workingDays = null
-
+	Vector workingDays = null
+  
   /** This variable describes the duration of the work procedure **/
-  int workingDuration = 0
-
+	int workingDuration = 0
+  
   /** This variables shows how many days are working vacation for this person **/
-  int vacationDuration = 0
-
+	int vacationDuration = 0
+  
   /** This is a vector of the vacation days of the year for this person**/
-  Vector vacationVector = null
-
+	Vector vacationVector = null
+  
   /** The time of the day that the person begins to work **/
-  int workingStartHour = 0
-
-
+	int workingStartHour = 0
+	
+  
   /** This function fills out the working days' vector of the person
    * by choosing randomly days of the week, while the amount of days is
    * different for each person type.
    * @param days
    * @return
    */
-  def createWorkingDaysVector(int days) 
-  {
+	def createWorkingDaysVector(int days) 
+	{
     // Creating an auxiliary variables
-    Vector v = new Vector(days)
+		Vector v = new Vector(days)
     Random gen = ensureRandomSeed()
-
-    if (days < Constants.WEEKDAYS) {
-      for (int i = 0; i < days; i++) {
-        int x =  (gen.nextInt(1) * (Constants.WEEKDAYS - 1)) + 1
-        ListIterator iter = v.listIterator();
-        while (iter.hasNext()) {
-          int temp = (int)iter.next()
-          if (x == temp) {
-            x = x + 1
-            iter = v.listIterator();
+   
+		if (days < Constants.WEEKDAYS) {
+			for (int i = 0; i < days; i++) {
+				int x =  (gen.nextInt(1) * (Constants.WEEKDAYS - 1)) + 1
+				ListIterator iter = v.listIterator();
+				while (iter.hasNext()) {
+					int temp = (int)iter.next()
+					if (x == temp) {
+						x = x + 1
+						iter = v.listIterator();
           } 
-        }
-        v.add(x)
-      }
-      java.util.Collections.sort(v);
-      return v
+			  }
+				v.add(x)
+		  }
+			java.util.Collections.sort(v);
+			return v
     } else  {
-      v.add(1)
-      v.add(2)
-      v.add(3)
-      v.add(4)
-      v.add(5)
-      if (days == Constants.WEEKDAYS) {
-      } else  {
-        if (days == Constants.DAYS_OF_WEEK) {
-          v.add(6)
-          v.add(0)
-        } else  {
-          if (gen.nextFloat() > 0.5 ) {
-            v.add(6)
-          } else  {
-            v.add(0)
-          }
+			v.add(1)
+			v.add(2)
+			v.add(3)
+			v.add(4)
+			v.add(5)
+			if (days == Constants.WEEKDAYS) {
+			} else  {
+				if (days == Constants.DAYS_OF_WEEK) {
+					v.add(6)
+					v.add(0)
+				} else  {
+					if (gen.nextFloat() > 0.5 ) {
+						v.add(6)
+					} else  {
+						v.add(0)
+					}
         }
-      }
-      java.util.Collections.sort(v);
-      return v
-    }
-  }
-
+			}
+			java.util.Collections.sort(v);
+			return v
+		}
+	}
+	
   /** This function fills out the work vacation days' vector of the person
    * by choosing randomly days of the year that the person chooses as vacations.
    * He may choose to go on vacation for short periods, but the summary of the days
@@ -105,26 +105,26 @@ class WorkingPerson extends Person{
    * @param duration
    * @return
    */
-  def createVacationVector(int duration) {
-
-    // Create auxiliary variables
-    Vector v = new Vector(duration)
-    int counter = duration
-    int counter2 = 0
+	def createVacationVector(int duration) {
+		
+		// Create auxiliary variables
+		Vector v = new Vector(duration)
+		int counter = duration
+		int counter2 = 0
     Random gen = ensureRandomSeed()
-    while (counter > 0) {
-      int x = (int) gen.nextInt(Constants.DAYS_OF_YEAR - 1) + 1
-      counter2 = 1 + (int)(gen.nextInt(counter))
-      ListIterator iter = v.listIterator()
-      while (counter2 > 0) {
-        v.add(x)
-        counter = counter - 1
-        counter2 = counter2 - 1
-        x = x + 1
+		while (counter > 0) {
+			int x = (int) gen.nextInt(Constants.DAYS_OF_YEAR - 1) + 1
+			counter2 = 1 + (int)(gen.nextInt(counter))
+			ListIterator iter = v.listIterator()
+			while (counter2 > 0) {
+				v.add(x)
+				counter = counter - 1
+				counter2 = counter2 - 1
+				x = x + 1
       }
     }
-    java.util.Collections.sort(v);
-    return v
+		java.util.Collections.sort(v);
+		return v
   }
 
   /** This function chooses randomly the number of the working days of a person
@@ -134,99 +134,99 @@ class WorkingPerson extends Person{
    * @return
    */
   def workingDaysRandomizer(HashMap hm) 
-  {
+	{
     def returnValue
-    int oneDay = ((int)hm.get("OneDay"))
-    int twoDays = ((int)hm.get("TwoDays"))
-    int threeDays = ((int)hm.get("ThreeDays"))
-    int fourDays = ((int)hm.get("FourDays"))
-    int fiveDays = ((int)hm.get("FiveDays"))
-    int sixDays = ((int)hm.get("SixDays"))
-    int sevenDays = ((int)hm.get("SevenDays"))
+		int oneDay = ((int)hm.get("OneDay"))
+		int twoDays = ((int)hm.get("TwoDays"))
+		int threeDays = ((int)hm.get("ThreeDays"))
+		int fourDays = ((int)hm.get("FourDays"))
+		int fiveDays = ((int)hm.get("FiveDays"))
+		int sixDays = ((int)hm.get("SixDays"))
+		int sevenDays = ((int)hm.get("SevenDays"))
     Random r = new Random()
-    int x = (int) r.nextInt(Constants.PERCENTAGE)
-    if (x < fiveDays) {
-      returnValue = 5
-    } else  {
-      if (x >= fiveDays & x < (fiveDays + sixDays)) {
-        returnValue = 6
-      } else  {
-        if (x >= (fiveDays + sixDays) & x < (fiveDays + sixDays + fourDays)) {
-          returnValue = 4
-        } else  {
-          if (x >= (fiveDays + sixDays + fourDays) & x < (fiveDays + sixDays + fourDays + threeDays)) {
-            returnValue = 3
-          } else  {
-            if (x >= (fiveDays + sixDays + fourDays + threeDays) & x < (fiveDays + sixDays + fourDays + threeDays+twoDays)) {
-              returnValue = 2
-            } else  {
-              if (x >= (fiveDays + sixDays + fourDays + threeDays+twoDays) & x < (fiveDays + sixDays + fourDays + threeDays+twoDays+sevenDays)) {
-                returnValue  = 7
-              } else  {
-                returnValue = 1
+		int x = (int) r.nextInt(Constants.PERCENTAGE)
+		if (x < fiveDays) {
+			returnValue = 5
+		} else  {
+			if (x >= fiveDays & x < (fiveDays + sixDays)) {
+				returnValue = 6
+			} else  {
+				if (x >= (fiveDays + sixDays) & x < (fiveDays + sixDays + fourDays)) {
+					returnValue = 4
+				} else  {
+				  if (x >= (fiveDays + sixDays + fourDays) & x < (fiveDays + sixDays + fourDays + threeDays)) {
+						returnValue = 3
+					} else  {
+						if (x >= (fiveDays + sixDays + fourDays + threeDays) & x < (fiveDays + sixDays + fourDays + threeDays+twoDays)) {
+							returnValue = 2
+						} else  {
+							if (x >= (fiveDays + sixDays + fourDays + threeDays+twoDays) & x < (fiveDays + sixDays + fourDays + threeDays+twoDays+sevenDays)) {
+								returnValue  = 7
+							} else  {
+								returnValue = 1
               }
-            }
-          }
-        }
-      }
-    }
-    return returnValue
-
-  }
+						}
+					}
+				}
+			}
+		}
+		return returnValue
+		
+	}
 
   @ Override
-  void showStatus() 
-  {
-    // Printing the base variable
-    System.out.println("Name = " + name)
-
+	void showStatus() 
+	{
+		// Printing the base variable
+		System.out.println("Name = " + name)
+	
     // Printing Sickness variables
     System.out.println("Sickness Days = ")
-    ListIterator iter = sicknessVector.listIterator();
-    while (iter.hasNext()) System.out.println(iter.next());
-
-    // Printing Leisure variables
-    System.out.println("Leisure Days of Week = ");
-    iter = leisureVector.listIterator();	
-    while (iter.hasNext()) System.out.println(iter.next());
+		ListIterator iter = sicknessVector.listIterator();
+		while (iter.hasNext()) System.out.println(iter.next());
+		
+		// Printing Leisure variables
+		System.out.println("Leisure Days of Week = ");
+		iter = leisureVector.listIterator();	
+		while (iter.hasNext()) System.out.println(iter.next());
     System.out.println("Leisure Duration = " + leisureDuration);
-
+		
     // Printing working variables
     System.out.println("Working Days = ");
-    iter = workingDays.listIterator();
-    while (iter.hasNext()) System.out.println(iter.next());
-    System.out.println("Working Duration = " + workingDuration);
-    System.out.println("Working Starting Hour = " + workingStartHour)
-
+		iter = workingDays.listIterator();
+		while (iter.hasNext()) System.out.println(iter.next());
+		System.out.println("Working Duration = " + workingDuration);
+		System.out.println("Working Starting Hour = " + workingStartHour)
+    
     // Printing vacation variables
-    System.out.println("Vacation Duration = " + vacationDuration);
-    System.out.println("Vacation Days = ");
-    iter = vacationVector.listIterator();
-    while (iter.hasNext()) System.out.println(iter.next());
-    System.out.println("Public Vacation of Year = ");
-    iter = publicVacationVector.listIterator();
-
-    while (iter.hasNext()) System.out.println(iter.next());
+		System.out.println("Vacation Duration = " + vacationDuration);
+		System.out.println("Vacation Days = ");
+		iter = vacationVector.listIterator();
+		while (iter.hasNext()) System.out.println(iter.next());
+		System.out.println("Public Vacation of Year = ");
+		iter = publicVacationVector.listIterator();
+		
+		while (iter.hasNext()) System.out.println(iter.next());
 
     // Printing Weekly Schedule
-    System.out.println("Weekly Routine : ")
-    iter = weeklyRoutine.get(0).listIterator();
-
-    for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
+		System.out.println("Weekly Routine : ")
+		iter = weeklyRoutine.get(0).listIterator();
+		
+		for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
       System.out.println("Day " + (i))
-      iter = weeklyRoutine.get(i).listIterator();
-      for (int j =0;j < Constants.QUARTERS_OF_DAY;j++) System.out.println("Quarter : " + (j+1) + " Status : " + iter.next())
+			iter = weeklyRoutine.get(i).listIterator();
+			for (int j =0;j < Constants.QUARTERS_OF_DAY;j++) System.out.println("Quarter : " + (j+1) + " Status : " + iter.next())
     }
-  }
-
+	}
+	
   /** This function fill the daily program of the person with the suitable working
    * activities taking in consideration the working habits, duration and shifts.
    * @return
    */
 
   def fillWork() {}
-
+	
   static constraints = {
   }
-
+  
 }
