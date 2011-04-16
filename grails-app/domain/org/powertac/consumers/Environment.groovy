@@ -37,18 +37,10 @@ import org.powertac.common.enumerations.*
 class Environment {
 
   // autowire
-  def randomSeedService
   def timeService
-
-  /** This is an vector variable containing the public vacation days of the working class. **/
-  Vector publicVacationVector = new Vector()
 
   /** This variable contains the HashMap created by the configuration file. **/
   HashMap hm = new HashMap()
-
-  /** Random Number Seed Creator **/
-  Random randomGen
-
 
   static hasMany = [villages:Village]
 
@@ -91,13 +83,12 @@ class Environment {
     setHm(hash)
     int number = (int)hm.get("NumberOfVillages")
     int days = (int)hm.get("PublicVacationDuration")
-    setPublicVacationVector(createPublicVacationVector(days))
     float vacationAbsence = (float)hm.get("VacationAbsence")
     for (int i = 1; i < number+1;i++){
       def villageInfo = new CustomerInfo(Name: "Village " + i,customerType: CustomerType.CustomerHousehold, powerType: PowerType.CONSUMPTION)
       villageInfo.save()
       def village = new Village(CustomerInfo: villageInfo)
-      village.initialize(hash, publicVacationVector)
+      village.initialize(hash)
       village.init()
       village.save()
       this.addToVillages(village)
@@ -151,15 +142,6 @@ class Environment {
     }
   }
 
-  private Random ensureRandomSeed () {
-    String requestClass
-    if (randomGen == null) {
-      long randomSeed = randomSeedService.nextSeed('Environment', 'VillageEnvironment', 'model')
-      randomGen = new Random(randomSeed)
-      //println(requestClass)
-    }
-    return randomGen
-  }
 
   static auditable = true
 

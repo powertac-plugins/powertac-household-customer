@@ -17,6 +17,8 @@
 
 package org.powertac.consumers
 
+import java.util.Random
+
 import org.powertac.common.*
 import org.powertac.common.configurations.Constants
 
@@ -30,6 +32,8 @@ import org.powertac.common.configurations.Constants
  */
 
 class Village extends AbstractCustomer{
+  //autowire
+  def randomSeedService
 
   /** the variable that contains the number of houses tha comprise the village.*/
   int numberOfHouses
@@ -46,11 +50,12 @@ class Village extends AbstractCustomer{
   /** This is an agreggated vector containing each day's load of all the households in hours. **/
   Vector aggDailyLoadInHours = new Vector()
 
-  //Vector aggWeeklyCostInHours = new Vector()
+  /** Random Number Seed Creator **/
+  Random randomGen
 
   static hasMany = [houses:Household]
 
-  static belongsTo = [environment:Environment]
+  //static belongsTo = [environment:Environment]
 
   /** This is the initialization function. It uses the variable values for the
    * configuration file to create the village with its households and then fill
@@ -59,17 +64,20 @@ class Village extends AbstractCustomer{
    * @param publicVacationVector
    */
 
-  void initialize(HashMap hm, Vector publicVacationVector)
-  {
+  void initialize(HashMap hm) {
     // Initializeing variables
     int houses = (int)hm.get("NumberOfHouses")
+    int days = (int)hm.get("PublicVacationDuration")
     setNumberOfHouses(houses)
+    def publicVacationVector = createPublicVacationVector(days)
+
     for (i in 0..houses-1) {
       System.out.println("Initializing House " + i)
       def hh = new Household()
       this.addToHouses(hh)
       hh.initialize("House" + i,hm, publicVacationVector)
     }
+    this.save()
   }
 
   /** This function is used in order to fill each week day of the aggregated daily Load 
@@ -109,7 +117,7 @@ class Village extends AbstractCustomer{
     int serial = ((timeService.currentTime.millis - timeService.start)/3600000) + 1
 
     int day = (int) (serial / Constants.QUARTERS_OF_DAY)+1
-    int hour = (int) (serial % Constants.QUARTERS_OF_DAY)
+    int hour = (int) (serial % Constants.HOURS_OF_DAY)
     int weekday = (int) (day % Constants.DAYS_OF_WEEK)
     println(serial + " " + hour + " " + weekday)
     double ran = this.aggWeeklyLoadInHours.get(weekday).getAt(hour)
@@ -132,7 +140,7 @@ class Village extends AbstractCustomer{
     int sum = 0
     for (int i = 0;i < Constants.QUARTERS_OF_DAY; i++) {
       sum = 0
-      this.houses.each sum = sum + it.weeklyLoad.get(weekday).get(i)
+      this.houses.each { sum = sum + it.weeklyLoad.get(weekday).get(i) }
       v.add(sum)
     }
     return v
@@ -161,7 +169,7 @@ class Village extends AbstractCustomer{
    * @return
    */
   def refresh(HashMap hm) {
-    this.houses.each it.refresh(hm)
+    this.houses.each { it.refresh(hm) }
   }
 
   /** This function prints to the screen the daily load of the village's households for the
@@ -170,7 +178,7 @@ class Village extends AbstractCustomer{
    * @return
    */
   def printDailyLoad(int weekday) {
-    this.houses.each it.printDailyLoad(weekday)
+    this.houses.each { it.printDailyLoad(weekday) }
   }
 
   /** This function represents the function that shows the status of all the households
@@ -180,13 +188,49 @@ class Village extends AbstractCustomer{
    * @return
    */
   def step(int weekday, int quarter) {
-    this.houses.each it.step(weekday,quarter)
+    this.houses.each { it.step(weekday,quarter) }
+  }
+
+  /** This function is creating a certain number of random days that will be
+   * public vacation for the people living in the environment.
+   *
+   * @param days
+   * @return
+   */
+  def createPublicVacationVector(int days) {
+    // Creating auxiliary variables
+    Vector v = new Vector(days)
+    Random gen = ensureRandomSeed()
+    for (int i = 0; i < days; i++) {
+      int x = gen.nextInt(Constants.DAYS_OF_YEAR)
+      ListIterator iter = v.listIterator();
+      while (iter.hasNext()) {
+        int temp = (int)iter.next()
+        if (x == temp) {
+          x = x + 1
+          iter = v.listIterator();
+        }
+      }
+      v.add(x)
+    }
+    java.util.Collections.sort(v);
+    return v
+  }
+
+  private Random ensureRandomSeed () {
+    String requestClass
+    if (randomGen == null) {
+      long randomSeed = randomSeedService.nextSeed('Environment', 'VillageEnvironment', 'model')
+      randomGen = new Random(randomSeed)
+      //println(requestClass)
+    }
+    return randomGen
   }
 
   static auditable = true
 
   public String toString() {
-    return name
+    customerInfo.getName()
   }
 
   static constraints = {

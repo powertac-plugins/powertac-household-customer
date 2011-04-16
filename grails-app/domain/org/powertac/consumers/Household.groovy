@@ -312,7 +312,9 @@ class Household {
     int sum = 0
     for (int i = 0;i < Constants.QUARTERS_OF_DAY; i++) {
       sum = 0
-      this.appliances.each sum = sum + it.weeklyLoadVector.get(weekday).get(i)
+      this.appliances.each {
+        sum = sum + it.weeklyLoadVector.get(weekday).get(i)
+      }
       v.add(sum)
     }
     return v
@@ -346,12 +348,15 @@ class Household {
     System.out.println("Person Quarter Status")
 
     // For each person in the house
-    this.members.each System.out.println("Name: " + it.getName() + " Status: " + it.getWeeklyRoutine().get(weekday).get(quarter-1))
+    this.members.each {
+      System.out.println("Name: " + it.getName() + " Status: " + it.getWeeklyRoutine().get(weekday).get(quarter-1))
+    }
 
     // Printing Inhabitants Status
     System.out.println("Appliances Quarter Status")
-    this.appliances.each System.out.println("Name: " + it.getName() + " Status: " + it.getWeeklyOperation().get(weekday).get(quarter-1) + " Load: " +  it.getWeeklyLoadVector().get(weekday).get(quarter-1))
-
+    this.appliances.each {
+      System.out.println("Name: " + it.getName() + " Status: " + it.getWeeklyOperation().get(weekday).get(quarter-1) + " Load: " +  it.getWeeklyLoadVector().get(weekday).get(quarter-1))
+    }
     // Printing Household Status
     setCurrentLoad(weekday,quarter)
     System.out.println("Current Load: " + currentLoad)
@@ -399,7 +404,7 @@ class Household {
     System.out.println("Refresh Weekly Routine Of Household Members")
 
     // For each member of the household
-    this.members.each it.refresh(hm)
+    this.members.each { it.refresh(hm) }
 
     // Refreshing appliance's function schedule
     System.out.println()
