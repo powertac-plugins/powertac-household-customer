@@ -21,32 +21,50 @@ import grails.test.*
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.Instant
-import org.powertac.common.CustomerInfo
+import org.powertac.common.AbstractCustomer
+import org.powertac.common.Broker
+import org.powertac.common.Competition
+import org.powertac.common.PluginConfig
+import org.powertac.common.Tariff
+import org.powertac.common.TariffSpecification
+import org.powertac.common.Timeslot
 import org.powertac.common.configurations.Config
-import org.powertac.common.enumerations.CustomerType
-import org.powertac.common.enumerations.PowerType
-import org.powertac.consumers.Village
 
 class CustomerServiceTests extends GroovyTestCase {
 
   def timeService
+  def tariffMarketService
   def householdCustomerService
+  def householdCustomerInitializationService
 
-  int number
+  Instant exp
+  Broker broker
   Config conf
   Instant start
+  Competition comp
 
   protected void setUp() {
     super.setUp()
+    PluginConfig.findByRoleName('HouseholdCustomer')?.delete()
 
-    //Reading the config file
-    Scanner sc = new Scanner(System.in);
-    conf = new org.powertac.common.configurations.Config();
-    conf.readConf();
-    number = (int)conf.variablesHashMap.get("NumberOfVillages")
+    // create a Competition, needed for initialization
+    if (Competition.count() == 0) {
+      comp = new Competition(name: 'household-customer-test')
+      assert comp.save()
+    }
+    else {
+      comp = Competition.list().first()
+    }
 
-    start = new DateTime(2011, 1, 1, 12, 0, 0, 0, DateTimeZone.UTC).toInstant()
-    timeService.setCurrentTime(start)
+    AbstractCustomer.list()*.delete()
+    Timeslot.list()*.delete()
+    TariffSpecification.list()*.delete()
+    Tariff.list()*.delete()
+    tariffMarketService.registrations = []
+
+    // set the clock
+    def now = new DateTime(2011, 1, 26, 12, 0, 0, 0, DateTimeZone.UTC).toInstant()
+    timeService.setCurrentTime(now)
 
   }
 
@@ -54,18 +72,29 @@ class CustomerServiceTests extends GroovyTestCase {
     super.tearDown()
   }
 
-  void testVillages() {
+  void initializeService () {
+    householdCustomerInitializationService.setDefaults()
+    PluginConfig config = PluginConfig.findByRoleName('HouseholdCustomer')
+    config.configuration['configFile'] = 'config.txt'
+    householdCustomerInitializationService.initialize(comp, ['HouseholdCustomer'])
+  }
 
-    // create some villages
-    for (int i = 1; i < number+1;i++){
-      def villageInfo = new CustomerInfo(Name: "Village " + i,customerType: CustomerType.CustomerHousehold, powerType: PowerType.CONSUMPTION)
-      assert(villageInfo.save())
-      def village = new Village(CustomerInfo: villageInfo)
-      village.initialize(conf.variablesHashMap)
-      village.init()
-      assert(village.save())
-      village.fillAggWeeklyLoad()
-      village.showAggWeeklyLoad()
-    }
+  void testNormalInitialization () {
+    householdCustomerInitializationService.setDefaults()
+    PluginConfig config = PluginConfig.findByRoleName('HouseholdCustomer')
+    assertNotNull("config created correctly", config)
+    def result = householdCustomerInitializationService.initialize(comp, ['HouseholdCustomer'])
+    assertEquals("correct return value", 'HouseholdCustomer', result)
+    assertEquals("correct configuration file", 'config.txt', householdCustomerService.getConfigFile())
+  }
+
+  void testBogusInitialization () {
+    PluginConfig config = PluginConfig.findByRoleName('HouseholdCustomer')
+    assertNull("config not created", config)
+    def result = householdCustomerInitializationService.initialize(comp, ['HouseholdCustomer'])
+    assertEquals("failure return value", 'fail', result)
+  }
+
+  void testVillages() {
   }
 }
