@@ -278,7 +278,7 @@ class Household {
     System.out.println("Number of Persons : " + members.size())
     // Printing members' status
     Iterator iter = members.iterator();
-    while (iter.hasNext()) iter.next().showStatus();
+    while (iter.hasNext()) iter.next().showInfo();
     // Printing appliances' status
     iter = appliances.iterator();
     System.out.println(" Number Of Appliances = ")
@@ -341,7 +341,7 @@ class Household {
    * @param quarter
    * @return
    */
-  def step(int weekday, int quarter) {
+  def stepStatus(int weekday, int quarter) {
     // Printing Inhabitants Status
     System.out.println()
     System.out.println("House: " + name)
@@ -432,9 +432,8 @@ class Household {
    */
   def printDailyLoad(int weekday) {
     ListIterator iter = weeklyLoadInHours.get(weekday).listIterator()
-    System.out.println()
-    System.out.println("Summary of Daily Load of House " + name)
-    for (int j = 0;j < Constants.HOURS_OF_DAY; j++) System.out.println("Hour : " + (j+1) + " Load : " + iter.next())
+    log.info "Summary of Daily Load of House ${name} "
+    for (int j = 0;j < Constants.HOURS_OF_DAY; j++) log.info "Hour : ${j+1} Load : ${iter.next()} "
   }
 
   private Random ensureRandomSeed () {

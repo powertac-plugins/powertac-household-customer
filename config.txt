@@ -4,7 +4,6 @@ General Variables
 
 PublicVacationDuration = 10
 PublicVacationDays = (if we want them to be specific) 
-NumberOfHouses = 10
 NumberOfVillages = 2
 
 OnePersonConsumption = 1973
@@ -145,3 +144,12 @@ LightsDailyTimes = 8
 M)Others
 
 OthersDailyTimes = 8
+
+===============
+CustomerTypes
+===============
+
+NotShiftingCustomers = 5
+RandomlyShiftingCustomers = 5
+RegularlyShiftingCustomers = 5
+SmartShiftingCustomers = 5

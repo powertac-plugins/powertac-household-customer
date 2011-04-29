@@ -17,6 +17,10 @@
 package powertac.household.customer
 
 import org.joda.time.Instant
+import org.powertac.common.CustomerInfo
+import org.powertac.common.PluginConfig
+import org.powertac.common.enumerations.CustomerType
+import org.powertac.common.enumerations.PowerType
 import org.powertac.common.interfaces.TimeslotPhaseProcessor
 import org.powertac.consumers.Village
 
@@ -27,16 +31,50 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
   def timeService // autowire
   def competitionControlService
 
+  PluginConfig configuration
 
-  void init()
+  void afterPropertiesSet ()
   {
     competitionControlService.registerTimeslotPhase(this, 1)
     competitionControlService.registerTimeslotPhase(this, 2)
   }
 
+  // ----------------- Configuration access ------------------
+  String getConfigFile()
+  {
+    return configuration.configuration['configFile'].toString()
+  }
+
+
+  void init() {
+
+    //Reading the config file
+    Scanner sc = new Scanner(System.in);
+    def conf = new org.powertac.common.configurations.Config();
+    conf.readConf(getConfigFile());
+
+    def number = (int)conf.variablesHashMap.get("NumberOfVillages")
+    for (int i = 1; i < number+1;i++){
+      def villageInfo = new CustomerInfo(Name: "Village " + i,customerType: CustomerType.CustomerHousehold, powerTypes: [PowerType.CONSUMPTION])
+      assert(villageInfo.save())
+      def village = new Village(CustomerInfo: villageInfo)
+      village.initialize(conf.variablesHashMap)
+      village.init()
+      village.subscribeDefault()
+      assert(village.save())
+    }
+  }
+
   void activate(Instant now, int phase) {
+
     log.info "Activate"
     def villageList = Village.list()
-    villageList*.step()
+
+    if (phase == 1){
+      villageList*.step()
+    }
+    else {
+      villageList*.toString()
+    }
   }
 }
