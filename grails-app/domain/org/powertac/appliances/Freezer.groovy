@@ -74,7 +74,7 @@ class Freezer extends FullyShiftingAppliance{
   @ Override
   def refresh() {
     fillWeeklyFunction()
-    System.out.println("Freezer refreshed")
+    log.info "Freezer refreshed"
   }
 
   static constraints = {

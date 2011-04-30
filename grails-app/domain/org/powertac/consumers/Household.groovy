@@ -398,20 +398,19 @@ class Household {
    */
   def refresh(HashMap hm) {
 
-    System.out.println()
-    System.out.println("Refresh Weekly Routine Of House " + name)
-    System.out.println()
-    System.out.println("Refresh Weekly Routine Of Household Members")
+    log.info "Refresh Weekly Routine Of House ${name} "
+    log.info "Refresh Weekly Routine Of House Of Household Members"
 
     // For each member of the household
-    this.members.each { it.refresh(hm) }
+    this.members.each {member -> 
+      member.refresh(hm) 
+    }
 
     // Refreshing appliance's function schedule
-    System.out.println()
-    System.out.println("Refresh Weekly Functions of Appliances")
-    this.appliances.each {
-      System.out.println()
-      it.refresh()
+    log.info "Refresh Weekly Functions of Appliances"
+
+    this.appliances.each { appliance ->
+      appliance.refresh()
     }
 
     // Erase information from vectors
@@ -423,6 +422,7 @@ class Household {
       setDailyLoadInHours(fillDailyLoadInHours())
       weeklyLoadInHours.add(dailyLoadInHours)
     }
+    this.save()
   }
 
   /** This function prints to the screen the daily load of the household for the 

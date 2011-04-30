@@ -190,7 +190,7 @@ class Dryer extends SemiShiftingAppliance {
   def refresh() {
     createWeeklyOperationVector((int)(times + applianceOf.members.size() / 2))
     fillWeeklyFunction()
-    System.out.println("Dryer refreshed")
+    log.info "Dryer refreshed"
   }
 
   static constraints = {

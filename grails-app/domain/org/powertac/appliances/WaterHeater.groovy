@@ -187,13 +187,12 @@ class WaterHeater extends FullyShiftingAppliance{
   def refresh() {
     // case the Water Heater is Instant
     if (type == HeaterType.InstantHeater) {
-      times = (float)hm.get("InstantHeaterDailyTimes")
-      createWeeklyOperationVector( (int)(times + getMemberOf().members.size()/2))
+      createWeeklyOperationVector( (int)(times + applianceOf().members.size()/2))
       fillWeeklyFunction()
-      System.out.println("Instant Water Heater refreshed")
+      log.info "Instant Water Heater refreshed"
     } else  {
       fillWeeklyFunction()
-      System.out.println("Storage Water Heater refreshed")
+      log.info "Storage Water Heater refreshed"
     }
   }
 

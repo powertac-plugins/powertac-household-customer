@@ -80,7 +80,7 @@ class CustomerTests extends GroovyTestCase {
 
     now = new DateTime(2011, 1, 10, 0, 0, 0, 0, DateTimeZone.UTC)
     timeService.currentTime = now.toInstant()
-
+    timeService.start = now.toInstant().millis
     // initialize the tariff market
     PluginConfig.findByRoleName('TariffMarket')?.delete()
     tariffMarketInitializationService.setDefaults()

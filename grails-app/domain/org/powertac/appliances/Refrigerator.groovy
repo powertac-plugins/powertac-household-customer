@@ -74,7 +74,7 @@ class Refrigerator extends FullyShiftingAppliance {
   @ Override
   def refresh() {
     fillWeeklyFunction()
-    System.out.println("Refridgerator refreshed")
+    log.info "Refridgerator refreshed"
   }
 
   static constraints = {

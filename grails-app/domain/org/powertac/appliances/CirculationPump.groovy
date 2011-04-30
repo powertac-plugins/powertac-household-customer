@@ -88,7 +88,7 @@ class CirculationPump extends NotShiftingAppliance {
   @ Override
   def refresh() {
     fillWeeklyFunction()
-    System.out.println("Circulation Pump refreshed")
+    log.info "Circulation Pump refreshed"
   }
 
 

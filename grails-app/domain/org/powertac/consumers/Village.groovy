@@ -171,7 +171,7 @@ class Village extends AbstractCustomer{
     // Checking the time in the competition.
     int serial = ((timeService.currentTime.millis - timeService.start)/3600000) + 1
 
-    int day = (int) (serial / Constants.QUARTERS_OF_DAY)+1
+    int day = (int) (serial / Constants.HOURS_OF_DAY)
     int hour = (int) (serial % Constants.HOURS_OF_DAY)
     int weekday = (int) (day % Constants.DAYS_OF_WEEK)
     log.info " Serial : ${serial} Hour: ${hour} Weekday: ${weekday} "
@@ -246,6 +246,7 @@ class Village extends AbstractCustomer{
     this.housesRaS.each { it.refresh(hm) }
     this.housesReS.each { it.refresh(hm) }
     this.housesSS.each { it.refresh(hm) }
+    this.save()
   }
 
   /** This function prints to the screen the daily load of the village's households for the

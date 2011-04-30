@@ -23,6 +23,7 @@ import org.powertac.common.enumerations.CustomerType
 import org.powertac.common.enumerations.PowerType
 import org.powertac.common.interfaces.TimeslotPhaseProcessor
 import org.powertac.consumers.Village
+import org.powertac.common.configurations.Constants
 
 class HouseholdCustomerService implements TimeslotPhaseProcessor {
 
@@ -32,6 +33,8 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
   def competitionControlService
 
   PluginConfig configuration
+  
+  HashMap hm
 
   void afterPropertiesSet ()
   {
@@ -53,12 +56,14 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
     def conf = new org.powertac.common.configurations.Config();
     conf.readConf(getConfigFile());
 
+    hm = conf.variablesHashMap
+    
     def number = (int)conf.variablesHashMap.get("NumberOfVillages")
     for (int i = 1; i < number+1;i++){
       def villageInfo = new CustomerInfo(Name: "Village " + i,customerType: CustomerType.CustomerHousehold, powerTypes: [PowerType.CONSUMPTION])
       assert(villageInfo.save())
       def village = new Village(CustomerInfo: villageInfo)
-      village.initialize(conf.variablesHashMap)
+      village.initialize(hm)
       village.init()
       village.subscribeDefault()
       assert(village.save())
@@ -72,7 +77,17 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
 
     if (phase == 1){
       villageList*.step()
-    }
+      
+      int serial = ((now.millis - timeService.start)/3600000) + 1
+
+      int day = (int) (serial / Constants.HOURS_OF_DAY)
+      int hour = (int) (serial % Constants.HOURS_OF_DAY)
+      int weekday = (int) (day % Constants.DAYS_OF_WEEK)
+
+      if (hour == 23 && weekday == 6){
+        villageList*.refresh(hm)
+      }
+    }  
     else {
       villageList*.toString()
     }

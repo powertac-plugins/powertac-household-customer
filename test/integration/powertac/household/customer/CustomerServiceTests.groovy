@@ -83,7 +83,8 @@ class CustomerServiceTests extends GroovyTestCase {
 
     now = new DateTime(2011, 1, 10, 0, 0, 0, 0, DateTimeZone.UTC)
     timeService.currentTime = now.toInstant()
-
+   
+    
     // initialize the tariff market
     PluginConfig.findByRoleName('TariffMarket')?.delete()
     tariffMarketInitializationService.setDefaults()
@@ -398,5 +399,15 @@ class CustomerServiceTests extends GroovyTestCase {
     }
     assertEquals("newTariffs list is again empty", 0, Tariff.findAllByState(Tariff.State.PENDING).size())
   }
+  
+  void testVillageRefreshModels() {
+    initializeService()
+    timeService.start = now.toInstant().millis
+    timeService.currentTime = new Instant(timeService.currentTime.millis + TimeService.HOUR*22)
+    timeService.currentTime = new Instant(timeService.currentTime.millis + TimeService.DAY*6)
+    
+    householdCustomerService.activate(timeService.currentTime, 1)
+    
+    
+  }
 }
-
