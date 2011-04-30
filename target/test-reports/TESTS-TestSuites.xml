@@ -1,22 +1,50 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <testsuites>
-  <testsuite errors="0" failures="0" hostname="Anty-PC" id="0" name="CustomerServiceTests" package="powertac.household.customer" tests="3" time="3.583" timestamp="2011-04-28T18:43:01">
+  <testsuite errors="0" failures="0" hostname="Anty-PC" id="0" name="CustomerServiceTests" package="powertac.household.customer" tests="7" time="11.652" timestamp="2011-04-29T11:29:48">
       <properties />
 
-      <testcase classname="powertac.household.customer.CustomerServiceTests" name="testNormalInitialization" time="3.542" />
+      <testcase classname="powertac.household.customer.CustomerServiceTests" name="testNormalInitialization" time="4.456" />
 
-      <testcase classname="powertac.household.customer.CustomerServiceTests" name="testBogusInitialization" time="0.016" />
+      <testcase classname="powertac.household.customer.CustomerServiceTests" name="testBogusInitialization" time="0.08" />
 
-      <testcase classname="powertac.household.customer.CustomerServiceTests" name="testVillages" time="0.011" />
+      <testcase classname="powertac.household.customer.CustomerServiceTests" name="testVillagesInitialization" time="1.446" />
+
+      <testcase classname="powertac.household.customer.CustomerServiceTests" name="testPowerConsumption" time="1.258" />
+
+      <testcase classname="powertac.household.customer.CustomerServiceTests" name="testChangingSubscriptions" time="1.343" />
+
+      <testcase classname="powertac.household.customer.CustomerServiceTests" name="testRevokingSubscriptions" time="1.717" />
+
+      <testcase classname="powertac.household.customer.CustomerServiceTests" name="testTariffPublication" time="1.333" />
 
       <system-out><![CDATA[--Output from testNormalInitialization--
 --Output from testBogusInitialization--
---Output from testVillages--
+--Output from testVillagesInitialization--
+--Output from testPowerConsumption--
+--Output from testChangingSubscriptions--
+--Output from testRevokingSubscriptions--
+Number Of Subscriptions in DB: 2
+Number Of Subscriptions in DB: 5
+Number Of Subscriptions in DB: 8
+Number Of Subscriptions in DB: 8
+--Output from testTariffPublication--
 ]]></system-out>
 
       <system-err><![CDATA[--Output from testNormalInitialization--
 --Output from testBogusInitialization--
---Output from testVillages--
+--Output from testVillagesInitialization--
+--Output from testPowerConsumption--
+--Output from testChangingSubscriptions--
+--Output from testRevokingSubscriptions--
+29 Απρ 2011 2:29:58 μμ sun.reflect.NativeMethodAccessorImpl invoke0
+INFO: Revoked Tariffs [org.powertac.common.TariffSubscription : 977a1e60-e7fd-4885-b745-8e12bafe025a] 
+29 Απρ 2011 2:29:58 μμ sun.reflect.NativeMethodAccessorImpl invoke0
+INFO: Revoked Tariffs [org.powertac.common.TariffSubscription : c280050e-eafb-4ba2-9e14-2cfedea383e8] 
+29 Απρ 2011 2:29:58 μμ sun.reflect.NativeMethodAccessorImpl invoke0
+INFO: Revoked Tariffs [org.powertac.common.TariffSubscription : 1077949c-2cdd-4faf-80ed-43d04f6fb0ae] 
+29 Απρ 2011 2:29:58 μμ sun.reflect.NativeMethodAccessorImpl invoke0
+INFO: Revoked Tariffs [org.powertac.common.TariffSubscription : 4794938f-8a88-4c03-9ec9-34c9ca49e6a2] 
+--Output from testTariffPublication--
 ]]></system-err>
 
   </testsuite>

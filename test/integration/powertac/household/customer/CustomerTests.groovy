@@ -52,8 +52,6 @@ class CustomerTests extends GroovyTestCase {
   Broker broker2
   Instant exp
   Instant start
-  CustomerInfo customerInfo
-  AbstractCustomer customer
   DateTime now
   Config conf
 
@@ -151,6 +149,7 @@ class CustomerTests extends GroovyTestCase {
     }
     assertEquals("Tariff Transactions Created", conf.variablesHashMap.get("NumberOfVillages"), TariffTransaction.findByTxType(TariffTransactionType.CONSUME).count())
   }
+
   void testChangingSubscriptions() {
 
     def env = new Environment()
@@ -174,6 +173,7 @@ class CustomerTests extends GroovyTestCase {
     tariffMarketService.processTariff(tsc1)
     tariffMarketService.processTariff(tsc2)
     tariffMarketService.processTariff(tsc3)
+    assertEquals("Five tariff specifications", 5, TariffSpecification.count())
     assertEquals("Four tariffs", 4, Tariff.count())
     env.villages.each {village ->
       village.changeSubscription(tariffMarketService.getDefaultTariff(defaultTariffSpec.powerType), true)
@@ -212,10 +212,12 @@ class CustomerTests extends GroovyTestCase {
     assertNotNull("second tariff found", tc2)
     Tariff tc3 = Tariff.findBySpecId(tsc3.id)
     assertNotNull("third tariff found", tc3)
+
     // make sure we have three active tariffs
     def tclist = tariffMarketService.getActiveTariffList(PowerType.CONSUMPTION)
     assertEquals("4 consumption tariffs", 4, tclist.size())
     assertEquals("three transaction", 3, TariffTransaction.count())
+
     env.villages.each{ village ->
       village.unsubscribe(tariffMarketService.getDefaultTariff(PowerType.CONSUMPTION),3)
       village.subscribe(tc1, 3)
@@ -228,14 +230,17 @@ class CustomerTests extends GroovyTestCase {
       assertEquals("4 Subscriptions for customer",4, village.subscriptions?.size())
       timeService.currentTime = new Instant(timeService.currentTime.millis + TimeService.HOUR)
     }
+
     TariffRevoke tex = new TariffRevoke(tariffId: tsc2.id, broker: tc2.broker)
     def status = tariffMarketService.processTariff(tex)
     assertNotNull("non-null status", status)
     assertEquals("success", TariffStatus.Status.success, status.status)
     assertTrue("tariff revoked", tc2.isRevoked())
+
     // should now be just two active tariffs
     tclist = tariffMarketService.getActiveTariffList(PowerType.CONSUMPTION)
     assertEquals("3 consumption tariffs", 3, tclist.size())
+
     env.villages.each{ village ->
       // retrieve revoked-subscription list
       def revokedCustomer = tariffMarketService.getRevokedSubscriptionList(village)
@@ -245,14 +250,17 @@ class CustomerTests extends GroovyTestCase {
       log.info "Number Of Subscriptions in DB: ${TariffSubscription.count()}"
       assertEquals("3 Subscriptions for customer", 3, village.subscriptions?.size())
     }
+
     TariffRevoke tex3 = new TariffRevoke(tariffId: tsc3.id, broker: tc1.broker)
     def status3 = tariffMarketService.processTariff(tex3)
     assertNotNull("non-null status", status3)
     assertEquals("success", TariffStatus.Status.success, status3.status)
     assertTrue("tariff revoked", tc3.isRevoked())
+
     // should now be just two active tariffs
     def tclist3 = tariffMarketService.getActiveTariffList(PowerType.CONSUMPTION)
     assertEquals("2 consumption tariffs", 2, tclist3.size())
+
     // retrieve revoked-subscription list
     env.villages.each{ village ->
       def revokedCustomer3 = tariffMarketService.getRevokedSubscriptionList(village)
@@ -270,6 +278,7 @@ class CustomerTests extends GroovyTestCase {
     // should now be just two active tariffs
     def tclist2 = tariffMarketService.getActiveTariffList(PowerType.CONSUMPTION)
     assertEquals("1 consumption tariffs", 1, tclist2.size())
+
     env.villages.each{ village ->
       // retrieve revoked-subscription list
       def revokedCustomer2 = tariffMarketService.getRevokedSubscriptionList(village)
@@ -280,6 +289,7 @@ class CustomerTests extends GroovyTestCase {
       assertEquals("1 Subscriptions for customer", 1, village.subscriptions?.size())
     }
   }
+
   void testTariffPublication() {
     // test competitionControl registration
     def registrationThing = null

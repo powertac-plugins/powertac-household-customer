@@ -54,13 +54,13 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
     conf.readConf(getConfigFile());
 
     def number = (int)conf.variablesHashMap.get("NumberOfVillages")
-    log.info "${number} "
     for (int i = 1; i < number+1;i++){
-      def villageInfo = new CustomerInfo(Name: "Village " + i,customerType: CustomerType.CustomerHousehold, powerType: PowerType.CONSUMPTION)
+      def villageInfo = new CustomerInfo(Name: "Village " + i,customerType: CustomerType.CustomerHousehold, powerTypes: [PowerType.CONSUMPTION])
       assert(villageInfo.save())
       def village = new Village(CustomerInfo: villageInfo)
       village.initialize(conf.variablesHashMap)
       village.init()
+      village.subscribeDefault()
       assert(village.save())
     }
   }

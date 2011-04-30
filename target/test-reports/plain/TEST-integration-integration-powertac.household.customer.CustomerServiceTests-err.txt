@@ -1,3 +1,0 @@
---Output from testNormalInitialization--
---Output from testBogusInitialization--
---Output from testVillages--
