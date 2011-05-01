@@ -49,8 +49,10 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
   }
 
 
-  void init() {
+  void init(PluginConfig config) {
 
+    configuration = config
+    
     //Reading the config file
     Scanner sc = new Scanner(System.in);
     def conf = new org.powertac.common.configurations.Config();
