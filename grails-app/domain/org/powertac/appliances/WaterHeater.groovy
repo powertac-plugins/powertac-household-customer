@@ -17,9 +17,10 @@
 
 package org.powertac.appliances
 
-import java.util.HashMap;
-import org.powertac.common.enumerations.HeaterType;
+import java.util.HashMap
+
 import org.powertac.common.configurations.Constants
+import org.powertac.common.enumerations.HeaterType
 
 /**
  * Circulation pump is the appliance that brings water to the household. It works most
@@ -36,8 +37,7 @@ class WaterHeater extends FullyShiftingAppliance{
   HeaterType type
 
   @ Override
-  def fillDailyFunction(int weekday) 
-  {
+  def fillDailyFunction(int weekday) {
     // Initializing And Creating Auxiliary Variables
     int start = 0
     int temp = 0
@@ -71,7 +71,7 @@ class WaterHeater extends FullyShiftingAppliance{
       }
       weeklyLoadVector.add(loadVector)
       weeklyOperation.add(dailyOperation)
-    } else  {				
+    } else  {
       for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
         operation.add(false)
         dailyOperation.add(false)
@@ -86,7 +86,7 @@ class WaterHeater extends FullyShiftingAppliance{
         loadVector.set(i, power)
         temp = i
       }
-      for (int j = 1;j < Constants.STORAGE_HEATER_PHASES; j++) {	
+      for (int j = 1;j < Constants.STORAGE_HEATER_PHASES; j++) {
         operation.set((temp + Constants.STORAGE_HEATER_PHASE_LOAD*j),true)
         dailyOperation.set((temp + Constants.STORAGE_HEATER_PHASE_LOAD*j),true)
         loadVector.set((temp + Constants.STORAGE_HEATER_PHASE_LOAD*j), power)
@@ -98,8 +98,7 @@ class WaterHeater extends FullyShiftingAppliance{
   }
 
   @ Override
-  def showStatus() 
-  {
+  def showStatus() {
     // Printing basic variables
     System.out.println("Name = " + name)
     System.out.println("Saturation = " + saturation)
@@ -111,7 +110,7 @@ class WaterHeater extends FullyShiftingAppliance{
     System.out.println("Occupancy Dependence = "+ od)
     System.out.println("In Use = " + inUse)
 
-    // Printing Season Possibility 
+    // Printing Season Possibility
     Set set = probabilitySeason.entrySet();
     Iterator it = set.iterator();
     System.out.println("Probability Season = ")
@@ -129,20 +128,13 @@ class WaterHeater extends FullyShiftingAppliance{
       System.out.println(me.getKey() + " : " + me.getValue() );
     }
 
-    // Printing Function Day Vector
-    ListIterator iter = days.listIterator();
-    System.out.println("Days Vector = ")
-    while (iter.hasNext()) {
-      System.out.println("Day  " + iter.next())
-    }
-
     // Printing Operation Vector
-    iter = operationVector.listIterator();
+    def iter = operationVector.listIterator();
     System.out.println("Operation Vector = ")
     for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
       System.out.println("Day " + (i+1))
       iter = operationVector.get(i).listIterator();
-      for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) System.out.println("Quarter : " + (j+1) + "  " + iter.next())		
+      for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) System.out.println("Quarter : " + (j+1) + "  " + iter.next())
     }
 
     // Printing Weekly Operation Vector and Load Vector
@@ -152,13 +144,12 @@ class WaterHeater extends FullyShiftingAppliance{
       System.out.println("Day " + (i+1))
       iter = weeklyOperation.get(i).listIterator();
       ListIterator iter2 = weeklyLoadVector.get(i).listIterator();
-      for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) System.out.println("Quarter " + (j+1) + " = " + iter.next() + "   Load = " + iter2.next())		
+      for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) System.out.println("Quarter " + (j+1) + " = " + iter.next() + "   Load = " + iter2.next())
     }
   }
 
   @ Override
-  def initialize(HashMap hm) 
-  {
+  def initialize(HashMap hm) {
     // Creating Auxiliary Variables
     Random gen = ensureRandomSeed()
     int x = 1 + gen.nextInt(Constants.PERCENTAGE)
@@ -166,48 +157,45 @@ class WaterHeater extends FullyShiftingAppliance{
 
     // Filling the base variables
     name = "WaterHeater"
-      saturation = (float)hm.get("WaterHeaterSaturation")
-      if ( x < limit) {
-        consumptionShare = (float) (Constants.PERCENTAGE * (Constants.INSTANT_HEATER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.INSTANT_HEATER_CONSUMPTION_SHARE_MEAN))
-        baseLoadShare = Constants.PERCENTAGE * Constants.INSTANT_HEATER_BASE_LOAD_SHARE
-        power = (int) (Constants.INSTANT_HEATER_POWER_VARIANCE * gen.nextGaussian() + Constants.INSTANT_HEATER_POWER_MEAN)
-        cycleDuration = Constants.INSTANT_HEATER_DURATION_CYCLE
-        od = false
-        inUse = false
-        probabilitySeason = fillSeason(Constants.INSTANT_HEATER_POSSIBILITY_SEASON_1,Constants.INSTANT_HEATER_POSSIBILITY_SEASON_2,Constants.INSTANT_HEATER_POSSIBILITY_SEASON_3)
-        probabilityWeekday = fillDay(Constants.INSTANT_HEATER_POSSIBILITY_DAY_1,Constants.INSTANT_HEATER_POSSIBILITY_DAY_2,Constants.INSTANT_HEATER_POSSIBILITY_DAY_3)
-        setType(HeaterType.InstantHeater)
-        times = (float)hm.get("InstantHeaterDailyTimes")
-        createWeeklyOperationVector( (int)(times + applianceOf.members.size()/2))
-      } else  {
-        consumptionShare = (float) (Constants.PERCENTAGE * (Constants.STORAGE_HEATER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.STORAGE_HEATER_CONSUMPTION_SHARE_MEAN))
-        baseLoadShare = Constants.PERCENTAGE * Constants.STORAGE_HEATER_BASE_LOAD_SHARE
-        power = (int) (Constants.STORAGE_HEATER_POWER_VARIANCE * gen.nextGaussian() + Constants.STORAGE_HEATER_POWER_MEAN)
-        cycleDuration = Constants.STORAGE_HEATER_DURATION_CYCLE
-        od = false
-        inUse = false
-        probabilitySeason = fillSeason(Constants.STORAGE_HEATER_POSSIBILITY_SEASON_1,Constants.STORAGE_HEATER_POSSIBILITY_SEASON_2,Constants.STORAGE_HEATER_POSSIBILITY_SEASON_3)
-        probabilityWeekday = fillDay(Constants.STORAGE_HEATER_POSSIBILITY_DAY_1,Constants.STORAGE_HEATER_POSSIBILITY_DAY_2,Constants.STORAGE_HEATER_POSSIBILITY_DAY_3)
-        setType(HeaterType.StorageHeater)
-      }
+    saturation = (float)hm.get("WaterHeaterSaturation")
+    if ( x < limit) {
+      consumptionShare = (float) (Constants.PERCENTAGE * (Constants.INSTANT_HEATER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.INSTANT_HEATER_CONSUMPTION_SHARE_MEAN))
+      baseLoadShare = Constants.PERCENTAGE * Constants.INSTANT_HEATER_BASE_LOAD_SHARE
+      power = (int) (Constants.INSTANT_HEATER_POWER_VARIANCE * gen.nextGaussian() + Constants.INSTANT_HEATER_POWER_MEAN)
+      cycleDuration = Constants.INSTANT_HEATER_DURATION_CYCLE
+      od = false
+      inUse = false
+      probabilitySeason = fillSeason(Constants.INSTANT_HEATER_POSSIBILITY_SEASON_1,Constants.INSTANT_HEATER_POSSIBILITY_SEASON_2,Constants.INSTANT_HEATER_POSSIBILITY_SEASON_3)
+      probabilityWeekday = fillDay(Constants.INSTANT_HEATER_POSSIBILITY_DAY_1,Constants.INSTANT_HEATER_POSSIBILITY_DAY_2,Constants.INSTANT_HEATER_POSSIBILITY_DAY_3)
+      setType(HeaterType.InstantHeater)
+      times = (float)hm.get("InstantHeaterDailyTimes")
+      createWeeklyOperationVector( (int)(times + applianceOf.members.size()/2))
+    } else  {
+      consumptionShare = (float) (Constants.PERCENTAGE * (Constants.STORAGE_HEATER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.STORAGE_HEATER_CONSUMPTION_SHARE_MEAN))
+      baseLoadShare = Constants.PERCENTAGE * Constants.STORAGE_HEATER_BASE_LOAD_SHARE
+      power = (int) (Constants.STORAGE_HEATER_POWER_VARIANCE * gen.nextGaussian() + Constants.STORAGE_HEATER_POWER_MEAN)
+      cycleDuration = Constants.STORAGE_HEATER_DURATION_CYCLE
+      od = false
+      inUse = false
+      probabilitySeason = fillSeason(Constants.STORAGE_HEATER_POSSIBILITY_SEASON_1,Constants.STORAGE_HEATER_POSSIBILITY_SEASON_2,Constants.STORAGE_HEATER_POSSIBILITY_SEASON_3)
+      probabilityWeekday = fillDay(Constants.STORAGE_HEATER_POSSIBILITY_DAY_1,Constants.STORAGE_HEATER_POSSIBILITY_DAY_2,Constants.STORAGE_HEATER_POSSIBILITY_DAY_3)
+      setType(HeaterType.StorageHeater)
+    }
   }
 
   @ Override
-  def refresh() 
-  {
+  def refresh() {
     // case the Water Heater is Instant
     if (type == HeaterType.InstantHeater) {
-      times = (float)hm.get("InstantHeaterDailyTimes")
-      createWeeklyOperationVector( (int)(times + getMemberOf().members.size()/2))
+      createWeeklyOperationVector( (int)(times + applianceOf.members.size()/2))
       fillWeeklyFunction()
-      System.out.println("Instant Water Heater refreshed")
+      log.info "Instant Water Heater refreshed"
     } else  {
       fillWeeklyFunction()
-      System.out.println("Storage Water Heater refreshed")
+      log.info "Storage Water Heater refreshed"
     }
   }
 
   static constraints = {
   }
-
 }

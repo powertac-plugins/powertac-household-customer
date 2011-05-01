@@ -93,7 +93,7 @@ class Others extends NotShiftingAppliance{
   def refresh() {
     createWeeklyOperationVector(times + applianceOf.members.size())
     fillWeeklyFunction()
-    System.out.println("Consumer Electronics refreshed")
+    log.info "Consumer Electronics refreshed"
   }
 
 

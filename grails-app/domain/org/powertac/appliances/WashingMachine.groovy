@@ -177,7 +177,7 @@ class WashingMachine extends SemiShiftingAppliance{
   def refresh() {
     createWeeklyOperationVector((int)(times + applianceOf.members.size() / 2))
     fillWeeklyFunction()
-    System.out.println("Washing Machine refreshed")
+    log.info "Washing Machine refreshed"
   }
 
 

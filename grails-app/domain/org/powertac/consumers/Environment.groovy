@@ -82,21 +82,16 @@ class Environment {
     // Initializing basic variables
     setHm(hash)
     int number = (int)hm.get("NumberOfVillages")
-    int days = (int)hm.get("PublicVacationDuration")
-    float vacationAbsence = (float)hm.get("VacationAbsence")
     for (int i = 1; i < number+1;i++){
-      def villageInfo = new CustomerInfo(Name: "Village " + i,customerType: CustomerType.CustomerHousehold, powerType: PowerType.CONSUMPTION)
+      def villageInfo = new CustomerInfo(Name: "Village " + i,customerType: CustomerType.CustomerHousehold, powerTypes: [PowerType.CONSUMPTION])
       villageInfo.save()
       def village = new Village(CustomerInfo: villageInfo)
       village.initialize(hash)
       village.init()
       village.save()
       this.addToVillages(village)
-      village.fillAggWeeklyLoad()
-      village.showAggWeeklyLoad()
     }
-    System.out.println("End of initialization")
-    System.out.println()
+    log.info "End of initialization"
     this.save()
   }
 
