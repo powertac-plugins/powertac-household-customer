@@ -51,13 +51,12 @@ implements InitializationService {
      }
      */
 
-    PluginConfig household = PluginConfig.findByRoleName('HouseholdCustomer')
-    if (household == null) {
+    PluginConfig householdConfig = PluginConfig.findByRoleName('HouseholdCustomer')
+    if (householdConfig == null) {
       log.error "PluginConfig for HouseholdCustomerService does not exist"
     }
     else {
-      householdCustomerService.configuration = household
-      householdCustomerService.init()
+      householdCustomerService.init(householdConfig)
       return 'HouseholdCustomer'
     }
     return 'fail'
