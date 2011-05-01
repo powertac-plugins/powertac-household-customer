@@ -172,7 +172,7 @@ class Dishwasher extends SemiShiftingAppliance {
   def refresh() {
     createWeeklyOperationVector((int)(times + applianceOf.members.size()))
     fillWeeklyFunction()
-    System.out.println("Dishwasher refreshed")
+    log.info "Dishwasher refreshed"
   }
 
   static constraints = {

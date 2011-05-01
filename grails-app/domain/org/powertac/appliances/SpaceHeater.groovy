@@ -91,7 +91,7 @@ class SpaceHeater extends FullyShiftingAppliance{
   @ Override
   def refresh() {
     fillWeeklyFunction()
-    System.out.println("Space Heater refreshed")
+    log.info "Space Heater refreshed"
   }
 
   static constraints = {

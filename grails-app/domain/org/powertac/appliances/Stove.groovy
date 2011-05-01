@@ -112,7 +112,7 @@ class Stove extends NotShiftingAppliance{
   def refresh() {
     createWeeklyOperationVector(times)
     fillWeeklyFunction()
-    System.out.println("Stove refreshed")
+    log.info "Stove refreshed"
   }
 
   static constraints = {

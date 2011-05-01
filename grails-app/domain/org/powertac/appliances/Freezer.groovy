@@ -57,10 +57,8 @@ class Freezer extends FullyShiftingAppliance{
     loadVector = new Vector()
     dailyOperation = new Vector()
     Random gen = ensureRandomSeed()
-    int k = 0;
-    if (gen.nextFloat() > 0.5) k = 1
     for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
-      if (i+k % 2 == 0) {
+      if (i % 2 == 0) {
         loadVector.add(power)
         dailyOperation.add(true)
       } else  {
@@ -76,7 +74,7 @@ class Freezer extends FullyShiftingAppliance{
   @ Override
   def refresh() {
     fillWeeklyFunction()
-    System.out.println("Freezer refreshed")
+    log.info "Freezer refreshed"
   }
 
   static constraints = {
