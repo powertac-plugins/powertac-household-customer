@@ -322,7 +322,8 @@ class CustomerServiceTests extends GroovyTestCase {
           }] as CompetitionControl
     tariffMarketService.registrations = []
     tariffMarketService.competitionControlService = competitionControlService
-    tariffMarketService.afterPropertiesSet()
+    //tariffMarketService.afterPropertiesSet()
+    tariffMarketInitializationService.initialize(comp, ['AccountingService'])
     //assertEquals("correct thing", tariffMarketService, registrationThing)
     assertEquals("correct phase", tariffMarketService.simulationPhase, registrationPhase)
     start = new DateTime(2011, 1, 1, 12, 0, 0, 0, DateTimeZone.UTC).toInstant()
@@ -330,7 +331,7 @@ class CustomerServiceTests extends GroovyTestCase {
     initializeService()
 
     // current time is noon. Set pub interval to 3 hours.
-    tariffMarketService.configuration.configuration['publicationInterval'] = '3' // hours
+    tariffMarketService.publicationInterval = 3 // hours
     //assertEquals("newTariffs list is empty", 0, Tariff.findAllByState(Tariff.State.PENDING).size())
     assertEquals("one registration", 2, tariffMarketService.registrations.size())
     Village.list().each{ village ->
