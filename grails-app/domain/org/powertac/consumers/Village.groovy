@@ -75,7 +75,7 @@ class Village extends AbstractCustomer{
     int sshouses = (int)hm.get("SmartShiftingCustomers")
     int days = (int)hm.get("PublicVacationDuration")
 
-    population = nshouses + rashouses + reshouses + sshouses
+    customerInfo.population = nshouses + rashouses + reshouses + sshouses
 
     def publicVacationVector = createPublicVacationVector(days)
 
