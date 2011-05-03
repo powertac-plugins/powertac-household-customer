@@ -120,7 +120,7 @@ class CustomerServiceTests extends GroovyTestCase {
     householdCustomerInitializationService.setDefaults()
     PluginConfig config = PluginConfig.findByRoleName('HouseholdCustomer')
     config.configuration['configFile'] = 'config.txt'
-    householdCustomerInitializationService.initialize(comp, ['HouseholdCustomer'])
+    householdCustomerInitializationService.initialize(comp, ['TariffMarket', 'DefaultBroker'])
   }
 
   void testNormalInitialization () {
@@ -128,7 +128,7 @@ class CustomerServiceTests extends GroovyTestCase {
     householdCustomerInitializationService.setDefaults()
     PluginConfig config = PluginConfig.findByRoleName('HouseholdCustomer')
     assertNotNull("config created correctly", config)
-    def result = householdCustomerInitializationService.initialize(comp, ['HouseholdCustomer'])
+    def result = householdCustomerInitializationService.initialize(comp, ['TariffMarket', 'DefaultBroker'])
     assertEquals("correct return value", 'HouseholdCustomer', result)
     assertEquals("correct configuration file", 'config.txt', householdCustomerService.getConfigFile())
   }
@@ -137,7 +137,7 @@ class CustomerServiceTests extends GroovyTestCase {
 
     PluginConfig config = PluginConfig.findByRoleName('HouseholdCustomer')
     assertNull("config not created", config)
-    def result = householdCustomerInitializationService.initialize(comp, ['HouseholdCustomer'])
+    def result = householdCustomerInitializationService.initialize(comp, ['TariffMarket', 'DefaultBroker'])
     assertEquals("failure return value", 'fail', result)
   }
 
