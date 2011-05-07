@@ -169,7 +169,7 @@ class Village extends AbstractCustomer{
   @ Override
   void consumePower() {
     // Checking the time in the competition.
-    int serial = ((timeService.currentTime.millis - timeService.start)/3600000) + 1
+    int serial = ((timeService.currentTime.millis - timeService.base) / TimeService.HOUR) + 1
 
     int day = (int) (serial / Constants.HOURS_OF_DAY)
     int hour = (int) (serial % Constants.HOURS_OF_DAY)
