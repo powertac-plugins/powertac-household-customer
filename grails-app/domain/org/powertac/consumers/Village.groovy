@@ -30,8 +30,6 @@ import org.powertac.common.configurations.Constants
  */
 
 class Village extends AbstractCustomer{
-  //autowire
-  def randomSeedService
 
   /** This is a vector containing aggregated each day's load from the appliances installed inside the households. **/
   Vector aggDailyLoad = new Vector()
@@ -51,8 +49,6 @@ class Village extends AbstractCustomer{
   /** This is an agreggated vector containing each day's load of all the households in hours. **/
   Vector aggDailyLoadInHours = new Vector()
 
-  /** Random Number Seed Creator **/
-  Random randomGen
 
   /** This hashmap variable is utilized to show which portion of the population is under which subscription **/
   HashMap subscriptionMap = new HashMap()
@@ -67,7 +63,7 @@ class Village extends AbstractCustomer{
    * @param publicVacationVector
    */
 
-  void initialize(HashMap hm) {
+  void initialize(HashMap hm, Random gen) {
     // Initializing variables
     int nshouses = (int)hm.get("NotShiftingCustomers")
     int rashouses = (int)hm.get("RandomlyShiftingCustomers")
@@ -77,39 +73,44 @@ class Village extends AbstractCustomer{
 
     customerInfo.population = nshouses + rashouses + reshouses + sshouses
 
-    def publicVacationVector = createPublicVacationVector(days)
+    def publicVacationVector = createPublicVacationVector(days, gen)
 
     for (i in 0..nshouses-1) {
       log.info "Initializing NSHouse ${i} "
       def hh = new Household()
       this.addToHousesNS(hh)
-      hh.initialize("NSHouse" + i,hm, publicVacationVector)
+      hh.initialize("NSHouse" + i,hm, publicVacationVector, gen)
     }
 
     for (i in 0..rashouses-1) {
       log.info "Initializing RaSHouse ${i} "
       def hh = new Household()
       this.addToHousesRaS(hh)
-      hh.initialize("RaSHouse" + i,hm, publicVacationVector)
+      hh.initialize("RaSHouse" + i,hm, publicVacationVector, gen)
     }
     for (i in 0..reshouses-1) {
       log.info "Initializing ReSHouse ${i} "
       def hh = new Household()
       this.addToHousesReS(hh)
-      hh.initialize("ReSHouse" + i,hm, publicVacationVector)
+      hh.initialize("ReSHouse" + i,hm, publicVacationVector, gen)
     }
     for (i in 0..sshouses-1) {
       log.info "Initializing SSHouse ${i} "
       def hh = new Household()
       this.addToHousesSS(hh)
-      hh.initialize("SSHouse" + i,hm, publicVacationVector)
+      hh.initialize("SSHouse" + i,hm, publicVacationVector, gen)
     }
 
     fillAggWeeklyLoad(aggWeeklyLoadNS, aggWeeklyLoadInHoursNS, "NotShifting")
     fillAggWeeklyLoad(aggWeeklyLoadRaS, aggWeeklyLoadInHoursRaS, "RandomlyShifting")
     fillAggWeeklyLoad(aggWeeklyLoadReS, aggWeeklyLoadInHoursReS, "RegularlyShifting")
     fillAggWeeklyLoad(aggWeeklyLoadSS, aggWeeklyLoadInHoursSS, "SmartShifting")
-    this.save()
+    
+    log.info "Testing : ${housesNS.size()} "
+    log.info "Testing : ${housesRaS.size()} "
+    log.info "Testing : ${housesReS.size()} "
+    log.info "Testing : ${housesSS.size()} "
+    
   }
 
   /** This function is used in order to fill each week day of the aggregated daily Load 
@@ -174,14 +175,19 @@ class Village extends AbstractCustomer{
     int day = (int) (serial / Constants.HOURS_OF_DAY)
     int hour = (int) (serial % Constants.HOURS_OF_DAY)
     int weekday = (int) (day % Constants.DAYS_OF_WEEK)
-    log.info " Serial : ${serial} Hour: ${hour} Weekday: ${weekday} "
+    log.info " Serial : ${serial} Hour: ${hour} Weekday: ${weekday}"
+    log.info "Testing : ${housesNS.size()} "
+    log.info "Testing : ${housesRaS.size()} "
+    log.info "Testing : ${housesReS.size()} "
+    log.info "Testing : ${housesSS.size()} "
+    //log.info " Testing : ${aggWeeklyLoadInHoursNS.size()} and ${aggWeeklyLoadInHoursNS.get(weekday).size()}"
     //BigDecimal ran = aggWeeklyLoadInHoursNS.get(weekday).getAt(hour) + aggWeeklyLoadInHoursRaS.get(weekday).getAt(hour) + aggWeeklyLoadInHoursReS.get(weekday).getAt(hour) + aggWeeklyLoadInHoursSS.get(weekday).getAt(hour)
     BigDecimal ran = (aggWeeklyLoadInHoursNS.get(weekday).getAt(hour) + aggWeeklyLoadInHoursRaS.get(weekday).getAt(hour) + aggWeeklyLoadInHoursReS.get(weekday).getAt(hour) + aggWeeklyLoadInHoursSS.get(weekday).getAt(hour)) / Constants.PERCENTAGE
-
+   
     // For each subscription
     subscriptions.each { sub ->
-      log.info " Consumption Load: ${ran} "
-      sub.usePower(ran)
+      log.info " Consumption Load: ${ran} / ${subscriptions.size()} "
+      sub.usePower(ran/subscriptions.size())
     }
   }
 
@@ -241,11 +247,11 @@ class Village extends AbstractCustomer{
    * @param hm
    * @return
    */
-  def refresh(HashMap hm) {
-    this.housesNS.each { it.refresh(hm) }
-    this.housesRaS.each { it.refresh(hm) }
-    this.housesReS.each { it.refresh(hm) }
-    this.housesSS.each { it.refresh(hm) }
+  def refresh(HashMap hm, Random gen) {
+    this.housesNS.each { it.refresh(hm,gen) }
+    this.housesRaS.each { it.refresh(hm,gen) }
+    this.housesReS.each { it.refresh(hm,gen) }
+    this.housesSS.each { it.refresh(hm,gen) }
     this.save()
   }
 
@@ -301,10 +307,10 @@ class Village extends AbstractCustomer{
    * @param days
    * @return
    */
-  def createPublicVacationVector(int days) {
+  def createPublicVacationVector(int days, Random gen) {
     // Creating auxiliary variables
     Vector v = new Vector(days)
-    Random gen = ensureRandomSeed()
+
     for (int i = 0; i < days; i++) {
       int x = gen.nextInt(Constants.DAYS_OF_YEAR)
       ListIterator iter = v.listIterator();
@@ -321,15 +327,6 @@ class Village extends AbstractCustomer{
     return v
   }
 
-
-  private Random ensureRandomSeed () {
-    String requestClass
-    if (randomGen == null) {
-      long randomSeed = randomSeedService.nextSeed('Environment', 'VillageEnvironment', 'model')
-      randomGen = new Random(randomSeed)
-    }
-    return randomGen
-  }
 
   static auditable = true
 

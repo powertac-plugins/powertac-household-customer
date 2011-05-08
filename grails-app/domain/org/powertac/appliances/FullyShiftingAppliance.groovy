@@ -34,8 +34,8 @@ class FullyShiftingAppliance extends Appliance{
    * 
    * @return
    */
-  def fillWeeklyFunction() {
-    for (int i = 0;i < Constants.DAYS_OF_WEEK; i++) fillDailyFunction(i)
+  def fillWeeklyFunction(Random gen) {
+    for (int i = 0;i < Constants.DAYS_OF_WEEK; i++) fillDailyFunction(i,gen)
   }
 
   /** This function creates the weekly operation vector after the shifting for each day of the week
@@ -43,8 +43,8 @@ class FullyShiftingAppliance extends Appliance{
    * @param times
    * @return
    */
-  def createWeeklyOperationVector(int times) {
-    for (int i = 0;i < Constants.DAYS_OF_WEEK; i++) operationVector.add(createDailyOperationVector(times))
+  def createWeeklyOperationVector(int times,Random gen) {
+    for (int i = 0;i < Constants.DAYS_OF_WEEK; i++) operationVector.add(createDailyOperationVector(times,gen))
   }
 
   /** This function creates the daily operation vector after the shifting
@@ -52,10 +52,9 @@ class FullyShiftingAppliance extends Appliance{
    * @param times
    * @return
    */
-  def createDailyOperationVector(int times) {
+  def createDailyOperationVector(int times, Random gen) {
 
     // Creating Auxiliary Variables
-    Random gen = ensureRandomSeed()
     Vector v = new Vector(Constants.QUARTERS_OF_DAY)
 
     // First initialize all to false

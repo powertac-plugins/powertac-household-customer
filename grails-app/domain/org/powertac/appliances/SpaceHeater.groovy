@@ -38,10 +38,7 @@ class SpaceHeater extends FullyShiftingAppliance{
   float percentage
 
   @ Override
-  def initialize(HashMap hm) {
-
-    // Creating Auxiliary Variables
-    Random gen = ensureRandomSeed()
+  def initialize(HashMap hm, Random gen) {
 
     // Filling the base variables
     name = "SpaceHeater"
@@ -58,12 +55,11 @@ class SpaceHeater extends FullyShiftingAppliance{
   }
 
   @ Override
-  def fillDailyFunction(int weekday) {
+  def fillDailyFunction(int weekday,Random gen) {
 
     // Initializing Variables
     loadVector = new Vector()
     dailyOperation = new Vector()
-    Random gen = ensureRandomSeed()
     if (applianceOf.isOnVacation(1) || gen.nextFloat() > percentage) {
       for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
         loadVector.add(0)
@@ -89,8 +85,8 @@ class SpaceHeater extends FullyShiftingAppliance{
   }
 
   @ Override
-  def refresh() {
-    fillWeeklyFunction()
+  def refresh(Random gen) {
+    fillWeeklyFunction(gen)
     log.info "Space Heater refreshed"
   }
 

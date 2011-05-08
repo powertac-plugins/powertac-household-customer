@@ -37,9 +37,6 @@ import org.powertac.persons.*
 
 class Household {
 
-  // autowire
-  def randomSeedService
-
   /** the household name. It is different for each one to be able to tell them apart.*/
   String name
 
@@ -61,9 +58,6 @@ class Household {
   /** This variable shows the current load of the house, for the current quarter or hour. **/
   int currentLoad
 
-  /** Random Number Seed Creator **/
-  Random randomGen
-
   static hasMany = [members:Person, appliances:Appliance]
 
   static belongsTo = [village:Village]
@@ -76,12 +70,12 @@ class Household {
    * @param publicVacationVector
    * @return
    */
-  def initialize(String HouseName, HashMap hm, Vector publicVacationVector)
+  def initialize(String HouseName, HashMap hm, Vector publicVacationVector, Random gen)
   {
     setName(HouseName)
-    int persons = memberRandomizer(hm)
-    for (int i = 0;i < persons; i++) addPerson(i+1,hm,publicVacationVector)
-    fillAppliances(hm)
+    int persons = memberRandomizer(hm, gen)
+    for (int i = 0;i < persons; i++) addPerson(i+1,hm,publicVacationVector, gen)
+    fillAppliances(hm, gen)
     for (int i =0;i < Constants.DAYS_OF_WEEK;i++) {
       setDailyLoad(fillDailyLoad(i))
       weeklyLoad.add(dailyLoad)
@@ -97,29 +91,29 @@ class Household {
    * @param publicVacationVector
    * @return
    */
-  def addPerson(int counter, HashMap hm, Vector publicVacationVector) {
+  def addPerson(int counter, HashMap hm, Vector publicVacationVector, Random gen) {
     // Taking parameters from configuration file
     int pp = (int)hm.get("PeriodicPresent")
     int mp = (int)hm.get("MostlyPresent")
     int ra = (int)hm.get("RandomlyAbsent")
     float va = (float)hm.get("VacationAbsence")
-    Random gen = ensureRandomSeed()
+    
     int x = gen.nextInt(Constants.PERCENTAGE);
     if (x < pp) {
       PeriodicPresentPerson ppp = new PeriodicPresentPerson()
-      ppp.initialize("PPP" + counter,hm,publicVacationVector)
-      ppp.weeklyRoutine = ppp.fillWeeklyRoutine(va)
+      ppp.initialize("PPP" + counter,hm,publicVacationVector,gen)
+      ppp.weeklyRoutine = ppp.fillWeeklyRoutine(va,gen)
       this.addToMembers(ppp)
     } else  {
       if (x >= pp & x < (pp + mp)) {
         MostlyPresentPerson mpp = new MostlyPresentPerson()
-        mpp.initialize("MPP" + counter,hm,publicVacationVector)
-        mpp.weeklyRoutine = mpp.fillWeeklyRoutine(va)
+        mpp.initialize("MPP" + counter,hm,publicVacationVector,gen)
+        mpp.weeklyRoutine = mpp.fillWeeklyRoutine(va,gen)
         this.addToMembers(mpp)
       } else  {
         RandomlyAbsentPerson rap = new RandomlyAbsentPerson()
-        rap.initialize("RAP"+ counter,hm,publicVacationVector)
-        rap.weeklyRoutine = rap.fillWeeklyRoutine(va)
+        rap.initialize("RAP"+ counter,hm,publicVacationVector,gen)
+        rap.weeklyRoutine = rap.fillWeeklyRoutine(va,gen)
         this.addToMembers(rap)
       }
     }
@@ -130,14 +124,14 @@ class Household {
    * @param hm
    * @return
    */
-  def memberRandomizer(HashMap hm) {
+  def memberRandomizer(HashMap hm, Random gen) {
     int one = (int) hm.get("OnePerson")
     int two = (int) hm.get("TwoPersons")
     int three = (int) hm.get("ThreePersons")
     int four = (int) hm.get("FourPersons")
     int five = (int) hm.get("FivePersons")
     int returnValue
-    Random gen = ensureRandomSeed()
+    
     int x = gen.nextInt(Constants.PERCENTAGE);
     if (x < one) {
       setYearConsumption((int) hm.get("OnePersonConsumption"))
@@ -169,12 +163,12 @@ class Household {
    * @param app
    * @return
    */
-  def checkProbability(Appliance app) {
+  def checkProbability(Appliance app, Random gen) {
     // Creating auxiliary variables
-    Random gen = ensureRandomSeed()
+
     int x = gen.nextInt(Constants.PERCENTAGE);
     int threshold = app.saturation * Constants.PERCENTAGE
-    if (x < threshold) app.fillWeeklyFunction()
+    if (x < threshold) app.fillWeeklyFunction(gen)
     else this.appliances.remove(app);
   }
 
@@ -184,72 +178,72 @@ class Household {
    * @param hm
    * @return
    */
-  def fillAppliances(HashMap hm) {
+  def fillAppliances(HashMap hm, Random gen) {
 
     // Refrigerator
     Refrigerator ref = new Refrigerator();
     this.addToAppliances(ref)
-    ref.initialize(hm);
-    ref.fillWeeklyFunction()
+    ref.initialize(hm,gen);
+    ref.fillWeeklyFunction(gen)
     // Washing Machine
     WashingMachine wm = new WashingMachine();
     this.addToAppliances(wm)
-    wm.initialize(hm);
-    wm.fillWeeklyFunction()
+    wm.initialize(hm,gen);
+    wm.fillWeeklyFunction(gen)
     // Consumer Electronics
     ConsumerElectronics ce = new ConsumerElectronics();
     this.addToAppliances(ce)
-    ce.initialize(hm);
-    ce.fillWeeklyFunction()
+    ce.initialize(hm,gen);
+    ce.fillWeeklyFunction(gen)
     // ICT
     ICT ict = new ICT();
     this.addToAppliances(ict)
-    ict.initialize(hm);
-    ict.fillWeeklyFunction()
+    ict.initialize(hm,gen);
+    ict.fillWeeklyFunction(gen)
     // Lights
     Lights lights = new Lights();
     this.addToAppliances(lights)
-    lights.initialize(hm);
-    lights.fillWeeklyFunction()
+    lights.initialize(hm,gen);
+    lights.fillWeeklyFunction(gen)
     //Others
     Others others = new Others();
     this.addToAppliances(others)
-    others.initialize(hm);
-    others.fillWeeklyFunction()
+    others.initialize(hm,gen);
+    others.fillWeeklyFunction(gen)
     // Freezer
     Freezer fr = new Freezer()
-    fr.initialize(hm)
-    checkProbability(fr)
+    fr.initialize(hm,gen)
+    checkProbability(fr,gen)
     // Dishwasher
     Dishwasher dw = new Dishwasher()
     this.addToAppliances(dw)
-    dw.initialize(hm)
-    checkProbability(dw)
+    dw.initialize(hm,gen)
+    checkProbability(dw,gen)
     //Stove
     Stove st = new Stove()
     this.addToAppliances(st)
-    st.initialize(hm)
-    checkProbability(st)
+    st.initialize(hm,gen)
+    checkProbability(st,gen)
     //Dryer
     Dryer dr = new Dryer()
     this.addToAppliances(dr)
-    dr.initialize(hm)
-    checkProbability(dr)
+    dr.initialize(hm,gen)
+    checkProbability(dr,gen)
     //Water Heater
     WaterHeater wh = new WaterHeater()
     this.addToAppliances(wh)
-    wh.initialize(hm)
-    checkProbability(wh)
+    wh.initialize(hm,gen)
+    checkProbability(wh,gen)
     //Circulation Pump
     CirculationPump cp = new CirculationPump()
     this.addToAppliances(cp)
-    cp.initialize(hm)
-    checkProbability(cp)
+    cp.initialize(hm,gen)
+    checkProbability(cp,gen)
     //Space Heater
     SpaceHeater sh = new SpaceHeater()
     this.addToAppliances(sh)
-    sh.initialize(hm)
-    checkProbability(sh)
+    sh.initialize(hm,gen)
+    checkProbability(sh,gen)
   }
 
   /** This function checks if all the inhabitants of the household are out of the household.
@@ -396,21 +390,21 @@ class Household {
    * @param hm
    * @return
    */
-  def refresh(HashMap hm) {
+  def refresh(HashMap hm, Random gen) {
 
     log.info "Refresh Weekly Routine Of House ${name} "
     log.info "Refresh Weekly Routine Of House Of Household Members"
 
     // For each member of the household
     this.members.each {member -> 
-      member.refresh(hm) 
+      member.refresh(hm,gen) 
     }
 
     // Refreshing appliance's function schedule
     log.info "Refresh Weekly Functions of Appliances"
 
     this.appliances.each { appliance ->
-      appliance.refresh()
+      appliance.refresh(gen)
     }
 
     // Erase information from vectors
@@ -436,16 +430,10 @@ class Household {
     for (int j = 0;j < Constants.HOURS_OF_DAY; j++) log.info "Hour : ${j+1} Load : ${iter.next()} "
   }
 
-  private Random ensureRandomSeed () {
-    String requestClass
-    if (randomGen == null) {
-      long randomSeed = randomSeedService.nextSeed('Household', name, 'model')
-      randomGen = new Random(randomSeed)
-      //println(requestClass)
-    }
-    return randomGen
+  public String toString() {
+    this.getName()
   }
-
+  
   static constraints = {
   }
 }

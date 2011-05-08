@@ -18,6 +18,7 @@
 package org.powertac.appliances
 
 import java.util.HashMap
+import java.util.Random;
 
 import org.powertac.common.configurations.Constants
 import org.powertac.common.enumerations.HeaterType
@@ -37,11 +38,10 @@ class WaterHeater extends FullyShiftingAppliance{
   HeaterType type
 
   @ Override
-  def fillDailyFunction(int weekday) {
+  def fillDailyFunction(int weekday,Random gen) {
     // Initializing And Creating Auxiliary Variables
     int start = 0
     int temp = 0
-    Random gen = ensureRandomSeed()
     loadVector = new Vector()
     dailyOperation = new Vector()
     Vector operation = new Vector()
@@ -149,9 +149,8 @@ class WaterHeater extends FullyShiftingAppliance{
   }
 
   @ Override
-  def initialize(HashMap hm) {
+  def initialize(HashMap hm, Random gen) {
     // Creating Auxiliary Variables
-    Random gen = ensureRandomSeed()
     int x = 1 + gen.nextInt(Constants.PERCENTAGE)
     int limit = (int)hm.get("InstantHeater")
 
@@ -169,7 +168,7 @@ class WaterHeater extends FullyShiftingAppliance{
       probabilityWeekday = fillDay(Constants.INSTANT_HEATER_POSSIBILITY_DAY_1,Constants.INSTANT_HEATER_POSSIBILITY_DAY_2,Constants.INSTANT_HEATER_POSSIBILITY_DAY_3)
       setType(HeaterType.InstantHeater)
       times = (float)hm.get("InstantHeaterDailyTimes")
-      createWeeklyOperationVector( (int)(times + applianceOf.members.size()/2))
+      createWeeklyOperationVector((int)(times + applianceOf.members.size()/2), gen)
     } else  {
       consumptionShare = (float) (Constants.PERCENTAGE * (Constants.STORAGE_HEATER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.STORAGE_HEATER_CONSUMPTION_SHARE_MEAN))
       baseLoadShare = Constants.PERCENTAGE * Constants.STORAGE_HEATER_BASE_LOAD_SHARE
@@ -184,14 +183,14 @@ class WaterHeater extends FullyShiftingAppliance{
   }
 
   @ Override
-  def refresh() {
+  def refresh(Random gen) {
     // case the Water Heater is Instant
     if (type == HeaterType.InstantHeater) {
-      createWeeklyOperationVector( (int)(times + applianceOf.members.size()/2))
-      fillWeeklyFunction()
+      createWeeklyOperationVector((int)(times + applianceOf.members.size()/2),gen)
+      fillWeeklyFunction(gen)
       log.info "Instant Water Heater refreshed"
     } else  {
-      fillWeeklyFunction()
+      fillWeeklyFunction(gen)
       log.info "Storage Water Heater refreshed"
     }
   }

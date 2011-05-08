@@ -17,6 +17,7 @@
 
 package org.powertac.appliances
 
+import java.util.Random;
 import java.util.Vector;
 import org.powertac.common.configurations.Constants
 
@@ -40,12 +41,11 @@ class SemiShiftingAppliance extends Appliance {
    * @param weekday
    * @return
    */
-  def createDailyOperationVector(int weekday) 
+  def createDailyOperationVector(int weekday, Random gen) 
   {
 
     // Creating Auxiliary Variables
     Vector v = new Vector(Constants.QUARTERS_OF_DAY)
-    Random gen = ensureRandomSeed()
 
     // First initialize all to false
     for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) v.add(false)
@@ -61,19 +61,19 @@ class SemiShiftingAppliance extends Appliance {
    * @param times
    * @return
    */
-  def createWeeklyOperationVector(int times) 
+  def createWeeklyOperationVector(int times, Random gen) 
   {
-    fillDays(times)
-    for (int i=0;i < Constants.DAYS_OF_WEEK;i++) operationVector.add(createDailyOperationVector(i))
+    fillDays(times, gen)
+    for (int i=0;i < Constants.DAYS_OF_WEEK;i++) operationVector.add(createDailyOperationVector(i,gen))
   }
 
   /** This function fills out all the days of the appliance functions for each day of the week.
    * 
    * @return
    */
-  def fillWeeklyFunction() 
+  def fillWeeklyFunction(Random gen) 
   {
-    for (int i = 0;i < Constants.DAYS_OF_WEEK; i++) fillDailyFunction(i)
+    for (int i = 0;i < Constants.DAYS_OF_WEEK; i++) fillDailyFunction(i,gen)
   }
 
   /** This function fills out the vector that contains the days of the week tha the appliance is functioning.
@@ -81,10 +81,9 @@ class SemiShiftingAppliance extends Appliance {
    * @param times
    * @return
    */
-  def fillDays(int times) 
+  def fillDays(int times, Random gen) 
   {
     for (int i=0; i < times; i++) {
-      Random gen = ensureRandomSeed()
       int day = gen.nextInt(Constants.DAYS_OF_WEEK - 1)
       ListIterator iter = days.listIterator();
       while (iter.hasNext()) {

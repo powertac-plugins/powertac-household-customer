@@ -33,9 +33,7 @@ import org.powertac.common.configurations.Constants
 class Stove extends NotShiftingAppliance{
 
   @ Override
-  def initialize(HashMap hm) {
-    // Creating Auxiliary Variables
-    Random gen = ensureRandomSeed()
+  def initialize(HashMap hm, Random gen) {
 
     // Filling the base variables
     name = "Stove"
@@ -49,17 +47,16 @@ class Stove extends NotShiftingAppliance{
     probabilitySeason = fillSeason(Constants.STOVE_POSSIBILITY_SEASON_1,Constants.STOVE_POSSIBILITY_SEASON_2,Constants.STOVE_POSSIBILITY_SEASON_3)
     probabilityWeekday = fillDay(Constants.STOVE_POSSIBILITY_DAY_1,Constants.STOVE_POSSIBILITY_DAY_2,Constants.STOVE_POSSIBILITY_DAY_3)
     times = (int)hm.get("StoveDailyTimes")
-    createWeeklyOperationVector(times)
+    createWeeklyOperationVector(times,gen)
   }
 
 
   @ Override
-  def createDailyOperationVector(int times) {
+  def createDailyOperationVector(int times, Random gen) {
 
     // Creating Auxiliary Variables
     Random rand = new Random()
     Vector v = new Vector(Constants.QUARTERS_OF_DAY)
-    Random gen = ensureRandomSeed()
 
     // First initialize all to false
     for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) v.add(false)
@@ -71,7 +68,7 @@ class Stove extends NotShiftingAppliance{
   }
 
   @ Override
-  def fillDailyFunction(int weekday) {
+  def fillDailyFunction(int weekday, Random gen) {
 
     // Initializing Variables
     loadVector = new Vector()
@@ -109,9 +106,9 @@ class Stove extends NotShiftingAppliance{
   }
 
   @ Override
-  def refresh() {
-    createWeeklyOperationVector(times)
-    fillWeeklyFunction()
+  def refresh(Random gen) {
+    createWeeklyOperationVector(times,gen)
+    fillWeeklyFunction(gen)
     log.info "Stove refreshed"
   }
 

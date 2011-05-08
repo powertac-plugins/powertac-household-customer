@@ -44,10 +44,7 @@ class WashingMachine extends SemiShiftingAppliance{
   Reaction reaction = Reaction.Strong
 
   @ Override
-  def initialize(HashMap hm) {
-
-    // Creating Auxiliary Variables
-    Random gen = ensureRandomSeed()
+  def initialize(HashMap hm, Random gen) {
 
     // Filling the base variables
     name = "Washing Machine"
@@ -61,11 +58,11 @@ class WashingMachine extends SemiShiftingAppliance{
     probabilitySeason = fillSeason(Constants.DISHWASHER_POSSIBILITY_SEASON_1,Constants.DISHWASHER_POSSIBILITY_SEASON_2,Constants.DISHWASHER_POSSIBILITY_SEASON_3)
     probabilityWeekday = fillDay(Constants.DISHWASHER_POSSIBILITY_DAY_1,Constants.DISHWASHER_POSSIBILITY_DAY_2,Constants.DISHWASHER_POSSIBILITY_DAY_3)
     times = (int)hm.get("WashingMachineWeeklyTimes")
-    createWeeklyOperationVector((int)(times + applianceOf.members.size() / 2))
+    createWeeklyOperationVector((int)(times + applianceOf.members.size() / 2),gen)
   }
 
   @ Override
-  def fillDailyFunction(int weekday) {
+  def fillDailyFunction(int weekday, Random gen) {
     // Initializing Variables
     loadVector = new Vector()
     dailyOperation = new Vector()
@@ -174,9 +171,9 @@ class WashingMachine extends SemiShiftingAppliance{
   }
 
   @ Override
-  def refresh() {
-    createWeeklyOperationVector((int)(times + applianceOf.members.size() / 2))
-    fillWeeklyFunction()
+  def refresh(Random gen) {
+    createWeeklyOperationVector((int)(times + applianceOf.members.size() / 2),gen)
+    fillWeeklyFunction(gen)
     log.info "Washing Machine refreshed"
   }
 
