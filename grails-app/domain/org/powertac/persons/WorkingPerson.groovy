@@ -53,11 +53,10 @@ class WorkingPerson extends Person{
    * @param days
    * @return
    */
-  def createWorkingDaysVector(int days) 
+  def createWorkingDaysVector(int days, Random gen) 
   {
     // Creating an auxiliary variables
     Vector v = new Vector(days)
-    Random gen = ensureRandomSeed()
 
     if (days < Constants.WEEKDAYS) {
       for (int i = 0; i < days; i++) {
@@ -105,13 +104,12 @@ class WorkingPerson extends Person{
    * @param duration
    * @return
    */
-  def createVacationVector(int duration) {
+  def createVacationVector(int duration, Random gen) {
 
     // Create auxiliary variables
     Vector v = new Vector(duration)
     int counter = duration
     int counter2 = 0
-    Random gen = ensureRandomSeed()
     while (counter > 0) {
       int x = (int) gen.nextInt(Constants.DAYS_OF_YEAR - 1) + 1
       counter2 = 1 + (int)(gen.nextInt(counter))
@@ -133,7 +131,7 @@ class WorkingPerson extends Person{
    * @param hm
    * @return
    */
-  def workingDaysRandomizer(HashMap hm) 
+  def workingDaysRandomizer(HashMap hm, Random gen) 
   {
     def returnValue
     int oneDay = ((int)hm.get("OneDay"))
@@ -143,8 +141,8 @@ class WorkingPerson extends Person{
     int fiveDays = ((int)hm.get("FiveDays"))
     int sixDays = ((int)hm.get("SixDays"))
     int sevenDays = ((int)hm.get("SevenDays"))
-    Random r = new Random()
-    int x = (int) r.nextInt(Constants.PERCENTAGE)
+
+    int x = (int) gen.nextInt(Constants.PERCENTAGE)
     if (x < fiveDays) {
       returnValue = 5
     } else  {

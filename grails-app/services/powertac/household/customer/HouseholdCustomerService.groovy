@@ -16,6 +16,8 @@
 
 package powertac.household.customer
 
+import java.util.Random;
+
 import org.joda.time.Instant
 import org.powertac.common.CustomerInfo
 import org.powertac.common.PluginConfig
@@ -31,11 +33,14 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
 
   def timeService // autowire
   def competitionControlService
-
+  def randomSeedService // autowire
+  
   PluginConfig configuration
   
   HashMap hm
 
+  Random randomGen = null
+   
   void afterPropertiesSet ()
   {
     competitionControlService.registerTimeslotPhase(this, 1)
@@ -57,7 +62,9 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
     Scanner sc = new Scanner(System.in);
     def conf = new org.powertac.common.configurations.Config();
     conf.readConf(getConfigFile());
-
+    
+    Random gen = ensureRandomSeed()
+    
     hm = conf.variablesHashMap
     
     def number = (int)conf.variablesHashMap.get("NumberOfVillages")
@@ -65,7 +72,7 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
       def villageInfo = new CustomerInfo(Name: "Village " + i,customerType: CustomerType.CustomerHousehold, powerTypes: [PowerType.CONSUMPTION])
       assert(villageInfo.save())
       def village = new Village(CustomerInfo: villageInfo)
-      village.initialize(hm)
+      village.initialize(hm,gen)
       village.init()
       village.subscribeDefault()
       assert(village.save())
@@ -77,6 +84,8 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
     log.info "Activate"
     def villageList = Village.list()
 
+    Random gen = ensureRandomSeed()
+    
     if (phase == 1){
       villageList*.step()
       
@@ -87,11 +96,20 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
       int weekday = (int) (day % Constants.DAYS_OF_WEEK)
 
       if (hour == 23 && weekday == 6){
-        villageList*.refresh(hm)
+        villageList*.refresh(hm,gen)
       }
     }  
     else {
       villageList*.toString()
     }
+  }
+  
+  private Random ensureRandomSeed ()
+  {
+    if (randomGen == null) {
+      long randomSeed = randomSeedService.nextSeed('HouseholdCustomerService', 'household', 'model')
+      randomGen = new Random(randomSeed)
+    }
+    return randomGen
   }
 }

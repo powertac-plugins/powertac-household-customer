@@ -33,9 +33,7 @@ import org.powertac.common.configurations.Constants
 class Refrigerator extends FullyShiftingAppliance {
 
   @ Override
-  def initialize(HashMap hm) {
-    // Creating Auxiliary Variables
-    Random gen = ensureRandomSeed()
+  def initialize(HashMap hm,Random gen) {
 
     // Filling the base variables
     name = "Refrigerator"
@@ -51,12 +49,11 @@ class Refrigerator extends FullyShiftingAppliance {
   }
 
   @ Override
-  def fillDailyFunction(int weekday) {
+  def fillDailyFunction(int weekday, Random gen) {
     // Initializing Variables
     loadVector = new Vector()
     dailyOperation = new Vector()
-    Random gen = ensureRandomSeed()
-
+    
     for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
       if (i % 2 == 0) {
         loadVector.add(power)
@@ -72,8 +69,8 @@ class Refrigerator extends FullyShiftingAppliance {
   }
 
   @ Override
-  def refresh() {
-    fillWeeklyFunction()
+  def refresh(Random gen) {
+    fillWeeklyFunction(gen)
     log.info "Refridgerator refreshed"
   }
 

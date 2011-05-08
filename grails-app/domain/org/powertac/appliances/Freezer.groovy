@@ -18,6 +18,7 @@
 package org.powertac.appliances
 
 import java.util.HashMap
+import java.util.Random;
 
 import org.powertac.common.configurations.Constants
 
@@ -33,10 +34,14 @@ import org.powertac.common.configurations.Constants
 
 class Freezer extends FullyShiftingAppliance{
 
+  def fillWeeklyFunction(Random gen)
+  {
+    for (int i = 0;i < Constants.DAYS_OF_WEEK; i++) fillDailyFunction(i,gen)
+  }
+  
   @ Override
-  def initialize(HashMap hm) {
-    // Creating Auxiliary Variables
-    Random gen = ensureRandomSeed()
+  def initialize(HashMap hm,Random gen) {
+
 
     // Filling the base variables
     name = "Freezer"
@@ -52,11 +57,11 @@ class Freezer extends FullyShiftingAppliance{
   }
 
   @ Override
-  def fillDailyFunction(int weekday) {
+  def fillDailyFunction(int weekday, Random gen) {
     // Initializing Variables
     loadVector = new Vector()
     dailyOperation = new Vector()
-    Random gen = ensureRandomSeed()
+
     for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
       if (i % 2 == 0) {
         loadVector.add(power)
@@ -72,8 +77,8 @@ class Freezer extends FullyShiftingAppliance{
   }
 
   @ Override
-  def refresh() {
-    fillWeeklyFunction()
+  def refresh(Random gen) {
+    fillWeeklyFunction(gen)
     log.info "Freezer refreshed"
   }
 

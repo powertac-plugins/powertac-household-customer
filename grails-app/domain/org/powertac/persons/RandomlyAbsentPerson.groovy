@@ -42,7 +42,7 @@ class RandomlyAbsentPerson extends WorkingPerson {
    * @return
    */
 
-  def initialize(String AgentName, HashMap hm, Vector publicVacationVector) 
+  def initialize(String AgentName, HashMap hm, Vector publicVacationVector, Random gen) 
   {
     // Variables Taken from the configuration file
     float sicknessMean = ((float)hm.get("SicknessMean"))
@@ -58,22 +58,22 @@ class RandomlyAbsentPerson extends WorkingPerson {
     // Filling the main variables
     name = AgentName
     status = Status.Normal
-    Random gen = ensureRandomSeed()
+    
     // Filling the sickness and public Vacation Vectors
-    sicknessVector = createSicknessVector(sicknessMean,sicknessDev)
+    sicknessVector = createSicknessVector(sicknessMean,sicknessDev, gen)
     this.publicVacationVector = publicVacationVector
     // Filling the leisure variables
     int x = (int) (gen.nextGaussian() + RALeisure)
-    leisureVector = createLeisureVector(x)
+    leisureVector = createLeisureVector(x, gen)
     leisureDuration = (int) (leisureDurationDev * gen.nextGaussian() + leisureDurationMean)
     // Filling Working variables
-    int work = workingDaysRandomizer(hm)
-    workingDays = createWorkingDaysVector(work)
-    workingStartHour = createWorkingStartHour()
+    int work = workingDaysRandomizer(hm,gen)
+    workingDays = createWorkingDaysVector(work, gen)
+    workingStartHour = createWorkingStartHour(gen)
     workingDuration = (int) (workingDurationDev * gen.nextGaussian() + workingDurationMean)
     // Filling Vacation Variables
     vacationDuration = (int) (vacationDurationDev * gen.nextGaussian() + vacationDurationMean)
-    vacationVector = createVacationVector(vacationDuration)
+    vacationVector = createVacationVector(vacationDuration, gen)
   }
 
   /** This function selects the shift of the worker. There three different shifts: 00:00 - 08:00
@@ -81,9 +81,9 @@ class RandomlyAbsentPerson extends WorkingPerson {
    * @return
    */
 
-  def createWorkingStartHour() 
+  def createWorkingStartHour(Random gen) 
   {
-    Random gen = ensureRandomSeed()
+
     int x = gen.nextInt(Constants.NUMBER_OF_SHIFTS)
     return (x * Constants.HOURS_OF_SHIFT_WORK * Constants.QUARTERS_OF_HOUR)
   }
@@ -93,12 +93,11 @@ class RandomlyAbsentPerson extends WorkingPerson {
    * @param weekday
    * @return
    */
-  def addLeisureWorking(int weekday) 
+  def addLeisureWorking(int weekday, Random gen) 
   {
     // Create auxiliary variables
     ListIterator iter = leisureVector.listIterator();
     Status st
-    Random gen = ensureRandomSeed()
     while (iter.hasNext()) {
       if (iter.next() == weekday) {
         int start = workingStartHour + workingDuration
@@ -198,21 +197,21 @@ class RandomlyAbsentPerson extends WorkingPerson {
   }
 
   @ Override
-  void refresh(HashMap hm) 
+  void refresh(HashMap hm, Random gen) 
   {
     // Renew Variables
     float leisureDurationMean = ((int)hm.get("LeisureDurationMean"))
     float leisureDurationDev = ((int)hm.get("LeisureDurationDev"))
     float RALeisure = ((int)hm.get("RALeisure"))
     float vacationAbsence = ((float)hm.get("VacationAbsence"))
-    int work = workingDaysRandomizer(hm)
-    workingDays = createWorkingDaysVector(work)
-    workingStartHour = createWorkingStartHour()
-    Random gen = ensureRandomSeed()
+    int work = workingDaysRandomizer(hm,gen)
+    workingDays = createWorkingDaysVector(work,gen)
+    workingStartHour = createWorkingStartHour(gen)
+
     int x = (int) (gen.nextGaussian() + RALeisure)
     leisureDuration = (int) (leisureDurationDev * gen.nextGaussian() + leisureDurationMean)
-    leisureVector = createLeisureVector(x)
-    weeklyRoutine = fillWeeklyRoutine(vacationAbsence)
+    leisureVector = createLeisureVector(x,gen)
+    weeklyRoutine = fillWeeklyRoutine(vacationAbsence,gen)
   }
 
   static constraints = {

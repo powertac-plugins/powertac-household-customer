@@ -45,7 +45,7 @@ implements InitializationService {
   @Override
   public String initialize (Competition competition, List<String> completedInits) {
 
-    if (!completedInits.find{'TariffMarket' == it} && !completedInits.find{'DefaultBroker' == it}) {
+    if (!completedInits.find{'DefaultBroker' == it}) {
       return null
     }
 

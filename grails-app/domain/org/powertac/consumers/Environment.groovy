@@ -38,39 +38,16 @@ class Environment {
 
   // autowire
   def timeService
+  def RandomSeedService
 
   /** This variable contains the HashMap created by the configuration file. **/
   HashMap hm = new HashMap()
 
+  Random randomGen = null
+  
   static hasMany = [villages:Village]
 
-  /** This function is creating a certain number of random days that will be
-   * public vacation for the people living in the environment.
-   * 	
-   * @param days
-   * @return
-   */
-  def createPublicVacationVector(int days)
-  {
-    // Creating auxiliary variables
-    Vector v = new Vector(days)
-    Random gen = ensureRandomSeed()
-    for (int i = 0; i < days; i++) {
-      int x = gen.nextInt(Constants.DAYS_OF_YEAR)
-      ListIterator iter = v.listIterator();
-      while (iter.hasNext()) {
-        int temp = (int)iter.next()
-        if (x == temp) {
-          x = x + 1
-          iter = v.listIterator();
-        }
-      }
-      v.add(x)
-    }
-    java.util.Collections.sort(v);
-    return v
-  }
-
+  
   /** This is the initialization function. It uses the variable values for the
    * configuration file to create the villages, cities or anything else that may
    * exist in the environment.
@@ -80,13 +57,14 @@ class Environment {
    */
   def initialize(HashMap hash) {
     // Initializing basic variables
+    Random gen = ensureRandomSeed()
     setHm(hash)
     int number = (int)hm.get("NumberOfVillages")
     for (int i = 1; i < number+1;i++){
       def villageInfo = new CustomerInfo(Name: "Village " + i,customerType: CustomerType.CustomerHousehold, powerTypes: [PowerType.CONSUMPTION])
       villageInfo.save()
       def village = new Village(CustomerInfo: villageInfo)
-      village.initialize(hash)
+      village.initialize(hash,gen)
       village.init()
       village.save()
       this.addToVillages(village)
@@ -137,6 +115,15 @@ class Environment {
     }
   }
 
+  private Random ensureRandomSeed ()
+  {
+    if (randomGen == null) {
+      long randomSeed = randomSeedService.nextSeed('HouseholdCustomerService', 'household', 'model')
+      randomGen = new Random(randomSeed)
+    }
+    return randomGen
+  }
+  
 
   static auditable = true
 

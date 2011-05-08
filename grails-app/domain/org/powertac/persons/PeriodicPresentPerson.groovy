@@ -40,7 +40,7 @@ class PeriodicPresentPerson extends WorkingPerson {
    * @param publicVacationVector
    * @return
    */
-  def initialize(String AgentName, HashMap hm, Vector publicVacationVector) 
+  def initialize(String AgentName, HashMap hm, Vector publicVacationVector, Random gen) 
   {
     // Variables Taken from the configuration file
     float sicknessMean = ((float)hm.get("SicknessMean"))
@@ -55,22 +55,22 @@ class PeriodicPresentPerson extends WorkingPerson {
     // Filling the main variables
     name = AgentName
     status = Status.Normal
-    Random gen = ensureRandomSeed()
+
     // Filling the sickness and public Vacation Vectors
-    sicknessVector = createSicknessVector(sicknessMean,sicknessDev)
+    sicknessVector = createSicknessVector(sicknessMean,sicknessDev, gen)
     this.publicVacationVector = publicVacationVector
     // Filling the leisure variables
     int x = (int) (gen.nextGaussian() + PPLeisure)
-    leisureVector = createLeisureVector(x)
+    leisureVector = createLeisureVector(x, gen)
     leisureDuration = (int) (leisureDurationDev * gen.nextGaussian() + leisureDurationMean)
     // Filling Working variables
     workingStartHour = Constants.START_OF_WORK
-    int work = workingDaysRandomizer(hm)
-    workingDays = createWorkingDaysVector(work)
+    int work = workingDaysRandomizer(hm, gen)
+    workingDays = createWorkingDaysVector(work, gen)
     workingDuration = (int) (workingDurationDev * gen.nextGaussian() + workingDurationMean)
     // Filling Vacation Variables
     vacationDuration = (int) (vacationDurationDev * gen.nextGaussian() + vacationDurationMean)
-    vacationVector = createVacationVector(vacationDuration)
+    vacationVector = createVacationVector(vacationDuration,gen)
   }
 
 
@@ -79,13 +79,12 @@ class PeriodicPresentPerson extends WorkingPerson {
    * @param weekday
    * @return
    */
-  def addLeisureWorking(int weekday) 
+  def addLeisureWorking(int weekday, Random gen) 
   {
 
     // Create auxiliary variables
     ListIterator iter = leisureVector.listIterator();
     Status st
-    Random gen = ensureRandomSeed()
 
     // Check each day on leisure vector
     while (iter.hasNext()) {
@@ -113,9 +112,9 @@ class PeriodicPresentPerson extends WorkingPerson {
   }
 
   @ Override
-  void refresh(HashMap hm) 
+  void refresh(HashMap hm, Random gen) 
   {
-    Random gen = ensureRandomSeed()
+
     // Renew Variables
     float leisureDurationMean = ((int)hm.get("LeisureDurationMean"))
     float leisureDurationDev = ((int)hm.get("LeisureDurationDev"))
@@ -123,8 +122,8 @@ class PeriodicPresentPerson extends WorkingPerson {
     float vacationAbsence = ((float)hm.get("VacationAbsence"))
     int x = (int) (gen.nextGaussian() + PPLeisure)
     leisureDuration = (int) (leisureDurationDev * gen.nextGaussian() + leisureDurationMean)
-    leisureVector = createLeisureVector(x)
-    weeklyRoutine = fillWeeklyRoutine(vacationAbsence)
+    leisureVector = createLeisureVector(x,gen)
+    weeklyRoutine = fillWeeklyRoutine(vacationAbsence, gen)
   }
 
   static constraints = {

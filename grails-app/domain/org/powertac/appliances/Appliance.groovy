@@ -34,9 +34,6 @@ import org.powertac.consumers.*
 
 class Appliance {
 
-  // autowire
-  def randomSeedService
-
   /** the appliance name. It depends on the type of appliance and the household that contains it.*/
   String name
 
@@ -88,9 +85,6 @@ class Appliance {
   /** This variable contains the amount of times the appliance may work through the week or day */
   int times
 
-  /** Random Number Seed Creator **/
-  Random randomGen
-
   static belongsTo = [applianceOf:Household]
 
   /** This function is used to create the operation vector of the appliance for the week
@@ -99,7 +93,7 @@ class Appliance {
    * @return
    */
 
-  def createOperationVector(int times) {
+  def createOperationVector(int times, Random gen) {
   }
 
   /** This function takes into consideration the year season, the weekday and the
@@ -121,7 +115,7 @@ class Appliance {
    * configuration file to create the appliance as it should for this type.
    * @return
    */
-  def initialize() {
+  def initialize(Random gen) {
   }
 
   /** This is a complex function that changes the appliance's function
@@ -239,37 +233,8 @@ class Appliance {
    * and so on.
    * @return
    */
-  def refresh() {
+  def refresh(HashMap hm, Random gen) {
   }
-
-  /** Random Number Creator Initializer.
-   *
-   * @return
-   */
-  private Random ensureRandomSeed () {
-    String requestClass
-
-    if (randomGen == null) {
-      if (this instanceof CirculationPump) requestClass = 'CirculationPump'
-      if (this instanceof ConsumerElectronics) requestClass = 'ConsumerElectronics'
-      if (this instanceof Dishwasher) requestClass = 'Dishwasher'
-      if (this instanceof Dryer) requestClass = 'Dryer'
-      if (this instanceof Freezer) requestClass = 'Freezer'
-      if (this instanceof ICT) requestClass = 'ICT'
-      if (this instanceof Lights) requestClass = 'Lights'
-      if (this instanceof Others) requestClass = 'Others'
-      if (this instanceof Refrigerator) requestClass = 'Refrigerator'
-      if (this instanceof SpaceHeater) requestClass = 'SpaceHeater'
-      if (this instanceof Stove) requestClass = 'Stove'
-      if (this instanceof WashingMachine) requestClass = 'WashingMachine'
-      if (this instanceof WaterHeater) requestClass = 'WaterHeater'
-      long randomSeed = randomSeedService.nextSeed(requestClass, name, 'model')
-      randomGen = new Random(randomSeed)
-    }
-
-    return randomGen
-  }
-
 
   static constraints = {
 
@@ -278,7 +243,7 @@ class Appliance {
     power()
     cycleDuration()
     inUse()
-    randomGen(nullable:true)
+
   }
 
   static mapping = { sort "name" }
