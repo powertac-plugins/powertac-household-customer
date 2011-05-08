@@ -39,10 +39,7 @@ class CirculationPump extends NotShiftingAppliance {
 
 
   @ Override
-  def initialize(HashMap hm) {
-
-    // Creating Auxiliary Variables
-    Random gen = ensureRandomSeed()
+  def initialize(HashMap hm, Random gen) {
 
     // Filling the base variables
     name = "CirculationPump"
@@ -58,15 +55,14 @@ class CirculationPump extends NotShiftingAppliance {
     probabilityWeekday = fillDay(Constants.CIRCULATION_PUMP_POSSIBILITY_DAY_1,Constants.CIRCULATION_PUMP_POSSIBILITY_DAY_2,Constants.CIRCULATION_PUMP_POSSIBILITY_DAY_3)
 
   }
-
+  
   @ Override
-  def fillDailyFunction(int weekday) {
+  def fillDailyFunction(int weekday, Random gen) {
 
     // Initializing and Creating auxiliary variables
     loadVector = new Vector()
     dailyOperation = new Vector()
     Vector v = new Vector()
-    Random gen = ensureRandomSeed()
 
     // For each quarter of a day
     for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
@@ -86,8 +82,8 @@ class CirculationPump extends NotShiftingAppliance {
   }
 
   @ Override
-  def refresh() {
-    fillWeeklyFunction()
+  def refresh(Random gen) {
+    fillWeeklyFunction(gen)
     log.info "Circulation Pump refreshed"
   }
 

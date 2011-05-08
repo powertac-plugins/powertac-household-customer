@@ -16,6 +16,7 @@
 
 package org.powertac.persons
 
+import java.util.HashMap;
 import java.util.Vector
 
 import org.powertac.common.configurations.Constants
@@ -33,9 +34,6 @@ import org.powertac.consumers.*
  */
 
 class Person {
-
-  // autowire
-  def randomSeedService
 
   /** the person's name in the community. Usually it includes the household he is living in or its type of person */
   String name
@@ -60,9 +58,6 @@ class Person {
 
   /** the weekly schedule and status of the person **/
   Vector weeklyRoutine = new Vector()
-
-  /** Random Number Seed Creator **/
-  Random randomGen
 
   // static auditable = true
 
@@ -124,10 +119,10 @@ class Person {
    * @return
    */
 
-  def createLeisureVector(int counter) {
+  def createLeisureVector(int counter, Random gen) {
     // Create auxiliary variable
     Vector v = new Vector()
-    Random gen = ensureRandomSeed()
+
     //Loop for the amount of days
     for (int i = 0; i < counter; i++) {
       int day = gen.nextInt(Constants.DAYS_OF_WEEK)
@@ -145,11 +140,10 @@ class Person {
    * @return
    */
 
-  def fillDailyRoutine(int day, float vacationAbsence) {
+  def fillDailyRoutine(int day, float vacationAbsence, Random gen) {
     // Create auxiliary variable
     Vector v = new Vector(Constants.QUARTERS_OF_DAY)
     Status st
-    Random gen = ensureRandomSeed()
 
     int weekday = day % Constants.DAYS_OF_WEEK
     setDailyRoutine(new Vector())
@@ -164,7 +158,7 @@ class Person {
           }
         } else  {
           normalFill()
-          addLeisure(weekday)
+          addLeisure(weekday, gen)
         }
       } else  {
         normalFill()
@@ -172,12 +166,12 @@ class Person {
           int index = workingDays.indexOf(weekday)
           if (index > -1) {
             fillWork()
-            addLeisureWorking(weekday)
+            addLeisureWorking(weekday, gen)
           } else  {
-            addLeisure(weekday)
+            addLeisure(weekday, gen)
           }
         } else  {
-          addLeisure(weekday)
+          addLeisure(weekday, gen)
         }
       }
     }
@@ -189,12 +183,12 @@ class Person {
    * @param dev
    * @return
    */
-  def createSicknessVector(float mean, float dev) {
+  def createSicknessVector(float mean, float dev, Random gen) {
     // Create auxiliary variables
-    Random gen = ensureRandomSeed()
+    
     int days = (int) (dev * gen.nextGaussian() + mean)
     Vector v = new Vector(days)
-    Random r = new Random();
+
     for (int i = 0; i < days; i++) {
       int x = gen.nextInt(Constants.DAYS_OF_YEAR) + 1;
       ListIterator iter = v.listIterator();
@@ -216,11 +210,11 @@ class Person {
    * @param weekday
    * @return
    */
-  def addLeisure(int weekday) {
+  def addLeisure(int weekday, Random gen) {
     // Create auxiliary variables
     ListIterator iter = leisureVector.listIterator();
     Status st
-    Random gen = ensureRandomSeed()
+
     while (iter.hasNext()) {
       if (iter.next() == weekday) {
         int start = Constants.START_OF_LEISURE  + gen.nextInt(Constants.LEISURE_WINDOW)
@@ -279,12 +273,12 @@ class Person {
    * @param vacationAbsence
    * @return
    */
-  def fillWeeklyRoutine(float vacationAbsence) {
+  def fillWeeklyRoutine(float vacationAbsence, Random gen) {
     // Create auxiliary variable
     Vector v = new Vector()
     // Fill out each day for the week
     for (int i = 0;i < Constants.DAYS_OF_WEEK;i++) {
-      fillDailyRoutine(i,vacationAbsence)
+      fillDailyRoutine(i,vacationAbsence, gen)
       v.add(dailyRoutine)
     }
     return v
@@ -303,25 +297,7 @@ class Person {
    * and so on.
    * @return
    */
-  def refresh() {
-
-  }
-
-  /** Random Number Creator Initializer.
-   * 
-   * @return
-   */
-  private Random ensureRandomSeed () {
-    String requestClass
-    if (randomGen == null) {
-      if (this instanceof MostlyPresentPerson) requestClass = 'MostlyPresentPerson'
-      if (this instanceof PeriodicPresentPerson) requestClass = 'PeriodicPresentPerson'
-      if (this instanceof RandomlyAbsentPerson) requestClass = 'RandomlyAbsentPerson'
-      long randomSeed = randomSeedService.nextSeed(requestClass, name, 'model')
-      randomGen = new Random(randomSeed)
-      //println(requestClass)
-    }
-    return randomGen
+  void refresh(HashMap hm, Random gen) {
   }
 
   static constraints = {

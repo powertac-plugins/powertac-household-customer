@@ -17,6 +17,8 @@
 
 package org.powertac.appliances
 
+import java.util.Random;
+
 import org.powertac.common.configurations.Constants
 
 /**
@@ -35,10 +37,9 @@ class NotShiftingAppliance extends Appliance {
    * @param times
    * @return
    */
-  def createDailyOperationVector(int times) {
+  def createDailyOperationVector(int times, Random gen) {
 
     // Creating Auxiliary Variables
-    Random gen = ensureRandomSeed()
     Vector v = new Vector(Constants.QUARTERS_OF_DAY)
     for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) v.add(false)
 
@@ -56,18 +57,18 @@ class NotShiftingAppliance extends Appliance {
    * @param times
    * @return
    */
-  def createWeeklyOperationVector(int times) 
+  def createWeeklyOperationVector(int times,Random gen) 
   {
-    for (int i = 0;i < Constants.DAYS_OF_WEEK; i++) operationVector.add(createDailyOperationVector(times))
+    for (int i = 0;i < Constants.DAYS_OF_WEEK; i++) operationVector.add(createDailyOperationVector(times,gen))
   }
 
   /** This function fills out all the days of the appliance functions for each day of the week.
    * 
    * @return
    */
-  def fillWeeklyFunction() 
+  def fillWeeklyFunction(Random gen) 
   {
-    for (int i = 0;i < Constants.DAYS_OF_WEEK; i++) fillDailyFunction(i)	
+    for (int i = 0;i < Constants.DAYS_OF_WEEK; i++) fillDailyFunction(i,gen)	
   }
 
 

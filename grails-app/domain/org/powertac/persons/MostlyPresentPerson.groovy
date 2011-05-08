@@ -42,7 +42,7 @@ class MostlyPresentPerson extends Person {
    * @param publicVacationVector
    * @return
    */
-  def initialize(String AgentName, HashMap hm, Vector publicVacationVector) 
+  def initialize(String AgentName, HashMap hm, Vector publicVacationVector, Random gen) 
   {
     // Variables Taken from the configuration file
     float sicknessMean = ((float)hm.get("SicknessMean"))
@@ -54,11 +54,10 @@ class MostlyPresentPerson extends Person {
     // Filling the main variables
     name = AgentName
     status = Status.Normal
-    Random gen = ensureRandomSeed()
-    sicknessVector = createSicknessVector(sicknessMean, sicknessDev)
+    sicknessVector = createSicknessVector(sicknessMean, sicknessDev,gen)
     this.publicVacationVector = publicVacationVector
     int x = (int) (gen.nextGaussian() + MPLeisure)
-    leisureVector = createLeisureVector(x)
+    leisureVector = createLeisureVector(x,gen)
     leisureDuration = (int) (leisureDurationDev * gen.nextGaussian() + leisureDurationMean)
   }
 
@@ -97,20 +96,18 @@ class MostlyPresentPerson extends Person {
   }
 
   @ Override
-  def refresh(HashMap hm) 
+  void refresh(HashMap hm, Random gen) 
   {
-
-    Random rand = new Random()
 
     // Renew Variables
     float leisureDurationMean = ((int)hm.get("LeisureDurationMean"))
     float leisureDurationDev = ((int)hm.get("LeisureDurationDev"))
     float MPLeisure = ((int)hm.get("MPLeisure"))
     float vacationAbsence = ((float)hm.get("VacationAbsence"))
-    int x = (int) (rand.nextGaussian() + MPLeisure)
-    leisureDuration = (int) (leisureDurationDev * rand.nextGaussian() + leisureDurationMean)
-    leisureVector = createLeisureVector(x)
-    weeklyRoutine = fillWeeklyRoutine(vacationAbsence)
+    int x = (int) (gen.nextGaussian() + MPLeisure)
+    leisureDuration = (int) (leisureDurationDev * gen.nextGaussian() + leisureDurationMean)
+    leisureVector = createLeisureVector(x,gen)
+    weeklyRoutine = fillWeeklyRoutine(vacationAbsence,gen)
   }
 
   static constraints = {

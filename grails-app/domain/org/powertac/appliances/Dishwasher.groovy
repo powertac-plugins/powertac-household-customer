@@ -18,6 +18,7 @@
 package org.powertac.appliances
 
 import java.util.HashMap
+import java.util.Random;
 
 import org.powertac.common.configurations.Constants
 import org.powertac.common.enumerations.Mode
@@ -39,9 +40,7 @@ class Dishwasher extends SemiShiftingAppliance {
   Mode mode = Mode.One
 
   @ Override
-  def initialize(HashMap hm) {
-    // Creating Auxiliary Variables
-    Random gen = ensureRandomSeed()
+  def initialize(HashMap hm,Random gen) {
 
     // Filling the base variables
     name = "Dishwasher"
@@ -55,7 +54,7 @@ class Dishwasher extends SemiShiftingAppliance {
     probabilitySeason = fillSeason(Constants.DISHWASHER_POSSIBILITY_SEASON_1,Constants.DISHWASHER_POSSIBILITY_SEASON_2,Constants.DISHWASHER_POSSIBILITY_SEASON_3)
     probabilityWeekday = fillDay(Constants.DISHWASHER_POSSIBILITY_DAY_1,Constants.DISHWASHER_POSSIBILITY_DAY_2,Constants.DISHWASHER_POSSIBILITY_DAY_3)
     times = (int)hm.get("DishwasherWeeklyTimes")
-    createWeeklyOperationVector((int)(times + applianceOf.members.size()))
+    createWeeklyOperationVector((int)(times + applianceOf.members.size()),gen)
   }
 
   @ Override
@@ -115,7 +114,7 @@ class Dishwasher extends SemiShiftingAppliance {
   }
 
   @ Override
-  def fillDailyFunction(int weekday) {
+  def fillDailyFunction(int weekday,Random gen) {
 
     // Initializing Variables
     loadVector = new Vector()
@@ -169,9 +168,9 @@ class Dishwasher extends SemiShiftingAppliance {
   }
 
   @ Override
-  def refresh() {
-    createWeeklyOperationVector((int)(times + applianceOf.members.size()))
-    fillWeeklyFunction()
+  def refresh(Random gen) {
+    createWeeklyOperationVector((int)(times + applianceOf.members.size()), gen)
+    fillWeeklyFunction(gen)
     log.info "Dishwasher refreshed"
   }
 

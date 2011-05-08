@@ -33,10 +33,8 @@ import org.powertac.common.configurations.Constants
 class Others extends NotShiftingAppliance{
 
   @ Override
-  def initialize(HashMap hm) {
+  def initialize(HashMap hm, Random gen) {
 
-    // Creating Auxiliary Variables
-    Random gen = ensureRandomSeed()
 
     // Filling the base variables
     name = "Others"
@@ -50,12 +48,12 @@ class Others extends NotShiftingAppliance{
     inUse = false
     probabilitySeason = fillSeason(Constants.CONSUMER_ELECTRONICS_POSSIBILITY_SEASON_1,Constants.CONSUMER_ELECTRONICS_POSSIBILITY_SEASON_2,Constants.CONSUMER_ELECTRONICS_POSSIBILITY_SEASON_3)
     probabilityWeekday = fillDay(Constants.CONSUMER_ELECTRONICS_POSSIBILITY_DAY_1,Constants.CONSUMER_ELECTRONICS_POSSIBILITY_DAY_2,Constants.CONSUMER_ELECTRONICS_POSSIBILITY_DAY_3)
-    createWeeklyOperationVector(times + applianceOf.members.size())
+    createWeeklyOperationVector(times + applianceOf.members.size(),gen)
 
   }
 
   @ Override
-  def fillDailyFunction(int weekday) {
+  def fillDailyFunction(int weekday,Random gen) {
 
     // Initializing and Creating auxiliary variables
     loadVector = new Vector()
@@ -90,9 +88,9 @@ class Others extends NotShiftingAppliance{
   }
 
   @ Override
-  def refresh() {
-    createWeeklyOperationVector(times + applianceOf.members.size())
-    fillWeeklyFunction()
+  def refresh(Random gen) {
+    createWeeklyOperationVector(times + applianceOf.members.size(),gen)
+    fillWeeklyFunction(gen)
     log.info "Consumer Electronics refreshed"
   }
 
