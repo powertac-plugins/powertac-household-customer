@@ -44,7 +44,8 @@ class CustomerTests extends GroovyTestCase {
   def timeService  // autowire the time service
   def tariffMarketService // autowire the market
   def tariffMarketInitializationService
-
+  def villageConsumersService
+  
   Competition comp
   Tariff tariff
   TariffSpecification defaultTariffSpec
@@ -123,6 +124,9 @@ class CustomerTests extends GroovyTestCase {
     def env = new Environment()
     env.initialize(conf.variablesHashMap)
     assert env.save()
+    
+    env.villages*.stepStatus(0,0)
+    
     env.villages*.subscribeDefault()
 
 

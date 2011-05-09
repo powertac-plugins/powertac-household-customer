@@ -337,24 +337,23 @@ class Household {
    */
   def stepStatus(int weekday, int quarter) {
     // Printing Inhabitants Status
-    System.out.println()
-    System.out.println("House: " + name)
-    System.out.println("Person Quarter Status")
+    
+    log.info "House: ${name} "
+    log.info "Person Quarter Status"
 
     // For each person in the house
     this.members.each {
-      System.out.println("Name: " + it.getName() + " Status: " + it.getWeeklyRoutine().get(weekday).get(quarter-1))
+      log.info "Name: ${it.getName()} Status: ${it.getWeeklyRoutine().get(weekday).get(quarter)} "
     }
 
     // Printing Inhabitants Status
-    System.out.println("Appliances Quarter Status")
+    log.info "Appliances Quarter Status"
     this.appliances.each {
-      System.out.println("Name: " + it.getName() + " Status: " + it.getWeeklyOperation().get(weekday).get(quarter-1) + " Load: " +  it.getWeeklyLoadVector().get(weekday).get(quarter-1))
+      log.info "Name: ${it.getName()} Status: ${it.getWeeklyOperation().get(weekday).get(quarter)} Load: ${it.getWeeklyLoadVector().get(weekday).get(quarter)} "
     }
     // Printing Household Status
     setCurrentLoad(weekday,quarter)
-    System.out.println("Current Load: " + currentLoad)
-    System.out.println()
+    log.info "Current Load: ${currentLoad} "
   }
 
   /** This function fills out the daily load in hours vector taking in consideration the load per quarter of an hour
@@ -381,7 +380,7 @@ class Household {
    * @return
    */
   def setCurrentLoad(int weekday, int quarter) {
-    setCurrentLoad(weeklyLoad.get(weekday).get(quarter-1))
+    setCurrentLoad(weeklyLoad.get(weekday).get(quarter))
   }
 
   /** At the end of each week the household models refresh their schedule. This way

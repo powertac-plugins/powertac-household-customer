@@ -31,30 +31,32 @@ import org.powertac.common.configurations.Constants
 
 class Village extends AbstractCustomer{
 
+  def villageConsumersService
+  
   /** This is a vector containing aggregated each day's load from the appliances installed inside the households. **/
   Vector aggDailyLoad = new Vector()
 
-  /** This is a vector containing the aggregated load from the appliances installed inside the households for all the week days.**/
-  Vector aggWeeklyLoadNS = new Vector()
-  Vector aggWeeklyLoadRaS = new Vector()
-  Vector aggWeeklyLoadReS = new Vector()
-  Vector aggWeeklyLoadSS = new Vector()
-
-  /** This is an agreggated vector containing all weeks's load of all the households in hours. **/
-  Vector aggWeeklyLoadInHoursNS = new Vector()
-  Vector aggWeeklyLoadInHoursRaS = new Vector()
-  Vector aggWeeklyLoadInHoursReS = new Vector()
-  Vector aggWeeklyLoadInHoursSS = new Vector()
-
   /** This is an agreggated vector containing each day's load of all the households in hours. **/
   Vector aggDailyLoadInHours = new Vector()
+  
+  /** This is a vector containing the aggregated load from the appliances installed inside the households for all the week days.**/
+  //Vector aggWeeklyLoadNS = new Vector()
+  //Vector aggWeeklyLoadRaS = new Vector()
+  //Vector aggWeeklyLoadReS = new Vector()
+  //Vector aggWeeklyLoadSS = new Vector()
+
+  /** This is an agreggated vector containing all weeks's load of all the households in hours. **/
+  //Vector aggWeeklyLoadInHoursNS = new Vector()
+  //Vector aggWeeklyLoadInHoursRaS = new Vector()
+  //Vector aggWeeklyLoadInHoursReS = new Vector()
+  //Vector aggWeeklyLoadInHoursSS = new Vector()
 
 
   /** This hashmap variable is utilized to show which portion of the population is under which subscription **/
   HashMap subscriptionMap = new HashMap()
 
   /** There are 4 kinds of Household Customers in each Village: Not Shifting, Randomly Shifting, Regularly Shifting and Smart Shifting **/
-  static hasMany = [housesNS:Household, housesRaS:Household, housesReS:Household, housesSS:Household ]
+  //static hasMany = [housesNS:Household, housesRaS:Household, housesReS:Household, housesSS:Household ]
 
   /** This is the initialization function. It uses the variable values for the
    * configuration file to create the village with its households and then fill
@@ -72,45 +74,56 @@ class Village extends AbstractCustomer{
     int days = (int)hm.get("PublicVacationDuration")
 
     customerInfo.population = nshouses + rashouses + reshouses + sshouses
-
+    villageConsumersService.createHouseholdsMap(this, 4, nshouses)
+    villageConsumersService.createConsumptionsMap(this,4)
+    
     def publicVacationVector = createPublicVacationVector(days, gen)
-
+    
     for (i in 0..nshouses-1) {
       log.info "Initializing NSHouse ${i} "
       def hh = new Household()
-      this.addToHousesNS(hh)
+      //this.addToHousesNS(hh)
       hh.initialize("NSHouse" + i,hm, publicVacationVector, gen)
+      villageConsumersService.setHousehold(this, 0, i, hh)
     }
 
     for (i in 0..rashouses-1) {
       log.info "Initializing RaSHouse ${i} "
       def hh = new Household()
-      this.addToHousesRaS(hh)
+      //this.addToHousesRaS(hh)
       hh.initialize("RaSHouse" + i,hm, publicVacationVector, gen)
+      villageConsumersService.setHousehold(this, 1, i, hh)
     }
     for (i in 0..reshouses-1) {
       log.info "Initializing ReSHouse ${i} "
       def hh = new Household()
-      this.addToHousesReS(hh)
+      //this.addToHousesReS(hh)
       hh.initialize("ReSHouse" + i,hm, publicVacationVector, gen)
+      villageConsumersService.setHousehold(this, 2, i, hh)
     }
     for (i in 0..sshouses-1) {
       log.info "Initializing SSHouse ${i} "
       def hh = new Household()
-      this.addToHousesSS(hh)
+      //this.addToHousesSS(hh)
       hh.initialize("SSHouse" + i,hm, publicVacationVector, gen)
+      villageConsumersService.setHousehold(this, 3, i, hh)
     }
-
-    fillAggWeeklyLoad(aggWeeklyLoadNS, aggWeeklyLoadInHoursNS, "NotShifting")
-    fillAggWeeklyLoad(aggWeeklyLoadRaS, aggWeeklyLoadInHoursRaS, "RandomlyShifting")
-    fillAggWeeklyLoad(aggWeeklyLoadReS, aggWeeklyLoadInHoursReS, "RegularlyShifting")
-    fillAggWeeklyLoad(aggWeeklyLoadSS, aggWeeklyLoadInHoursSS, "SmartShifting")
     
-    log.info "Testing : ${housesNS.size()} "
-    log.info "Testing : ${housesRaS.size()} "
-    log.info "Testing : ${housesReS.size()} "
-    log.info "Testing : ${housesSS.size()} "
+    log.info "Testing : ${villageConsumersService.getHouseholds(this,0).toString()} "
+    log.info "Testing : ${villageConsumersService.getHouseholds(this,1).toString()} "
+    log.info "Testing : ${villageConsumersService.getHouseholds(this,2).toString()} "
+    log.info "Testing : ${villageConsumersService.getHouseholds(this,3).toString()} "
     
+    fillAggWeeklyLoad("NotShifting")
+    fillAggWeeklyLoad("RandomlyShifting")
+    fillAggWeeklyLoad("RegularlyShifting")
+    fillAggWeeklyLoad("SmartShifting")
+    
+    log.info "Testing : ${villageConsumersService.getConsumptions(this,0)[0].toString()} "
+    log.info "Testing : ${villageConsumersService.getConsumptions(this,1)[0].toString()} "
+    log.info "Testing : ${villageConsumersService.getConsumptions(this,2)[0].toString()} "
+    log.info "Testing : ${villageConsumersService.getConsumptions(this,3)[0].toString()} "
+      
   }
 
   /** This function is used in order to fill each week day of the aggregated daily Load 
@@ -118,12 +131,10 @@ class Village extends AbstractCustomer{
    * 
    * @return
    */
-  def fillAggWeeklyLoad(Vector aggWeeklyLoad, Vector aggWeeklyLoadInHours, String portion) {
+  def fillAggWeeklyLoad(String portion) {
     for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
       setAggDailyLoad(fillAggDailyLoad(i, portion))
-      aggWeeklyLoad.add(aggDailyLoad)
-      setAggDailyLoadInHours(fillAggDailyLoadInHours())
-      aggWeeklyLoadInHours.add(aggDailyLoadInHours)
+      setAggDailyLoadInHours(fillAggDailyLoadInHours(i,portion))
     }
   }
 
@@ -133,37 +144,26 @@ class Village extends AbstractCustomer{
    */
   def showAggWeeklyLoad(String portion) {
 
-    def aggWeeklyLoad, aggWeeklyLoadInHours
+    def houses
 
     if (portion.equals("NotShifting")){
-      aggWeeklyLoad = aggWeeklyLoadNS
-      aggWeeklyLoadInHours = aggWeeklyLoadInHoursNS
+      houses = villageConsumersService.getConsumptions(this,0)
     }
     else if (portion.equals("RandomlyShifting")){
-      aggWeeklyLoad = aggWeeklyLoadRaS
-      aggWeeklyLoadInHours = aggWeeklyLoadInHoursRaS
+      houses = villageConsumersService.getConsumptions(this,1)
     }
     else if (portion.equals("RegularlyShifting")){
-      aggWeeklyLoad = aggWeeklyLoadReS
-      aggWeeklyLoadInHours = aggWeeklyLoadInHoursReS
+      houses = villageConsumersService.getConsumptions(this,2)
     }
     else {
-      aggWeeklyLoad = aggWeeklyLoadSS
-      aggWeeklyLoadInHours = aggWeeklyLoadInHoursSS
+      houses = villageConsumersService.getConsumptions(this,3)
     }
 
     log.info "Portion ${portion} Weekly Aggregated Load "
 
     for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
       log.info "Day ${i} "
-      ListIterator iter = aggWeeklyLoad.get(i).listIterator();
-      for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) log.info "Quarter : ${j+1}  Load : ${iter.next()} "
-    }
-
-    for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
-      log.info "Day ${i} "
-      ListIterator iter = aggWeeklyLoadInHours.get(i).listIterator();
-      for (int j = 0;j < Constants.HOURS_OF_DAY; j++) log.info "Hour : ${j+1}  Load : ${iter.next()} "
+      for (int j = 0;j < Constants.HOURS_OF_DAY; j++) log.info "Hour : ${j+1}  Load : ${houses[i][j]} "
     }
   }
 
@@ -176,14 +176,14 @@ class Village extends AbstractCustomer{
     int hour = (int) (serial % Constants.HOURS_OF_DAY)
     int weekday = (int) (day % Constants.DAYS_OF_WEEK)
     log.info " Serial : ${serial} Hour: ${hour} Weekday: ${weekday}"
-    log.info "Testing : ${housesNS.size()} "
-    log.info "Testing : ${housesRaS.size()} "
-    log.info "Testing : ${housesReS.size()} "
-    log.info "Testing : ${housesSS.size()} "
-    //log.info " Testing : ${aggWeeklyLoadInHoursNS.size()} and ${aggWeeklyLoadInHoursNS.get(weekday).size()}"
-    //BigDecimal ran = aggWeeklyLoadInHoursNS.get(weekday).getAt(hour) + aggWeeklyLoadInHoursRaS.get(weekday).getAt(hour) + aggWeeklyLoadInHoursReS.get(weekday).getAt(hour) + aggWeeklyLoadInHoursSS.get(weekday).getAt(hour)
-    BigDecimal ran = (aggWeeklyLoadInHoursNS.get(weekday).getAt(hour) + aggWeeklyLoadInHoursRaS.get(weekday).getAt(hour) + aggWeeklyLoadInHoursReS.get(weekday).getAt(hour) + aggWeeklyLoadInHoursSS.get(weekday).getAt(hour)) / Constants.PERCENTAGE
-   
+    
+    def ran = 0
+    for (int i=0;i < 4;i++){
+      log.info "${villageConsumersService.getConsumptions(this,i)[0].toString()} "
+    }
+    
+    ran = 10 / Constants.PERCENTAGE
+    
     // For each subscription
     subscriptions.each { sub ->
       log.info " Consumption Load: ${ran} / ${subscriptions.size()} "
@@ -201,16 +201,16 @@ class Village extends AbstractCustomer{
     def houses
 
     if (portion.equals("NotShifting")){
-      houses = this.housesNS
+      houses = villageConsumersService.getHouseholds(this,0)
     }
     else if (portion.equals("RandomlyShifting")){
-      houses = this.housesRaS
+      houses = villageConsumersService.getHouseholds(this,1)
     }
-    else if (portion.equals("RegularlyNotShifting")){
-      houses = this.housesReS
+    else if (portion.equals("RegularlyShifting")){
+      houses = villageConsumersService.getHouseholds(this,2)
     }
     else {
-      houses = this.housesSS
+      houses = villageConsumersService.getHouseholds(this,3)
     }
 
     Vector v = new Vector(Constants.QUARTERS_OF_DAY)
@@ -229,16 +229,29 @@ class Village extends AbstractCustomer{
    * for each hour.
    * @return
    */
-  def fillAggDailyLoadInHours() {
+  def fillAggDailyLoadInHours(int weekday, String portion) {
     // Creating auxiliary variables
-    Vector v = new Vector()
+    def houses 
+    
+    if (portion.equals("NotShifting")){
+      houses = 0
+    }
+    else if (portion.equals("RandomlyShifting")){
+      houses = 1
+    }
+    else if (portion.equals("RegularlyShifting")){
+      houses = 2
+    }
+    else {
+      houses = 3
+    }
+
     int sum = 0
     for (int i = 0;i < Constants.HOURS_OF_DAY; i++) {
       sum = 0
       sum = aggDailyLoad.get(i*Constants.QUARTERS_OF_HOUR) + aggDailyLoad.get(i*Constants.QUARTERS_OF_HOUR +1) + aggDailyLoad.get(i*Constants.QUARTERS_OF_HOUR+2) + aggDailyLoad.get(i*Constants.QUARTERS_OF_HOUR+3)
-      v.add(sum)
+      villageConsumersService.setConsumption(this,houses,weekday,i,sum)
     }
-    return v
   }
 
   /** At the end of each week the village households' models refresh their schedule. 
@@ -248,11 +261,11 @@ class Village extends AbstractCustomer{
    * @return
    */
   def refresh(HashMap hm, Random gen) {
-    this.housesNS.each { it.refresh(hm,gen) }
-    this.housesRaS.each { it.refresh(hm,gen) }
-    this.housesReS.each { it.refresh(hm,gen) }
-    this.housesSS.each { it.refresh(hm,gen) }
-    this.save()
+    for (int i=0; i < villageConsumersService.households.size();i++){
+      for (int j=0; j < villageConsumersService.getHouseholds(this,i).size();j++){
+          villageConsumersService.getHouseholds(this,i)[j].refresh(hm,gen)
+      }
+    }
   }
 
   /** This function prints to the screen the daily load of the village's households for the
@@ -265,19 +278,24 @@ class Village extends AbstractCustomer{
     def houses
 
     if (portion.equals("NotShifting")){
-      houses = this.housesNS
+      houses = 0
     }
     else if (portion.equals("RandomlyShifting")){
-      houses = this.housesRaS
+      houses = 1
     }
-    else if (portion.equals("RegularlyNotShifting")){
-      houses = this.housesReS
+    else if (portion.equals("RegularlyShifting")){
+      houses = 2
     }
     else {
-      houses = this.housesSS
+      houses = 3
     }
 
-    this.houses.each { it.printDailyLoad(weekday) }
+    for (int i=0; i < villageConsumersService.households.size();i++){
+      for (int j=0; j < villageConsumersService.getHouseholds(this,houses).size();j++){
+          villageConsumersService.getHouseholds(this,houses)[j].printDailyLoad(weekday)
+      }
+    }
+
   }
 
   /** This function represents the function that shows the status of all the households
@@ -287,17 +305,10 @@ class Village extends AbstractCustomer{
    * @return
    */
   def stepStatus(int weekday, int quarter) {
-    this.housesNS.each {
-      it.stepStatus(weekday,quarter)
-    }
-    this.housesRaS.each {
-      it.stepStatus(weekday,quarter)
-    }
-    this.housesReS.each {
-      it.stepStatus(weekday,quarter)
-    }
-    this.housesSS.each {
-      it.stepStatus(weekday,quarter)
+    for (int i=0; i < villageConsumersService.households.size();i++){
+      for (int j=0; j < villageConsumersService.getHouseholds(this,i).size();j++){
+          villageConsumersService.getHouseholds(this,i)[j].stepStatus(weekday,quarter)
+      }
     }
   }
 
