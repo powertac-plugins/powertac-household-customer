@@ -15,14 +15,13 @@
  */
 package powertac.household.customer
 
-import org.joda.time.Instant
 import org.powertac.consumers.Household
 import org.powertac.consumers.Village
 
 /**
-* Stores Households in each category of consumers and consumption vectors on behalf of Household Customers, bypassing the database.
-* @author Antonios Chrysopoulos
-*/
+ * Stores Households in each category of consumers and consumption vectors on behalf of Household Customers, bypassing the database.
+ * @author Antonios Chrysopoulos
+ */
 class VillageConsumersService {
 
   static transactional = true
@@ -34,24 +33,24 @@ class VillageConsumersService {
   void createHouseholdsMap (Village village, int types, int population)
   {
     log.info "create household map for Household Customer ${village.toString()} [${types}]"
-    households[village.id] = new Household[types][population]
+    households[village.customerInfo.name] = new Household[types][population]
   }
- 
+
   // manage tier lists
   def getHouseholds(Village village, int type)
   {
-    def householdMap = households[village.id]
-   
+    def householdMap = households[village.customerInfo.name]
+
     if (householdMap == null) {
       log.error "could not find household map for Village ${village.toString()}"
       return
     }
     return householdMap[type]
   }
- 
+
   void setHousehold(Village village, int type, int index, Household house)
   {
-    def householdMap = households[village.id]
+    def householdMap = households[village.customerInfo.name]
     if (householdMap == null) {
       log.error "could not find Household map for village ${village.toString()}"
       return
@@ -60,27 +59,26 @@ class VillageConsumersService {
   }
 
 
- void createConsumptionsMap (Village village, int types)
+  void createConsumptionsMap (Village village, int types)
   {
-   log.info "create consumption map for Household Customer ${village.id} [${types}]"
-   consumptions[village.id] = new BigDecimal[types][7][24]
- }
- 
- def getConsumptions(Village village, int type)
- {
-   long villageId = village.id
-   return consumptions[villageId][type]
- }
- 
- void setConsumption(Village village, int type, int weekday, int hour, BigDecimal value)
+    log.info "create consumption map for Household Customer ${village.id} [${types}]"
+    consumptions[village.customerInfo.name] = new BigDecimal[types][7][24]
+  }
+
+  def getConsumptions(Village village, int type)
   {
-    def consumptionMap = consumptions[village.id]
+    return consumptions[village.customerInfo.name][type]
+  }
+
+  void setConsumption(Village village, int type, int weekday, int hour, BigDecimal value)
+  {
+    def consumptionMap = consumptions[village.customerInfo.name]
     if (consumptionMap == null) {
       log.error "could not find Consumption map for village ${village.toString()}"
       return
     }
     consumptionMap[type][weekday][hour] = value
   }
- 
+
 }
 

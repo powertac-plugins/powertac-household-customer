@@ -16,16 +16,16 @@
 
 package powertac.household.customer
 
-import java.util.Random;
+import java.util.Random
 
 import org.joda.time.Instant
 import org.powertac.common.CustomerInfo
 import org.powertac.common.PluginConfig
+import org.powertac.common.configurations.Constants
 import org.powertac.common.enumerations.CustomerType
 import org.powertac.common.enumerations.PowerType
 import org.powertac.common.interfaces.TimeslotPhaseProcessor
 import org.powertac.consumers.Village
-import org.powertac.common.configurations.Constants
 
 class HouseholdCustomerService implements TimeslotPhaseProcessor {
 
@@ -34,13 +34,13 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
   def timeService // autowire
   def competitionControlService
   def randomSeedService // autowire
-  
+
   PluginConfig configuration
-  
+
   HashMap hm
 
   Random randomGen = null
-   
+
   void afterPropertiesSet ()
   {
     competitionControlService.registerTimeslotPhase(this, 1)
@@ -57,16 +57,16 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
   void init(PluginConfig config) {
 
     configuration = config
-    
+
     //Reading the config file
     Scanner sc = new Scanner(System.in);
     def conf = new org.powertac.common.configurations.Config();
     conf.readConf(getConfigFile());
-    
+
     Random gen = ensureRandomSeed()
-    
+
     hm = conf.variablesHashMap
-    
+
     def number = (int)conf.variablesHashMap.get("NumberOfVillages")
     for (int i = 1; i < number+1;i++){
       def villageInfo = new CustomerInfo(Name: "Village " + i,customerType: CustomerType.CustomerHousehold, powerTypes: [PowerType.CONSUMPTION])
@@ -85,10 +85,10 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
     def villageList = Village.list()
 
     Random gen = ensureRandomSeed()
-    
+
     if (phase == 1){
       villageList*.step()
-      
+
       int serial = ((now.millis - timeService.start)/3600000) + 1
 
       int day = (int) (serial / Constants.HOURS_OF_DAY)
@@ -98,12 +98,12 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
       if (hour == 23 && weekday == 6){
         villageList*.refresh(hm,gen)
       }
-    }  
+    }
     else {
       villageList*.toString()
     }
   }
-  
+
   private Random ensureRandomSeed ()
   {
     if (randomGen == null) {

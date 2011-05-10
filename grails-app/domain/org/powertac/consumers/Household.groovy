@@ -70,8 +70,7 @@ class Household {
    * @param publicVacationVector
    * @return
    */
-  def initialize(String HouseName, HashMap hm, Vector publicVacationVector, Random gen)
-  {
+  def initialize(String HouseName, HashMap hm, Vector publicVacationVector, Random gen) {
     setName(HouseName)
     int persons = memberRandomizer(hm, gen)
     for (int i = 0;i < persons; i++) addPerson(i+1,hm,publicVacationVector, gen)
@@ -97,7 +96,7 @@ class Household {
     int mp = (int)hm.get("MostlyPresent")
     int ra = (int)hm.get("RandomlyAbsent")
     float va = (float)hm.get("VacationAbsence")
-    
+
     int x = gen.nextInt(Constants.PERCENTAGE);
     if (x < pp) {
       PeriodicPresentPerson ppp = new PeriodicPresentPerson()
@@ -131,7 +130,7 @@ class Household {
     int four = (int) hm.get("FourPersons")
     int five = (int) hm.get("FivePersons")
     int returnValue
-    
+
     int x = gen.nextInt(Constants.PERCENTAGE);
     if (x < one) {
       setYearConsumption((int) hm.get("OnePersonConsumption"))
@@ -337,20 +336,16 @@ class Household {
    */
   def stepStatus(int weekday, int quarter) {
     // Printing Inhabitants Status
-    
+
     log.info "House: ${name} "
     log.info "Person Quarter Status"
 
     // For each person in the house
-    this.members.each {
-      log.info "Name: ${it.getName()} Status: ${it.getWeeklyRoutine().get(weekday).get(quarter)} "
-    }
+    this.members.each { log.info "Name: ${it.getName()} Status: ${it.getWeeklyRoutine().get(weekday).get(quarter)} " }
 
     // Printing Inhabitants Status
     log.info "Appliances Quarter Status"
-    this.appliances.each {
-      log.info "Name: ${it.getName()} Status: ${it.getWeeklyOperation().get(weekday).get(quarter)} Load: ${it.getWeeklyLoadVector().get(weekday).get(quarter)} "
-    }
+    this.appliances.each { log.info "Name: ${it.getName()} Status: ${it.getWeeklyOperation().get(weekday).get(quarter)} Load: ${it.getWeeklyLoadVector().get(weekday).get(quarter)} " }
     // Printing Household Status
     setCurrentLoad(weekday,quarter)
     log.info "Current Load: ${currentLoad} "
@@ -395,14 +390,17 @@ class Household {
     log.info "Refresh Weekly Routine Of House Of Household Members"
 
     // For each member of the household
-    this.members.each {member -> 
-      member.refresh(hm,gen) 
+    this.members.each {member ->
+      member.weeklyRoutine.removeAllElements()
+      member.refresh(hm,gen)
     }
 
     // Refreshing appliance's function schedule
     log.info "Refresh Weekly Functions of Appliances"
 
     this.appliances.each { appliance ->
+      appliance.weeklyLoadVector.removeAllElements()
+      appliance.weeklyOperation.removeAllElements()
       appliance.refresh(gen)
     }
 
@@ -415,6 +413,7 @@ class Household {
       setDailyLoadInHours(fillDailyLoadInHours())
       weeklyLoadInHours.add(dailyLoadInHours)
     }
+
     this.save()
   }
 
@@ -432,7 +431,7 @@ class Household {
   public String toString() {
     this.getName()
   }
-  
+
   static constraints = {
   }
 }
