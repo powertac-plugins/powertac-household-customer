@@ -55,7 +55,7 @@ class CirculationPump extends NotShiftingAppliance {
     probabilityWeekday = fillDay(Constants.CIRCULATION_PUMP_POSSIBILITY_DAY_1,Constants.CIRCULATION_PUMP_POSSIBILITY_DAY_2,Constants.CIRCULATION_PUMP_POSSIBILITY_DAY_3)
 
   }
-  
+
   @ Override
   def fillDailyFunction(int weekday, Random gen) {
 
