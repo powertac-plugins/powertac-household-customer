@@ -84,7 +84,7 @@ class CirculationPump extends NotShiftingAppliance {
   @ Override
   def refresh(Random gen) {
     fillWeeklyFunction(gen)
-    log.info "Circulation Pump refreshed"
+    //log.info "Circulation Pump refreshed"
   }
 
 

@@ -2,7 +2,7 @@
 General Variables
 ====================
 
-PublicVacationDuration = 10
+PublicVacationDuration = 4
 PublicVacationDays = (if we want them to be specific) 
 NumberOfVillages = 2
 

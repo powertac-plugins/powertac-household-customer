@@ -17,10 +17,11 @@
 
 package org.powertac.persons
 
-import java.util.HashMap;
-import java.util.Vector;
-import org.powertac.common.enumerations.Status;
-import org.powertac.common.configurations.Constants;
+import java.util.HashMap
+import java.util.Vector
+
+import org.powertac.common.configurations.Constants
+import org.powertac.common.enumerations.Status
 
 /**
  * This is the instance of the person type that works in shifts that may vary
@@ -42,8 +43,7 @@ class RandomlyAbsentPerson extends WorkingPerson {
    * @return
    */
 
-  def initialize(String AgentName, HashMap hm, Vector publicVacationVector, Random gen) 
-  {
+  def initialize(String AgentName, HashMap hm, Vector publicVacationVector, Random gen) {
     // Variables Taken from the configuration file
     float sicknessMean = ((float)hm.get("SicknessMean"))
     float sicknessDev = ((float)hm.get("SicknessDev"))
@@ -58,7 +58,7 @@ class RandomlyAbsentPerson extends WorkingPerson {
     // Filling the main variables
     name = AgentName
     status = Status.Normal
-    
+
     // Filling the sickness and public Vacation Vectors
     sicknessVector = createSicknessVector(sicknessMean,sicknessDev, gen)
     this.publicVacationVector = publicVacationVector
@@ -81,8 +81,7 @@ class RandomlyAbsentPerson extends WorkingPerson {
    * @return
    */
 
-  def createWorkingStartHour(Random gen) 
-  {
+  def createWorkingStartHour(Random gen) {
 
     int x = gen.nextInt(Constants.NUMBER_OF_SHIFTS)
     return (x * Constants.HOURS_OF_SHIFT_WORK * Constants.QUARTERS_OF_HOUR)
@@ -93,8 +92,7 @@ class RandomlyAbsentPerson extends WorkingPerson {
    * @param weekday
    * @return
    */
-  def addLeisureWorking(int weekday, Random gen) 
-  {
+  def addLeisureWorking(int weekday, Random gen) {
     // Create auxiliary variables
     ListIterator iter = leisureVector.listIterator();
     Status st
@@ -123,12 +121,12 @@ class RandomlyAbsentPerson extends WorkingPerson {
             }
           }
         }
-      } 
+      }
     }
   }
 
   @ Override
-  def fillWork() 
+  def fillWork()
   {
     // Create auxiliary variables
     Status st
@@ -184,7 +182,7 @@ class RandomlyAbsentPerson extends WorkingPerson {
         } else  {
           for (int i = Constants.SHIFT_START_3;i < Constants.SHIFT_START_3 + workingDuration;i++) {
             if (i >= Constants.QUARTERS_OF_DAY) break
-            st = Status.Working
+              st = Status.Working
             dailyRoutine.set(i,st)
           }
           for (int i =  Constants.SHIFT_START_3 + workingDuration;i < Constants.QUARTERS_OF_DAY;i++) {
@@ -197,7 +195,7 @@ class RandomlyAbsentPerson extends WorkingPerson {
   }
 
   @ Override
-  void refresh(HashMap hm, Random gen) 
+  void refresh(HashMap hm, Random gen)
   {
     // Renew Variables
     float leisureDurationMean = ((int)hm.get("LeisureDurationMean"))
@@ -211,7 +209,11 @@ class RandomlyAbsentPerson extends WorkingPerson {
     int x = (int) (gen.nextGaussian() + RALeisure)
     leisureDuration = (int) (leisureDurationDev * gen.nextGaussian() + leisureDurationMean)
     leisureVector = createLeisureVector(x,gen)
-    weeklyRoutine = fillWeeklyRoutine(vacationAbsence,gen)
+
+    for (int i =0;i < Constants.DAYS_OF_WEEK;i++) {
+      fillDailyRoutine(i,vacationAbsence, gen)
+      weeklyRoutine.add(dailyRoutine)
+    }
   }
 
   static constraints = {

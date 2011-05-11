@@ -17,7 +17,8 @@
 
 package org.powertac.appliances
 
-import java.util.Random;
+import java.util.Random
+
 import org.powertac.common.configurations.Constants
 
 /**
@@ -89,7 +90,7 @@ class ConsumerElectronics extends NotShiftingAppliance {
   def refresh(Random gen) {
     createWeeklyOperationVector(times + applianceOf.members.size(), gen)
     fillWeeklyFunction(gen)
-    log.info "Consumer Electronics refreshed"
+    //log.info "Consumer Electronics refreshed"
   }
 
 

@@ -16,7 +16,7 @@
 
 package org.powertac.persons
 
-import java.util.HashMap;
+import java.util.HashMap
 import java.util.Vector
 
 import org.powertac.common.configurations.Constants
@@ -185,7 +185,7 @@ class Person {
    */
   def createSicknessVector(float mean, float dev, Random gen) {
     // Create auxiliary variables
-    
+
     int days = (int) (dev * gen.nextGaussian() + mean)
     Vector v = new Vector(days)
 
@@ -273,16 +273,16 @@ class Person {
    * @param vacationAbsence
    * @return
    */
-  def fillWeeklyRoutine(float vacationAbsence, Random gen) {
-    // Create auxiliary variable
-    Vector v = new Vector()
-    // Fill out each day for the week
-    for (int i = 0;i < Constants.DAYS_OF_WEEK;i++) {
-      fillDailyRoutine(i,vacationAbsence, gen)
-      v.add(dailyRoutine)
-    }
-    return v
-  }
+  /*  def fillWeeklyRoutine(float vacationAbsence, Random gen) {
+   // Create auxiliary variable
+   Vector v = new Vector()
+   // Fill out each day for the week
+   for (int i = 0;i < Constants.DAYS_OF_WEEK;i++) {
+   fillDailyRoutine(i,vacationAbsence, gen)
+   v.add(dailyRoutine)
+   }
+   return v
+   }*/
 
   /** This is the function utilized to show the information regarding
    * the person in question, its variables values etc.

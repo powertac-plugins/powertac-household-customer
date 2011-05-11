@@ -18,7 +18,7 @@
 package org.powertac.appliances
 
 import java.util.HashMap
-import java.util.Random;
+import java.util.Random
 
 import org.powertac.common.configurations.Constants
 import org.powertac.common.enumerations.HeaterType
@@ -188,10 +188,10 @@ class WaterHeater extends FullyShiftingAppliance{
     if (type == HeaterType.InstantHeater) {
       createWeeklyOperationVector((int)(times + applianceOf.members.size()/2),gen)
       fillWeeklyFunction(gen)
-      log.info "Instant Water Heater refreshed"
+      //log.info "Instant Water Heater refreshed"
     } else  {
       fillWeeklyFunction(gen)
-      log.info "Storage Water Heater refreshed"
+      //log.info "Storage Water Heater refreshed"
     }
   }
 

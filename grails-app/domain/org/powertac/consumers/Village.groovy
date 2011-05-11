@@ -39,24 +39,8 @@ class Village extends AbstractCustomer{
   /** This is an agreggated vector containing each day's load of all the households in hours. **/
   Vector aggDailyLoadInHours = new Vector()
 
-  /** This is a vector containing the aggregated load from the appliances installed inside the households for all the week days.**/
-  //Vector aggWeeklyLoadNS = new Vector()
-  //Vector aggWeeklyLoadRaS = new Vector()
-  //Vector aggWeeklyLoadReS = new Vector()
-  //Vector aggWeeklyLoadSS = new Vector()
-
-  /** This is an agreggated vector containing all weeks's load of all the households in hours. **/
-  //Vector aggWeeklyLoadInHoursNS = new Vector()
-  //Vector aggWeeklyLoadInHoursRaS = new Vector()
-  //Vector aggWeeklyLoadInHoursReS = new Vector()
-  //Vector aggWeeklyLoadInHoursSS = new Vector()
-
-
   /** This hashmap variable is utilized to show which portion of the population is under which subscription **/
-  HashMap subscriptionMap = new HashMap()
-
-  /** There are 4 kinds of Household Customers in each Village: Not Shifting, Randomly Shifting, Regularly Shifting and Smart Shifting **/
-  //static hasMany = [housesNS:Household, housesRaS:Household, housesReS:Household, housesSS:Household ]
+  // HashMap subscriptionMap = new HashMap()
 
   /** This is the initialization function. It uses the variable values for the
    * configuration file to create the village with its households and then fill
@@ -109,20 +93,15 @@ class Village extends AbstractCustomer{
       villageConsumersService.setHousehold(this, 3, i, hh)
     }
 
-    log.info "Testing : ${villageConsumersService.getHouseholds(this,0).toString()} "
-    log.info "Testing : ${villageConsumersService.getHouseholds(this,1).toString()} "
-    log.info "Testing : ${villageConsumersService.getHouseholds(this,2).toString()} "
-    log.info "Testing : ${villageConsumersService.getHouseholds(this,3).toString()} "
-
     fillAggWeeklyLoad("NotShifting")
     fillAggWeeklyLoad("RandomlyShifting")
     fillAggWeeklyLoad("RegularlyShifting")
     fillAggWeeklyLoad("SmartShifting")
 
-    log.info "Testing : ${villageConsumersService.getConsumptions(this,0)[0].toString()} "
-    log.info "Testing : ${villageConsumersService.getConsumptions(this,1)[0].toString()} "
-    log.info "Testing : ${villageConsumersService.getConsumptions(this,2)[0].toString()} "
-    log.info "Testing : ${villageConsumersService.getConsumptions(this,3)[0].toString()} "
+    log.info "Testing : ${villageConsumersService.getConsumptions(this,0)[62].toString()} "
+    log.info "Testing : ${villageConsumersService.getConsumptions(this,1)[62].toString()} "
+    log.info "Testing : ${villageConsumersService.getConsumptions(this,2)[62].toString()} "
+    log.info "Testing : ${villageConsumersService.getConsumptions(this,3)[62].toString()} "
 
   }
 
@@ -132,7 +111,8 @@ class Village extends AbstractCustomer{
    * @return
    */
   def fillAggWeeklyLoad(String portion) {
-    for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
+    for (int i = 0; i < Constants.DAYS_OF_WEEK * 9;i++) {
+      log.info "i = ${i}"
       setAggDailyLoad(fillAggDailyLoad(i, portion))
       setAggDailyLoadInHours(fillAggDailyLoadInHours(i,portion))
     }
@@ -196,7 +176,7 @@ class Village extends AbstractCustomer{
    * @param weekday
    * @return
    */
-  def fillAggDailyLoad(int weekday, String portion) {
+  def fillAggDailyLoad(int day, String portion) {
 
     def houses
 
@@ -218,7 +198,7 @@ class Village extends AbstractCustomer{
     for (int i = 0;i < Constants.QUARTERS_OF_DAY; i++) {
       sum = 0
       houses.each {
-        sum = sum + it.weeklyLoad.get(weekday).get(i)
+        sum = sum + it.weeklyLoad.get(day).get(i)
       }
       v.add(sum)
     }
@@ -229,7 +209,7 @@ class Village extends AbstractCustomer{
    * for each hour.
    * @return
    */
-  def fillAggDailyLoadInHours(int weekday, String portion) {
+  def fillAggDailyLoadInHours(int day, String portion) {
     // Creating auxiliary variables
     def houses
 
@@ -250,7 +230,7 @@ class Village extends AbstractCustomer{
     for (int i = 0;i < Constants.HOURS_OF_DAY; i++) {
       sum = 0
       sum = aggDailyLoad.get(i*Constants.QUARTERS_OF_HOUR) + aggDailyLoad.get(i*Constants.QUARTERS_OF_HOUR +1) + aggDailyLoad.get(i*Constants.QUARTERS_OF_HOUR+2) + aggDailyLoad.get(i*Constants.QUARTERS_OF_HOUR+3)
-      villageConsumersService.setConsumption(this,houses,weekday,i,sum)
+      villageConsumersService.setConsumption(this,houses,day,i,sum)
     }
   }
 
@@ -282,7 +262,7 @@ class Village extends AbstractCustomer{
    * @param weekday
    * @return
    */
-  def printDailyLoad(int weekday, String portion) {
+  def printDailyLoad(int day, String portion) {
 
     def houses
 
@@ -301,7 +281,7 @@ class Village extends AbstractCustomer{
 
     for (int i=0; i < villageConsumersService.households.size();i++){
       for (int j=0; j < villageConsumersService.getHouseholds(this,houses).size();j++){
-        villageConsumersService.getHouseholds(this,houses)[j].printDailyLoad(weekday)
+        villageConsumersService.getHouseholds(this,houses)[j].printDailyLoad(day)
       }
     }
 
@@ -313,10 +293,10 @@ class Village extends AbstractCustomer{
    * @param quarter
    * @return
    */
-  def stepStatus(int weekday, int quarter) {
+  def stepStatus(int day, int quarter) {
     for (int i=0; i < villageConsumersService.households.size();i++){
       for (int j=0; j < villageConsumersService.getHouseholds(this,i).size();j++){
-        villageConsumersService.getHouseholds(this,i)[j].stepStatus(weekday,quarter)
+        villageConsumersService.getHouseholds(this,i)[j].stepStatus(day,quarter)
       }
     }
   }

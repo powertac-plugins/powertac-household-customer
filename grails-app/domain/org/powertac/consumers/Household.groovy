@@ -71,15 +71,29 @@ class Household {
    * @return
    */
   def initialize(String HouseName, HashMap hm, Vector publicVacationVector, Random gen) {
+    float va = (float)hm.get("VacationAbsence")
     setName(HouseName)
     int persons = memberRandomizer(hm, gen)
     for (int i = 0;i < persons; i++) addPerson(i+1,hm,publicVacationVector, gen)
+
+    this.members.each { member ->
+      for (int i =0;i < Constants.DAYS_OF_WEEK;i++) {
+        member.fillDailyRoutine(i,va, gen)
+        member.weeklyRoutine.add(member.dailyRoutine)
+      }
+    }
+
     fillAppliances(hm, gen)
+
     for (int i =0;i < Constants.DAYS_OF_WEEK;i++) {
       setDailyLoad(fillDailyLoad(i))
       weeklyLoad.add(dailyLoad)
       setDailyLoadInHours(fillDailyLoadInHours())
       weeklyLoadInHours.add(dailyLoadInHours)
+    }
+
+    for (int week = 0;week < 8;week++){
+      refresh(hm,gen)
     }
   }
 
@@ -95,24 +109,23 @@ class Household {
     int pp = (int)hm.get("PeriodicPresent")
     int mp = (int)hm.get("MostlyPresent")
     int ra = (int)hm.get("RandomlyAbsent")
-    float va = (float)hm.get("VacationAbsence")
 
     int x = gen.nextInt(Constants.PERCENTAGE);
     if (x < pp) {
       PeriodicPresentPerson ppp = new PeriodicPresentPerson()
       ppp.initialize("PPP" + counter,hm,publicVacationVector,gen)
-      ppp.weeklyRoutine = ppp.fillWeeklyRoutine(va,gen)
+      //ppp.weeklyRoutine = ppp.fillWeeklyRoutine(va,gen)
       this.addToMembers(ppp)
     } else  {
       if (x >= pp & x < (pp + mp)) {
         MostlyPresentPerson mpp = new MostlyPresentPerson()
         mpp.initialize("MPP" + counter,hm,publicVacationVector,gen)
-        mpp.weeklyRoutine = mpp.fillWeeklyRoutine(va,gen)
+        //mpp.weeklyRoutine = mpp.fillWeeklyRoutine(va,gen)
         this.addToMembers(mpp)
       } else  {
         RandomlyAbsentPerson rap = new RandomlyAbsentPerson()
         rap.initialize("RAP"+ counter,hm,publicVacationVector,gen)
-        rap.weeklyRoutine = rap.fillWeeklyRoutine(va,gen)
+        //rap.weeklyRoutine = rap.fillWeeklyRoutine(va,gen)
         this.addToMembers(rap)
       }
     }
@@ -277,16 +290,16 @@ class Household {
     System.out.println(" Number Of Appliances = ")
     System.out.println(appliances.size())
     while (iter.hasNext()) iter.next().showStatus();
-    // Printing weekly load
-    System.out.println(" Weekly Load = ")
+    // Printing daily load
+    System.out.println(" Daily Load = ")
     for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
       System.out.println("Day " + (i))
       ListIterator iter2 = weeklyLoad.get(i).listIterator();
       for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) System.out.println("Quarter : " + (j+1) + " Load : " + iter2.next())
     }
 
-    // Printing weekly load in hours
-    System.out.println(" Weekly Load In Hours = ")
+    // Printing daily load in hours
+    System.out.println(" Load In Hours = ")
     for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
       System.out.println("Day " + (i))
       ListIterator iter2 = weeklyLoadInHours.get(i).listIterator();
@@ -334,20 +347,20 @@ class Household {
    * @param quarter
    * @return
    */
-  def stepStatus(int weekday, int quarter) {
+  def stepStatus(int day, int quarter) {
     // Printing Inhabitants Status
 
     log.info "House: ${name} "
     log.info "Person Quarter Status"
 
     // For each person in the house
-    this.members.each { log.info "Name: ${it.getName()} Status: ${it.getWeeklyRoutine().get(weekday).get(quarter)} " }
+    this.members.each { log.info "Name: ${it.getName()} Status: ${it.getWeeklyRoutine().get(day).get(quarter)} " }
 
     // Printing Inhabitants Status
     log.info "Appliances Quarter Status"
-    this.appliances.each { log.info "Name: ${it.getName()} Status: ${it.getWeeklyOperation().get(weekday).get(quarter)} Load: ${it.getWeeklyLoadVector().get(weekday).get(quarter)} " }
+    this.appliances.each { log.info "Name: ${it.getName()} Status: ${it.getWeeklyOperation().get(day).get(quarter)} Load: ${it.getWeeklyLoadVector().get(day).get(quarter)} " }
     // Printing Household Status
-    setCurrentLoad(weekday,quarter)
+    setCurrentLoad(day,quarter)
     log.info "Current Load: ${currentLoad} "
   }
 
@@ -374,8 +387,8 @@ class Household {
    * @param quarter
    * @return
    */
-  def setCurrentLoad(int weekday, int quarter) {
-    setCurrentLoad(weeklyLoad.get(weekday).get(quarter))
+  def setCurrentLoad(int day, int quarter) {
+    setCurrentLoad(weeklyLoad.get(day).get(quarter))
   }
 
   /** At the end of each week the household models refresh their schedule. This way
@@ -386,27 +399,22 @@ class Household {
    */
   def refresh(HashMap hm, Random gen) {
 
-    log.info "Refresh Weekly Routine Of House ${name} "
-    log.info "Refresh Weekly Routine Of House Of Household Members"
+    //log.info "Refresh Weekly Routine Of House ${name} "
+    //log.info "Refresh Weekly Routine Of House Of Household Members"
 
     // For each member of the household
     this.members.each {member ->
-      member.weeklyRoutine.removeAllElements()
       member.refresh(hm,gen)
     }
 
     // Refreshing appliance's function schedule
-    log.info "Refresh Weekly Functions of Appliances"
+    //log.info "Refresh Weekly Functions of Appliances"
 
     this.appliances.each { appliance ->
-      appliance.weeklyLoadVector.removeAllElements()
-      appliance.weeklyOperation.removeAllElements()
       appliance.refresh(gen)
     }
 
     // Erase information from vectors
-    weeklyLoad.removeAllElements()
-    weeklyLoadInHours.removeAllElements()
     for (int i =0;i < Constants.DAYS_OF_WEEK;i++) {
       setDailyLoad(fillDailyLoad(i))
       weeklyLoad.add(dailyLoad)
@@ -422,8 +430,8 @@ class Household {
    * @param weekday
    * @return
    */
-  def printDailyLoad(int weekday) {
-    ListIterator iter = weeklyLoadInHours.get(weekday).listIterator()
+  def printDailyLoad(int day) {
+    ListIterator iter = weeklyLoadInHours.get(day).listIterator()
     log.info "Summary of Daily Load of House ${name} "
     for (int j = 0;j < Constants.HOURS_OF_DAY; j++) log.info "Hour : ${j+1} Load : ${iter.next()} "
   }

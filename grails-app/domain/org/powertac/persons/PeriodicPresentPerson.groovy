@@ -17,10 +17,11 @@
 
 package org.powertac.persons
 
-import java.util.HashMap;
-import java.util.Vector;
-import org.powertac.common.enumerations.Status;
+import java.util.HashMap
+import java.util.Vector
+
 import org.powertac.common.configurations.Constants
+import org.powertac.common.enumerations.Status
 
 /**
  * This is the instance of the person type that works in a regular basis for
@@ -40,8 +41,7 @@ class PeriodicPresentPerson extends WorkingPerson {
    * @param publicVacationVector
    * @return
    */
-  def initialize(String AgentName, HashMap hm, Vector publicVacationVector, Random gen) 
-  {
+  def initialize(String AgentName, HashMap hm, Vector publicVacationVector, Random gen) {
     // Variables Taken from the configuration file
     float sicknessMean = ((float)hm.get("SicknessMean"))
     float sicknessDev = ((float)hm.get("SicknessDev"))
@@ -79,8 +79,7 @@ class PeriodicPresentPerson extends WorkingPerson {
    * @param weekday
    * @return
    */
-  def addLeisureWorking(int weekday, Random gen) 
-  {
+  def addLeisureWorking(int weekday, Random gen) {
 
     // Create auxiliary variables
     ListIterator iter = leisureVector.listIterator();
@@ -96,12 +95,12 @@ class PeriodicPresentPerson extends WorkingPerson {
           dailyRoutine.set(i,st)
           if (i == Constants.QUARTERS_OF_DAY - 1) break
         }
-      } 
+      }
     }
   }
 
   @ Override
-  def fillWork() 
+  def fillWork()
   {
     // Create auxiliary variables
     Status st
@@ -112,7 +111,7 @@ class PeriodicPresentPerson extends WorkingPerson {
   }
 
   @ Override
-  void refresh(HashMap hm, Random gen) 
+  void refresh(HashMap hm, Random gen)
   {
 
     // Renew Variables
@@ -123,7 +122,10 @@ class PeriodicPresentPerson extends WorkingPerson {
     int x = (int) (gen.nextGaussian() + PPLeisure)
     leisureDuration = (int) (leisureDurationDev * gen.nextGaussian() + leisureDurationMean)
     leisureVector = createLeisureVector(x,gen)
-    weeklyRoutine = fillWeeklyRoutine(vacationAbsence, gen)
+    for (int i =0;i < Constants.DAYS_OF_WEEK;i++) {
+      fillDailyRoutine(i,vacationAbsence, gen)
+      weeklyRoutine.add(dailyRoutine)
+    }
   }
 
   static constraints = {
