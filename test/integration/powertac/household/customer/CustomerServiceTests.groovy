@@ -363,7 +363,7 @@ class CustomerServiceTests extends GroovyTestCase {
    */
   void testVillageRefreshModels() {
     initializeService()
-    timeService.start = now.toInstant().millis
+    timeService.base = now.toInstant().millis
     timeService.currentTime = new Instant(timeService.currentTime.millis + TimeService.HOUR*22)
     timeService.currentTime = new Instant(timeService.currentTime.millis + TimeService.DAY*6)
 

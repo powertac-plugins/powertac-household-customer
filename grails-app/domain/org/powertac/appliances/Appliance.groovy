@@ -236,6 +236,13 @@ class Appliance {
   def refresh(HashMap hm, Random gen) {
   }
 
+  /** This is an function to fill the maps utilized by Services in order to keep the vectors of each appliance
+   *  during the runtime.
+   * @return
+   */
+  def setVectors(HashMap hm, Random gen) {
+  }
+
   static constraints = {
 
     name()

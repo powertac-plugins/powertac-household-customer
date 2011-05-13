@@ -64,32 +64,28 @@ class Village extends AbstractCustomer{
     def publicVacationVector = createPublicVacationVector(days, gen)
 
     for (i in 0..nshouses-1) {
-      log.info "Initializing NSHouse ${i} "
+      log.info "Initializing ${this.customerInfo.name} NSHouse ${i} "
       def hh = new Household()
-      //this.addToHousesNS(hh)
-      hh.initialize("NSHouse" + i,hm, publicVacationVector, gen)
+      hh.initialize(this.customerInfo.name+" NSHouse" + i,hm, publicVacationVector, gen)
       villageConsumersService.setHousehold(this, 0, i, hh)
     }
 
     for (i in 0..rashouses-1) {
-      log.info "Initializing RaSHouse ${i} "
+      log.info "Initializing ${this.customerInfo.name} RaSHouse ${i} "
       def hh = new Household()
-      //this.addToHousesRaS(hh)
-      hh.initialize("RaSHouse" + i,hm, publicVacationVector, gen)
+      hh.initialize(this.customerInfo.name+" RaSHouse" + i,hm, publicVacationVector, gen)
       villageConsumersService.setHousehold(this, 1, i, hh)
     }
     for (i in 0..reshouses-1) {
-      log.info "Initializing ReSHouse ${i} "
+      log.info "Initializing ${this.customerInfo.name} ReSHouse ${i} "
       def hh = new Household()
-      //this.addToHousesReS(hh)
-      hh.initialize("ReSHouse" + i,hm, publicVacationVector, gen)
+      hh.initialize(this.customerInfo.name+" ReSHouse" + i,hm, publicVacationVector, gen)
       villageConsumersService.setHousehold(this, 2, i, hh)
     }
     for (i in 0..sshouses-1) {
-      log.info "Initializing SSHouse ${i} "
+      log.info "Initializing ${this.customerInfo.name} SSHouse ${i} "
       def hh = new Household()
-      //this.addToHousesSS(hh)
-      hh.initialize("SSHouse" + i,hm, publicVacationVector, gen)
+      hh.initialize(this.customerInfo.name+" SSHouse" + i,hm, publicVacationVector, gen)
       villageConsumersService.setHousehold(this, 3, i, hh)
     }
 
@@ -112,7 +108,7 @@ class Village extends AbstractCustomer{
    */
   def fillAggWeeklyLoad(String portion) {
     for (int i = 0; i < Constants.DAYS_OF_WEEK * 9;i++) {
-      log.info "i = ${i}"
+      //log.info "i = ${i}"
       setAggDailyLoad(fillAggDailyLoad(i, portion))
       setAggDailyLoadInHours(fillAggDailyLoadInHours(i,portion))
     }
@@ -154,12 +150,11 @@ class Village extends AbstractCustomer{
 
     int day = (int) (serial / Constants.HOURS_OF_DAY)
     int hour = (int) (serial % Constants.HOURS_OF_DAY)
-    int weekday = (int) (day % Constants.DAYS_OF_WEEK)
-    log.info " Serial : ${serial} Hour: ${hour} Weekday: ${weekday}"
+    log.info " Serial : ${serial} Day: ${day} Hour: ${hour} "
 
     def ran = 0
     for (int i=0;i < 4;i++){
-      ran = ran + villageConsumersService.getConsumptions(this,i)[weekday][hour]
+      ran = ran + villageConsumersService.getConsumptions(this,i)[day][hour]
     }
 
     ran = ran / Constants.PERCENTAGE

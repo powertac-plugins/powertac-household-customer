@@ -83,6 +83,8 @@ class Household {
       }
     }
 
+
+
     fillAppliances(hm, gen)
 
     for (int i =0;i < Constants.DAYS_OF_WEEK;i++) {
