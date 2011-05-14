@@ -1,7 +1,7 @@
 
 class HouseholdCustomerBootStrap {
 
-  def simpleGencoService
+  //def simpleGencoService
 
   def init = { servletContext ->
     /*
