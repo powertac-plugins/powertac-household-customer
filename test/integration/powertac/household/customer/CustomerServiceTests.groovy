@@ -158,6 +158,7 @@ class CustomerServiceTests extends GroovyTestCase {
   }
   void testPowerConsumption() {
     initializeService()
+    timeService.base = now.toInstant().millis
     timeService.setCurrentTime(new Instant(now.millis + (TimeService.HOUR)))
     householdCustomerService.activate(timeService.currentTime, 1)
     Village.list().each { village ->
@@ -192,6 +193,7 @@ class CustomerServiceTests extends GroovyTestCase {
   }
   void testRevokingSubscriptions() {
     initializeService()
+    timeService.base = now.toInstant().millis
     println("Number Of Subscriptions in DB: ${TariffSubscription.count()}")
     // create some tariffs
     def tsc1 = new TariffSpecification(broker: broker1,
@@ -308,6 +310,7 @@ class CustomerServiceTests extends GroovyTestCase {
     assertEquals("correct phase", tariffMarketService.simulationPhase, registrationPhase)
     start = new DateTime(2011, 1, 1, 12, 0, 0, 0, DateTimeZone.UTC).toInstant()
     initializeService()
+    timeService.base = now.toInstant().millis
     // current time is noon. Set pub interval to 3 hours.
     tariffMarketService.publicationInterval = 3 // hours
     //assertEquals("newTariffs list is empty", 0, Tariff.findAllByState(Tariff.State.PENDING).size())
