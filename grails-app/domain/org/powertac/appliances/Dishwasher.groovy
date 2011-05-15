@@ -18,7 +18,7 @@
 package org.powertac.appliances
 
 import java.util.HashMap
-import java.util.Random;
+import java.util.Random
 
 import org.powertac.common.configurations.Constants
 import org.powertac.common.enumerations.Mode
@@ -171,7 +171,7 @@ class Dishwasher extends SemiShiftingAppliance {
   def refresh(Random gen) {
     createWeeklyOperationVector((int)(times + applianceOf.members.size()), gen)
     fillWeeklyFunction(gen)
-    log.info "Dishwasher refreshed"
+    //log.info "Dishwasher refreshed"
   }
 
   static constraints = {

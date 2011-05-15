@@ -53,7 +53,7 @@ class Refrigerator extends FullyShiftingAppliance {
     // Initializing Variables
     loadVector = new Vector()
     dailyOperation = new Vector()
-    
+
     for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
       if (i % 2 == 0) {
         loadVector.add(power)
@@ -71,7 +71,7 @@ class Refrigerator extends FullyShiftingAppliance {
   @ Override
   def refresh(Random gen) {
     fillWeeklyFunction(gen)
-    log.info "Refridgerator refreshed"
+    //log.info "Refridgerator refreshed"
   }
 
   static constraints = {

@@ -91,7 +91,7 @@ class Others extends NotShiftingAppliance{
   def refresh(Random gen) {
     createWeeklyOperationVector(times + applianceOf.members.size(),gen)
     fillWeeklyFunction(gen)
-    log.info "Consumer Electronics refreshed"
+    //log.info "Consumer Electronics refreshed"
   }
 
 

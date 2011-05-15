@@ -34,6 +34,8 @@ import org.powertac.consumers.*
 
 class Appliance {
 
+  def householdConsumersService
+  
   /** the appliance name. It depends on the type of appliance and the household that contains it.*/
   String name
 
@@ -234,6 +236,24 @@ class Appliance {
    * @return
    */
   def refresh(HashMap hm, Random gen) {
+  }
+
+  /** This is an function to fill the maps utilized by Services in order to keep the vectors of each appliance
+   *  during the runtime.
+   * @return
+   */
+  def setVectors(int index) {
+    
+    for (int i=0;i < weeklyOperation.size();i++){
+      
+      for (int j=0;j < 96;j++){
+        
+        householdConsumersService.setApplianceOperation (applianceOf, index, i, j, weeklyOperation.get(i).get(j))
+        householdConsumersService.setApplianceLoad (applianceOf, index, i, j, weeklyLoadVector.get(i).get(j))
+      }
+      
+    }
+    
   }
 
   static constraints = {
