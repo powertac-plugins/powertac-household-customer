@@ -19,7 +19,7 @@ package org.powertac.appliances
 
 
 import java.util.HashMap
-import java.util.Random;
+import java.util.Random
 
 import org.powertac.common.configurations.Constants
 
@@ -190,7 +190,7 @@ class Dryer extends SemiShiftingAppliance {
   def refresh(Random gen) {
     createWeeklyOperationVector((int)(times + applianceOf.members.size() / 2),gen)
     fillWeeklyFunction(gen)
-    log.info "Dryer refreshed"
+    //log.info "Dryer refreshed"
   }
 
   static constraints = {

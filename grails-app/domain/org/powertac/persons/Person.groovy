@@ -16,7 +16,8 @@
 
 package org.powertac.persons
 
-import java.util.HashMap;
+import java.util.HashMap
+import java.util.Random
 import java.util.Vector
 
 import org.powertac.common.configurations.Constants
@@ -35,6 +36,8 @@ import org.powertac.consumers.*
 
 class Person {
 
+  def householdConsumersService
+  
   /** the person's name in the community. Usually it includes the household he is living in or its type of person */
   String name
 
@@ -185,7 +188,7 @@ class Person {
    */
   def createSicknessVector(float mean, float dev, Random gen) {
     // Create auxiliary variables
-    
+
     int days = (int) (dev * gen.nextGaussian() + mean)
     Vector v = new Vector(days)
 
@@ -273,16 +276,16 @@ class Person {
    * @param vacationAbsence
    * @return
    */
-  def fillWeeklyRoutine(float vacationAbsence, Random gen) {
-    // Create auxiliary variable
-    Vector v = new Vector()
-    // Fill out each day for the week
-    for (int i = 0;i < Constants.DAYS_OF_WEEK;i++) {
-      fillDailyRoutine(i,vacationAbsence, gen)
-      v.add(dailyRoutine)
-    }
-    return v
-  }
+  /*  def fillWeeklyRoutine(float vacationAbsence, Random gen) {
+   // Create auxiliary variable
+   Vector v = new Vector()
+   // Fill out each day for the week
+   for (int i = 0;i < Constants.DAYS_OF_WEEK;i++) {
+   fillDailyRoutine(i,vacationAbsence, gen)
+   v.add(dailyRoutine)
+   }
+   return v
+   }*/
 
   /** This is the function utilized to show the information regarding
    * the person in question, its variables values etc.
@@ -298,6 +301,24 @@ class Person {
    * @return
    */
   void refresh(HashMap hm, Random gen) {
+  }
+
+  /** This is an function to fill the maps utilized by Services in order to keep the vectors of each appliance
+   *  during the runtime.
+   * @return
+   */
+  def setVectors(int index) {
+    
+    for (int i=0;i < weeklyRoutine.size();i++){
+      
+      for (int j=0;j < 96;j++){
+        
+        householdConsumersService.setPerson (memberOf, index, i, j, weeklyRoutine.get(i).get(j))
+        
+      }
+      
+    }
+    
   }
 
   static constraints = {

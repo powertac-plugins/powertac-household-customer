@@ -17,11 +17,12 @@
 
 package org.powertac.persons
 
-import java.util.HashMap;
-import java.util.Vector;
-import java.math.*;
-import org.powertac.common.enumerations.Status;
-import org.powertac.common.configurations.Constants;
+import java.math.*
+import java.util.HashMap
+import java.util.Vector
+
+import org.powertac.common.configurations.Constants
+import org.powertac.common.enumerations.Status
 
 /**
  * This is the instance of the person type that spents most of its time
@@ -42,8 +43,7 @@ class MostlyPresentPerson extends Person {
    * @param publicVacationVector
    * @return
    */
-  def initialize(String AgentName, HashMap hm, Vector publicVacationVector, Random gen) 
-  {
+  def initialize(String AgentName, HashMap hm, Vector publicVacationVector, Random gen) {
     // Variables Taken from the configuration file
     float sicknessMean = ((float)hm.get("SicknessMean"))
     float sicknessDev = ((float)hm.get("SicknessDev"))
@@ -63,8 +63,7 @@ class MostlyPresentPerson extends Person {
 
 
   @ Override
-  def showInfo() 
-  {
+  def showInfo() {
     // Printing base variables
     System.out.println("Name = " + name)
 
@@ -76,12 +75,12 @@ class MostlyPresentPerson extends Person {
     // Printing Leisure variables
     System.out.println("Leisure Days of Week = ");
     iter = leisureVector.listIterator();
-    while (iter.hasNext()) System.out.println(iter.next());		
+    while (iter.hasNext()) System.out.println(iter.next());
     System.out.println("Leisure Duration = " + leisureDuration);
 
     // Printing Public Vacation Variables
     System.out.println("Public Vacation of Year = ");
-    iter = publicVacationVector.listIterator();	
+    iter = publicVacationVector.listIterator();
     while (iter.hasNext()) System.out.println(iter.next());
 
     // Printing Weekly Schedule
@@ -91,12 +90,12 @@ class MostlyPresentPerson extends Person {
     for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
       System.out.println("Day " + (i))
       iter = weeklyRoutine.get(i).listIterator();
-      for (int j =0;j < Constants.QUARTERS_OF_DAY;j++) System.out.println("Quarter : " + (j+1) + " Status : " + iter.next())	
+      for (int j =0;j < Constants.QUARTERS_OF_DAY;j++) System.out.println("Quarter : " + (j+1) + " Status : " + iter.next())
     }
   }
 
   @ Override
-  void refresh(HashMap hm, Random gen) 
+  void refresh(HashMap hm, Random gen)
   {
 
     // Renew Variables
@@ -107,7 +106,10 @@ class MostlyPresentPerson extends Person {
     int x = (int) (gen.nextGaussian() + MPLeisure)
     leisureDuration = (int) (leisureDurationDev * gen.nextGaussian() + leisureDurationMean)
     leisureVector = createLeisureVector(x,gen)
-    weeklyRoutine = fillWeeklyRoutine(vacationAbsence,gen)
+    for (int i =0;i < Constants.DAYS_OF_WEEK;i++) {
+      fillDailyRoutine(i,vacationAbsence, gen)
+      weeklyRoutine.add(dailyRoutine)
+    }
   }
 
   static constraints = {

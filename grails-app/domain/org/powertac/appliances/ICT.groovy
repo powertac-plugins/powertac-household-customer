@@ -18,7 +18,7 @@
 package org.powertac.appliances
 
 import java.util.HashMap
-import java.util.Random;
+import java.util.Random
 
 import org.powertac.common.configurations.Constants
 
@@ -89,7 +89,7 @@ class ICT extends NotShiftingAppliance{
   def refresh(Random gen) {
     createWeeklyOperationVector(times + applianceOf.members.size(), gen)
     fillWeeklyFunction(gen)
-    log.info "ICT refreshed"
+    //log.info "ICT refreshed"
   }
 
   static constraints = {

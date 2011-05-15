@@ -61,8 +61,8 @@ class VillageConsumersService {
 
   void createConsumptionsMap (Village village, int types)
   {
-    log.info "create consumption map for Household Customer ${village.id} [${types}]"
-    consumptions[village.customerInfo.name] = new BigDecimal[types][7][24]
+    log.info "create consumption map for Household Customer ${village.customerInfo.name} [${types}]"
+    consumptions[village.customerInfo.name] = new BigDecimal[types][63][24]
   }
 
   def getConsumptions(Village village, int type)
@@ -70,14 +70,14 @@ class VillageConsumersService {
     return consumptions[village.customerInfo.name][type]
   }
 
-  void setConsumption(Village village, int type, int weekday, int hour, BigDecimal value)
+  void setConsumption(Village village, int type, int day, int hour, BigDecimal value)
   {
     def consumptionMap = consumptions[village.customerInfo.name]
     if (consumptionMap == null) {
       log.error "could not find Consumption map for village ${village.toString()}"
       return
     }
-    consumptionMap[type][weekday][hour] = value
+    consumptionMap[type][day][hour] = value
   }
 
 }
