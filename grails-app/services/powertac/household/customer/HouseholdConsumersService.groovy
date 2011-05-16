@@ -28,60 +28,84 @@ class HouseholdConsumersService {
 
   Map persons = [:]
   Map appliancesOperations = [:]
-  Map appliancesLoads
+  Map appliancesLoads = [:]
 
   void createPersonsMap (Household household, int persons) {
-    log.info "create consumption map for Household Customer ${village.id} [${types}]"
-    persons[household.name] = new BigDecimal[persons][64][96]
+    log.info "create persons map for Household ${household.toString()} [${persons}]"
+    this.persons[household.name] = new Status[persons][63][96]
   }
 
   void createAppliancesOperationsMap (Household household, int appliances) {
-    log.info "create consumption map for Household Customer ${village.id} [${types}]"
-    appliancesOperations[household.name] = new BigDecimal[appliances][64][96]
+    log.info "create appliance Operations map for Household ${household.toString()} [${appliances}]"
+    appliancesOperations[household.name] = new boolean[appliances][63][96]
   }
 
   void createAppliancesLoadsMap (Household household, int appliances) {
-    log.info "create consumption map for Household Customer ${village.id} [${types}]"
-    appliancesLoads[household.name] = new BigDecimal[appliances][64][96]
+    log.info "create appliance load map for Household ${household.toString()} [${appliances}]"
+    appliancesLoads[household.name] = new int[appliances][63][96]
   }
 
   void setPerson(Household household, int index, int day, int quarter, Status status) {
-    def consumptionMap = consumptions[household.name]
-    if (consumptionMap == null) {
+    def personsMap = persons[household.name]
+    if (personsMap == null) {
       log.error "could not find Persons map for household ${household.toString()}"
       return
     }
-    consumptionMap[index][day][quarter] = status
+    personsMap[index][day][quarter] = status
   }
 
   void setApplianceOperation(Household household, int index, int day, int quarter, Boolean function) {
-    def consumptionMap = consumptions[household.name]
-    if (consumptionMap == null) {
+    def applianceOperationMap = appliancesOperations[household.name]
+    if (applianceOperationMap == null) {
       log.error "could not find Appliance Operation map for household ${household.toString()}"
       return
     }
-    consumptionMap[index][day][quarter] = status
+    applianceOperationMap[index][day][quarter] = function
   }
 
   void setApplianceLoad(Household household, int index, int day, int quarter, BigDecimal value) {
-    def consumptionMap = consumptions[household.name]
-    if (consumptionMap == null) {
+    def applianceLoadMap = appliancesLoads[household.name]
+    if (applianceLoadMap == null) {
       log.error "could not find Appliance Load map for Household ${household.toString()}"
       return
     }
-    consumptionMap[index][day][quarter] = value
+    applianceLoadMap[index][day][quarter] = value
   }
 
+  def getPersons(Household household, int index) {
+    return persons[household.name][index]
+  }
+  
+  def getPersons(Household household, int index, int day) {
+    return persons[household.name][index][day]
+  }
+  
   def getPersons(Household household, int index, int day, int quarter) {
     return persons[household.name][index][day][quarter]
   }
 
+  def getApplianceOperations(Household household, int index) {
+    return appliancesOperations[household.name][index]
+  }
+  
+  def getApplianceOperations(Household household, int index, int day) {
+    return appliancesOperations[household.name][index][day]
+  }
+  
   def getApplianceOperations(Household household, int index, int day, int quarter) {
-    return persons[household.name][index][day][quarter]
+    return appliancesOperations[household.name][index][day][quarter]
   }
 
+  def getApplianceLoads(Household household, int index) {
+    return appliancesLoads[household.name][index]
+  }
+  
+  def getApplianceLoads(Household household, int index, int day) {
+    return appliancesLoads[household.name][index][day]
+  }
+  
   def getApplianceLoads(Household household, int index, int day, int quarter) {
-    return persons[household.name][index][day][quarter]
+    return appliancesLoads[household.name][index][day][quarter]
   }
 }
 

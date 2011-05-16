@@ -37,6 +37,8 @@ import org.powertac.persons.*
 
 class Household {
 
+  def householdConsumersService
+  
   /** the household name. It is different for each one to be able to tell them apart.*/
   String name
 
@@ -83,8 +85,6 @@ class Household {
       }
     }
 
-
-
     fillAppliances(hm, gen)
 
     for (int i =0;i < Constants.DAYS_OF_WEEK;i++) {
@@ -97,6 +97,28 @@ class Household {
     for (int week = 0;week < 8;week++){
       refresh(hm,gen)
     }
+    
+    householdConsumersService.createPersonsMap(this,members.size())
+    def index = 0
+    this.members.each{ member ->
+      member.setVectors(index)
+      index = index+1
+    }
+        
+    //log.info "Testing new Service: ${householdConsumersService.getPersons(this,members.size()-1)[62].toString()}"
+  
+    householdConsumersService.createAppliancesOperationsMap(this,appliances.size())
+    householdConsumersService.createAppliancesLoadsMap(this,appliances.size())
+    
+    index = 0
+    this.appliances.each{ appliance ->
+      appliance.setVectors(index)
+      index = index+1
+    }
+    
+    //log.info "Testing new Service: ${householdConsumersService.getApplianceOperations(this,appliances.size()-1)[62].toString()}"
+    //log.info "Testing new Service: ${householdConsumersService.getApplianceLoads(this,appliances.size()-1)[62].toString()}"
+    
   }
 
   /** This function is creating a random number of person (given by the next

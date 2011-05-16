@@ -94,10 +94,10 @@ class Village extends AbstractCustomer{
     fillAggWeeklyLoad("RegularlyShifting")
     fillAggWeeklyLoad("SmartShifting")
 
-    log.info "Testing : ${villageConsumersService.getConsumptions(this,0)[62].toString()} "
-    log.info "Testing : ${villageConsumersService.getConsumptions(this,1)[62].toString()} "
-    log.info "Testing : ${villageConsumersService.getConsumptions(this,2)[62].toString()} "
-    log.info "Testing : ${villageConsumersService.getConsumptions(this,3)[62].toString()} "
+    //log.info "Testing : ${villageConsumersService.getConsumptions(this,0)[62].toString()} "
+    //log.info "Testing : ${villageConsumersService.getConsumptions(this,1)[62].toString()} "
+    //log.info "Testing : ${villageConsumersService.getConsumptions(this,2)[62].toString()} "
+    //log.info "Testing : ${villageConsumersService.getConsumptions(this,3)[62].toString()} "
 
   }
 

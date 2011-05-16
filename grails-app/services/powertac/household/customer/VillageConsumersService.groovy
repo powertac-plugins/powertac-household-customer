@@ -61,8 +61,8 @@ class VillageConsumersService {
 
   void createConsumptionsMap (Village village, int types)
   {
-    log.info "create consumption map for Household Customer ${village.id} [${types}]"
-    consumptions[village.customerInfo.name] = new BigDecimal[types][64][24]
+    log.info "create consumption map for Household Customer ${village.customerInfo.name} [${types}]"
+    consumptions[village.customerInfo.name] = new BigDecimal[types][63][24]
   }
 
   def getConsumptions(Village village, int type)
