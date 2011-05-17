@@ -31,7 +31,7 @@ public class Constants {
   public static final int PERCENTAGE = 100;
   
   // TIME VARIABLES -----------------------------//
-  public static final int DAYS_OF_YEAR = 365;
+  public static final int DAYS_OF_COMPETITION = 63;
   public static final int DAYS_OF_WEEK = 7;
   public static final int WEEKDAYS = 5;
   public static final int QUARTERS_OF_HOUR = 4;
@@ -272,4 +272,6 @@ public class Constants {
   public static final int FREEZER_POSSIBILITY_DAY_2 = 14;
   public static final int FREEZER_POSSIBILITY_DAY_3 = 16;
   
+  // COST ESTIMATION VARIABLES ------------------------//
+  public static final int RANDOM_DAYS_NUMBER = 3;
 }

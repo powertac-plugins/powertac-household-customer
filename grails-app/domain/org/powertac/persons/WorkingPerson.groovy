@@ -111,7 +111,7 @@ class WorkingPerson extends Person{
     int counter = duration
     int counter2 = 0
     while (counter > 0) {
-      int x = (int) gen.nextInt(Constants.DAYS_OF_YEAR - 1) + 1
+      int x = (int) gen.nextInt(Constants.DAYS_OF_COMPETITION - 1) + 1
       counter2 = 1 + (int)(gen.nextInt(counter))
       ListIterator iter = v.listIterator()
       while (counter2 > 0) {
