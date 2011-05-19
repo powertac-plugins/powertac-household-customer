@@ -37,7 +37,7 @@ import org.powertac.consumers.*
 class Person {
 
   def householdConsumersService
-  
+
   /** the person's name in the community. Usually it includes the household he is living in or its type of person */
   String name
 
@@ -224,6 +224,7 @@ class Person {
         for (int i = start;i < start + leisureDuration;i++) {
           st = Status.Leisure
           dailyRoutine.set(i,st)
+          if (i == Constants.QUARTERS_OF_DAY - 1) break
         }
       }
     }
@@ -308,17 +309,17 @@ class Person {
    * @return
    */
   def setVectors(int index) {
-    
+
     for (int i=0;i < weeklyRoutine.size();i++){
-      
+
       for (int j=0;j < 96;j++){
-        
+
         householdConsumersService.setPerson (memberOf, index, i, j, weeklyRoutine.get(i).get(j))
-        
+
       }
-      
+
     }
-    
+
   }
 
   static constraints = {
