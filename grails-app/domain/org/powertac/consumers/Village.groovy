@@ -15,7 +15,7 @@
  */
 package org.powertac.consumers
 
-import java.math.BigDecimal;
+import java.math.BigDecimal
 import java.util.Random
 
 import org.joda.time.Instant
@@ -42,7 +42,7 @@ class Village extends AbstractCustomer{
   Vector aggDailyLoadInHours = new Vector()
 
   List daysList = new List[Constants.RANDOM_DAYS_NUMBER]
-  
+
   /** This hashmap variable is utilized to show which portion of the population is under which subscription **/
   // HashMap subscriptionMap = new HashMap()
 
@@ -257,48 +257,48 @@ class Village extends AbstractCustomer{
 
   }
 
-   double estimateVariableTariffPayment(Tariff tariff){
-      
-      
-      int serial = ((timeService.currentTime.millis - timeService.base) / TimeService.HOUR)
-      Instant base = timeService.currentTime - serial*TimeService.HOUR
-      println("Time Base: " + base.toString())
-      int daylimit = (int) (serial / 24) + 1 // this will be changed to one or more random numbers 
-      
-      float finalCostSummary = 0
-      
-      daysList.each { day ->
-        
-        if (day < daylimit) day = (int) (day + (daylimit / Constants.RANDOM_DAYS_NUMBER))
-        
-        Instant now = base + day * TimeService.DAY
-        
-        float costSummary = 0
-        float summary = 0, cumulativeSummary = 0
-          
-        for (int hour=0;hour < Constants.HOURS_OF_DAY;hour++){
-          
-          for (int j=0;j < 4;j++){
-            summary = summary + villageConsumersService.getConsumptions(this,j)[day][hour]
-          }
-          summary = summary / Constants.PERCENTAGE
-          
-          cumulativeSummary += summary
-          costSummary += tariff.getUsageCharge(now,summary,cumulativeSummary)
-          
-          now = now + TimeService.HOUR
+  double estimateVariableTariffPayment(Tariff tariff){
+
+
+    int serial = ((timeService.currentTime.millis - timeService.base) / TimeService.HOUR)
+    Instant base = timeService.currentTime - serial*TimeService.HOUR
+    println("Time Base: " + base.toString())
+    int daylimit = (int) (serial / 24) + 1 // this will be changed to one or more random numbers
+
+    float finalCostSummary = 0
+
+    daysList.each { day ->
+
+      if (day < daylimit) day = (int) (day + (daylimit / Constants.RANDOM_DAYS_NUMBER))
+
+      Instant now = base + day * TimeService.DAY
+
+      float costSummary = 0
+      float summary = 0, cumulativeSummary = 0
+
+      for (int hour=0;hour < Constants.HOURS_OF_DAY;hour++){
+
+        for (int j=0;j < 4;j++){
+          summary = summary + villageConsumersService.getConsumptions(this,j)[day][hour]
         }
-        
-        finalCostSummary += costSummary
-        
-      }      
-      
-      return finalCostSummary / Constants.RANDOM_DAYS_NUMBER
-      
-      
+        summary = summary / Constants.PERCENTAGE
+
+        cumulativeSummary += summary
+        costSummary += tariff.getUsageCharge(now,summary,cumulativeSummary)
+
+        now = now + TimeService.HOUR
+      }
+
+      finalCostSummary += costSummary
+
+    }
+
+    return finalCostSummary / Constants.RANDOM_DAYS_NUMBER
+
+
   }
-  
-  
+
+
   /** This function prints to the screen the daily load of the village's households for the
    * weekday at hand.
    * @param weekday
@@ -370,7 +370,7 @@ class Village extends AbstractCustomer{
   }
 
   def createCostEstimationDaysList(int days, Random gen) {
-  
+
     for (int i = 0; i < days; i++) {
       int x = gen.nextInt(Constants.DAYS_OF_COMPETITION)
       ListIterator iter = daysList.listIterator();
@@ -386,7 +386,7 @@ class Village extends AbstractCustomer{
     java.util.Collections.sort(daysList)
 
   }
-  
+
 
   static auditable = true
 
