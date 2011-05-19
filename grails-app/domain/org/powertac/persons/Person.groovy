@@ -193,7 +193,7 @@ class Person {
     Vector v = new Vector(days)
 
     for (int i = 0; i < days; i++) {
-      int x = gen.nextInt(Constants.DAYS_OF_YEAR) + 1;
+      int x = gen.nextInt(Constants.DAYS_OF_COMPETITION) + 1;
       ListIterator iter = v.listIterator();
       while (iter.hasNext()) {
         int temp = (int)iter.next()
