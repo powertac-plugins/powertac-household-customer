@@ -257,7 +257,7 @@ class Village extends AbstractCustomer{
 
   }
 
-   float estimateVariableTariffPayment(Tariff tariff){
+   double estimateVariableTariffPayment(Tariff tariff){
       
       
       int serial = ((timeService.currentTime.millis - timeService.base) / TimeService.HOUR)
