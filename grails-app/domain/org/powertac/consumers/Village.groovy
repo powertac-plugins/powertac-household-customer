@@ -149,26 +149,19 @@ class Village extends AbstractCustomer{
   }
 
   @ Override
-  void consumePower() {
-    // Checking the time in the competition.
-    int serial = ((timeService.currentTime.millis - timeService.base) / TimeService.HOUR)
+  double getConsumptionByTimeslot(int serial) {
 
     int day = (int) (serial / Constants.HOURS_OF_DAY)
     int hour = (int) (serial % Constants.HOURS_OF_DAY)
+    double ran = 0,summary = 0
+
     log.info " Serial : ${serial} Day: ${day} Hour: ${hour} "
 
-    def ran = 0
     for (int i=0;i < 4;i++){
       ran = ran + villageConsumersService.getConsumptions(this,i)[day][hour]
     }
-
     ran = ran / Constants.PERCENTAGE
-
-    // For each subscription
-    subscriptions.each { sub ->
-      log.info " Consumption Load: ${ran} / ${subscriptions.size()} "
-      sub.usePower(ran/subscriptions.size())
-    }
+    return ran
   }
 
   /** This function is used in order to fill the aggregated daily Load of the village
@@ -292,7 +285,7 @@ class Village extends AbstractCustomer{
       finalCostSummary += costSummary
 
     }
-
+    log.info "Variable cost Summary: ${finalCostSummary}"
     return finalCostSummary / Constants.RANDOM_DAYS_NUMBER
 
 

@@ -149,7 +149,7 @@ OthersDailyTimes = 8
 CustomerTypes
 ===============
 
-NotShiftingCustomers = 5
-RandomlyShiftingCustomers = 5
-RegularlyShiftingCustomers = 5
-SmartShiftingCustomers = 5
+NotShiftingCustomers = 1
+RandomlyShiftingCustomers = 1
+RegularlyShiftingCustomers = 1
+SmartShiftingCustomers = 1
