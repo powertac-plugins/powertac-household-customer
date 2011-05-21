@@ -408,9 +408,9 @@ class CustomerServiceTests extends GroovyTestCase {
     assertEquals("4 consumption tariffs", 4, tclist.size())
     assertEquals("three transaction", 3, TariffTransaction.count())
     
-    Village.list().each{ customer ->
-      customer.evaluateNewPublishedTariffs(Tariff.list())
-    }
+    //Village.list().each{ customer ->
+    //  customer.evaluateNewPublishedTariffs(Tariff.list())
+    //}
      
   }
 /*  
