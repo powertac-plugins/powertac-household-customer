@@ -74,7 +74,7 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
       def village = new Village(CustomerInfo: villageInfo)
       village.initialize(hm,gen)
       village.init()
-      village.subscribeDefault()
+      //village.subscribeDefault()
       assert(village.save())
     }
   }
