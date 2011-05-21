@@ -112,12 +112,14 @@ class RandomlyAbsentPerson extends WorkingPerson {
             for (int i = startq;i < startq + leisureDuration;i++) {
               st = Status.Leisure
               dailyRoutine.set(i,st)
+              if (i == Constants.QUARTERS_OF_DAY - 1) break
             }
           } else  {
             int startq = Constants.SHIFT_START_2 + gen.nextInt(Constants.SHIFT_START_3 - (Constants.LEISURE_WINDOW - 1))
             for (int i = startq;i < startq +leisureDuration;i++) {
               st = Status.Leisure
               dailyRoutine.set(i,st)
+              if (i == Constants.QUARTERS_OF_DAY - 1) break
             }
           }
         }
