@@ -128,7 +128,7 @@ class CustomerServiceTests extends GroovyTestCase {
       'DefaultBroker'
     ])
   }
-/*
+
   void testNormalInitialization () {
     householdCustomerInitializationService.setDefaults()
     PluginConfig config = PluginConfig.findByRoleName('HouseholdCustomer')
@@ -191,6 +191,7 @@ class CustomerServiceTests extends GroovyTestCase {
       assertFalse("Changed from default tariff", village.subscriptions?.tariff.toString() == tariffMarketService.getDefaultTariff(defaultTariffSpec.powerType).toString())
     }
   }
+  
   void testRevokingSubscriptions() {
     initializeService()
     println("Number Of Subscriptions in DB: ${TariffSubscription.count()}")
@@ -292,7 +293,7 @@ class CustomerServiceTests extends GroovyTestCase {
       assertEquals("1 Subscriptions for customer", 1, village.subscriptions?.size())
     }
   }
-*/  
+/*
   void testTariffPublication() {
     // test competitionControl registration
     def registrationThing = null
@@ -373,7 +374,7 @@ class CustomerServiceTests extends GroovyTestCase {
     }
     assertEquals("newTariffs list is again empty", 0, Tariff.findAllByState(Tariff.State.PENDING).size())
   }
-
+*/  
   void testEvaluatingTariffs() {
     
     initializeService()
@@ -409,11 +410,11 @@ class CustomerServiceTests extends GroovyTestCase {
     assertEquals("three transaction", 3, TariffTransaction.count())
     
     Village.list().each{ customer ->
-      customer.evaluateNewPublishedTariffs(Tariff.list())
+      customer.possibilityEvaluationNewTariffs(Tariff.list())
     }
      
   }
-/*  
+  
   void testVillageRefreshModels() {
     initializeService()
     timeService.base = now.toInstant().millis
@@ -426,6 +427,6 @@ class CustomerServiceTests extends GroovyTestCase {
     println(householdConsumersService.appliancesOperations.toString())
     println(householdConsumersService.appliancesLoads.toString())
   }
-  */
+
   
 }
