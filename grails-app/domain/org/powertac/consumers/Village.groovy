@@ -154,7 +154,7 @@ class Village extends AbstractCustomer{
     int day = (int) (serial / Constants.HOURS_OF_DAY)
     int hour = (int) (serial % Constants.HOURS_OF_DAY)
     double ran = 0,summary = 0
-
+    
     log.info " Serial : ${serial} Day: ${day} Hour: ${hour} "
 
     for (int i=0;i < 4;i++){
@@ -162,7 +162,7 @@ class Village extends AbstractCustomer{
     }
     ran = ran / Constants.PERCENTAGE
     return ran
-  }
+   } 
 
   /** This function is used in order to fill the aggregated daily Load of the village
    * households for each quarter of the hour.

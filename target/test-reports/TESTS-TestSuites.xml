@@ -1,110 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <testsuites>
-<<<<<<< HEAD
-  <testsuite errors="0" failures="1" hostname="Anty-PC" id="0" name="CustomerServiceTests" package="powertac.household.customer" tests="2" time="48.472" timestamp="2011-05-18T07:42:52">
-=======
-  <testsuite errors="0" failures="1" hostname="Anty-PC" id="0" name="CustomerServiceTests" package="powertac.household.customer" tests="2" time="47.247" timestamp="2011-05-17T21:31:22">
->>>>>>> branch 'master' of https://chrysopoulos18@github.com/chrysopoulos18/powertac-household-customer.git
+  <testsuite errors="0" failures="0" hostname="Anty-PC" id="0" name="CustomerServiceTests" package="powertac.household.customer" tests="1" time="9.218" timestamp="2011-05-20T13:16:11">
       <properties />
 
-<<<<<<< HEAD
-      <testcase classname="powertac.household.customer.CustomerServiceTests" name="testTariffPublication" time="26.905">
-=======
-      <testcase classname="powertac.household.customer.CustomerServiceTests" name="testTariffPublication" time="25.551">
->>>>>>> branch 'master' of https://chrysopoulos18@github.com/chrysopoulos18/powertac-household-customer.git
-          <failure message="junit.framework.AssertionFailedError: newTariffs list is again empty expected:&lt;0&gt; but was:&lt;6&gt;" type="junit.framework.AssertionFailedError">junit.framework.AssertionFailedError: junit.framework.AssertionFailedError: newTariffs list is again empty expected:&lt;0&gt; but was:&lt;6&gt;
-	at powertac.household.customer.CustomerServiceTests.testTariffPublication(CustomerServiceTests.groovy:374)
-</failure>
+      <testcase classname="powertac.household.customer.CustomerServiceTests" name="testEvaluatingTariffs" time="9.202" />
 
-      </testcase>
-
-<<<<<<< HEAD
-      <testcase classname="powertac.household.customer.CustomerServiceTests" name="testEvaluatingTariffs" time="21.552" />
-=======
-      <testcase classname="powertac.household.customer.CustomerServiceTests" name="testEvaluatingTariffs" time="21.678" />
->>>>>>> branch 'master' of https://chrysopoulos18@github.com/chrysopoulos18/powertac-household-customer.git
-
-      <system-out><![CDATA[--Output from testTariffPublication--
-org.powertac.common.Tariff : 1
-Time Base: 2011-01-01T12:00:00.000Z
-org.powertac.common.Tariff : 2
-Time Base: 2011-01-01T12:00:00.000Z
-org.powertac.common.Tariff : 3
-Time Base: 2011-01-01T12:00:00.000Z
-org.powertac.common.Tariff : 4
-Time Base: 2011-01-01T12:00:00.000Z
-org.powertac.common.Tariff : 5
-Time Base: 2011-01-01T12:00:00.000Z
-org.powertac.common.Tariff : 6
-Time Base: 2011-01-01T12:00:00.000Z
-<<<<<<< HEAD
-Tariff: org.powertac.common.Tariff : 6 Estimation = 578.57587
-org.powertac.common.Tariff : 1
-Time Base: 2011-01-01T12:00:00.000Z
-org.powertac.common.Tariff : 2
-Time Base: 2011-01-01T12:00:00.000Z
-org.powertac.common.Tariff : 3
-Time Base: 2011-01-01T12:00:00.000Z
-org.powertac.common.Tariff : 4
-Time Base: 2011-01-01T12:00:00.000Z
-org.powertac.common.Tariff : 5
-Time Base: 2011-01-01T12:00:00.000Z
-org.powertac.common.Tariff : 6
-Time Base: 2011-01-01T12:00:00.000Z
-Tariff: org.powertac.common.Tariff : 6 Estimation = 765.6574
-=======
-Tariff: org.powertac.common.Tariff : 6 Estimation = 692.90826
-org.powertac.common.Tariff : 1
-Time Base: 2011-01-01T12:00:00.000Z
-org.powertac.common.Tariff : 2
-Time Base: 2011-01-01T12:00:00.000Z
-org.powertac.common.Tariff : 3
-Time Base: 2011-01-01T12:00:00.000Z
-org.powertac.common.Tariff : 4
-Time Base: 2011-01-01T12:00:00.000Z
-org.powertac.common.Tariff : 5
-Time Base: 2011-01-01T12:00:00.000Z
-org.powertac.common.Tariff : 6
-Time Base: 2011-01-01T12:00:00.000Z
-Tariff: org.powertac.common.Tariff : 6 Estimation = 739.96216
->>>>>>> branch 'master' of https://chrysopoulos18@github.com/chrysopoulos18/powertac-household-customer.git
---Output from testEvaluatingTariffs--
+      <system-out><![CDATA[--Output from testEvaluatingTariffs--
 Number Of Subscriptions in DB: 2
-org.powertac.common.Tariff : 7
 Time Base: 2011-01-01T12:00:00.000Z
-org.powertac.common.Tariff : 8
 Time Base: 2011-01-01T12:00:00.000Z
-org.powertac.common.Tariff : 9
 Time Base: 2011-01-01T12:00:00.000Z
-org.powertac.common.Tariff : 10
 Time Base: 2011-01-01T12:00:00.000Z
-<<<<<<< HEAD
-Tariff: org.powertac.common.Tariff : 10 Estimation = 1397.8561
-org.powertac.common.Tariff : 7
 Time Base: 2011-01-01T12:00:00.000Z
-org.powertac.common.Tariff : 8
 Time Base: 2011-01-01T12:00:00.000Z
-org.powertac.common.Tariff : 9
 Time Base: 2011-01-01T12:00:00.000Z
-org.powertac.common.Tariff : 10
 Time Base: 2011-01-01T12:00:00.000Z
-Tariff: org.powertac.common.Tariff : 10 Estimation = 1426.3301
-=======
-Tariff: org.powertac.common.Tariff : 10 Estimation = 1293.5312
-org.powertac.common.Tariff : 7
-Time Base: 2011-01-01T12:00:00.000Z
-org.powertac.common.Tariff : 8
-Time Base: 2011-01-01T12:00:00.000Z
-org.powertac.common.Tariff : 9
-Time Base: 2011-01-01T12:00:00.000Z
-org.powertac.common.Tariff : 10
-Time Base: 2011-01-01T12:00:00.000Z
-Tariff: org.powertac.common.Tariff : 10 Estimation = 1248.3368
->>>>>>> branch 'master' of https://chrysopoulos18@github.com/chrysopoulos18/powertac-household-customer.git
 ]]></system-out>
 
-      <system-err><![CDATA[--Output from testTariffPublication--
---Output from testEvaluatingTariffs--
+      <system-err><![CDATA[--Output from testEvaluatingTariffs--
 ]]></system-err>
 
   </testsuite>
