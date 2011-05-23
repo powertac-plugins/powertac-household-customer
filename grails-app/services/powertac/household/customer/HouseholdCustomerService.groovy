@@ -74,7 +74,7 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
       def village = new Village(CustomerInfo: villageInfo)
       village.initialize(hm,gen)
       village.init()
-      //village.subscribeDefault()
+      village.subscribeDefault()
       assert(village.save())
     }
   }
@@ -86,22 +86,8 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
 
     Random gen = ensureRandomSeed()
 
-    if (phase == 1){
-      villageList*.step()
-
-      int serial = ((now.millis - timeService.start)/3600000) + 1
-
-      int day = (int) (serial / Constants.HOURS_OF_DAY)
-      int hour = (int) (serial % Constants.HOURS_OF_DAY)
-      int weekday = (int) (day % Constants.DAYS_OF_WEEK)
-
-      if (hour == 23 && weekday == 6){
-        villageList*.refresh(hm,gen)
-      }
-    }
-    else {
-      villageList*.toString()
-    }
+    if (phase == 1) villageList*.step()
+    else villageList*.toString()
   }
 
   private Random ensureRandomSeed ()

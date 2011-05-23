@@ -66,7 +66,7 @@ class CustomerServiceTests extends GroovyTestCase {
 
     // create a Competition, needed for initialization
     if (Competition.count() == 0) {
-      comp = new Competition(name: 'accounting-test')
+      comp = new Competition(name: 'household-customer-test')
       assert comp.save()
     }
     else {
@@ -128,7 +128,7 @@ class CustomerServiceTests extends GroovyTestCase {
       'DefaultBroker'
     ])
   }
-/*
+
   void testNormalInitialization () {
     householdCustomerInitializationService.setDefaults()
     PluginConfig config = PluginConfig.findByRoleName('HouseholdCustomer')
@@ -191,6 +191,7 @@ class CustomerServiceTests extends GroovyTestCase {
       assertFalse("Changed from default tariff", village.subscriptions?.tariff.toString() == tariffMarketService.getDefaultTariff(defaultTariffSpec.powerType).toString())
     }
   }
+
   void testRevokingSubscriptions() {
     initializeService()
     println("Number Of Subscriptions in DB: ${TariffSubscription.count()}")
@@ -223,17 +224,26 @@ class CustomerServiceTests extends GroovyTestCase {
     assertEquals("three transaction", 3, TariffTransaction.count())
     // householdCustomerService.activate(timeService.currentTime, 1)
     Village.list().each{ village ->
-      village.unsubscribe(tariffMarketService.getDefaultTariff(PowerType.CONSUMPTION),3)
+      TariffSubscription tsd =
+          TariffSubscription.findByTariffAndCustomer(tariffMarketService.getDefaultTariff(PowerType.CONSUMPTION), village)
+      village.unsubscribe(tsd,3)
       village.subscribe(tc1, 3)
       village.subscribe(tc2, 3)
       village.subscribe(tc3, 4)
-      village.unsubscribe(tc1, 2)
-      village.unsubscribe(tc2, 1)
-      village.unsubscribe(tc3, 2)
+      TariffSubscription ts1 =
+          TariffSubscription.findByTariffAndCustomer(tc1, village)
+      village.unsubscribe(ts1, 2)
+      TariffSubscription ts2 =
+          TariffSubscription.findByTariffAndCustomer(tc2, village)
+      village.unsubscribe(ts2, 1)
+      TariffSubscription ts3 =
+          TariffSubscription.findByTariffAndCustomer(tc3, village)
+      village.unsubscribe(ts3, 2)
       println("Number Of Subscriptions in DB: ${TariffSubscription.count()}")
       assertEquals("4 Subscriptions for customer",4, village.subscriptions?.size())
       timeService.currentTime = new Instant(timeService.currentTime.millis + TimeService.HOUR)
     }
+
     TariffRevoke tex = new TariffRevoke(tariffId: tsc2.id, broker: tc2.broker)
     def status = tariffMarketService.processTariff(tex)
     assertNotNull("non-null status", status)
@@ -292,7 +302,7 @@ class CustomerServiceTests extends GroovyTestCase {
       assertEquals("1 Subscriptions for customer", 1, village.subscriptions?.size())
     }
   }
-*/  
+
   void testTariffPublication() {
     // test competitionControl registration
     def registrationThing = null
@@ -375,9 +385,9 @@ class CustomerServiceTests extends GroovyTestCase {
   }
 
   void testEvaluatingTariffs() {
-    
+
     initializeService()
-    
+
     println("Number Of Subscriptions in DB: ${TariffSubscription.count()}")
     // create some tariffs
     def tsc1 = new TariffSpecification(broker: broker1,
@@ -402,18 +412,18 @@ class CustomerServiceTests extends GroovyTestCase {
     assertNotNull("second tariff found", tc2)
     Tariff tc3 = Tariff.findBySpecId(tsc3.id)
     assertNotNull("third tariff found", tc3)
-    
+
     // make sure we have three active tariffs
     def tclist = tariffMarketService.getActiveTariffList(PowerType.CONSUMPTION)
     assertEquals("4 consumption tariffs", 4, tclist.size())
     assertEquals("three transaction", 3, TariffTransaction.count())
-    
-    //Village.list().each{ customer ->
-    //  customer.evaluateNewPublishedTariffs(Tariff.list())
-    //}
-     
+
+    Village.list().each{ customer ->
+      customer.possibilityEvaluationNewTariffs(Tariff.list())
+    }
+
   }
-/*  
+
   void testVillageRefreshModels() {
     initializeService()
     timeService.base = now.toInstant().millis
@@ -426,6 +436,6 @@ class CustomerServiceTests extends GroovyTestCase {
     println(householdConsumersService.appliancesOperations.toString())
     println(householdConsumersService.appliancesLoads.toString())
   }
-  */
-  
+
+
 }
