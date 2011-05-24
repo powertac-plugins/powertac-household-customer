@@ -99,11 +99,6 @@ class Village extends AbstractCustomer{
     fillAggWeeklyLoad("RegularlyShifting")
     fillAggWeeklyLoad("SmartShifting")
 
-    //log.info "Testing : ${villageConsumersService.getConsumptions(this,0)[62].toString()} "
-    //log.info "Testing : ${villageConsumersService.getConsumptions(this,1)[62].toString()} "
-    //log.info "Testing : ${villageConsumersService.getConsumptions(this,2)[62].toString()} "
-    //log.info "Testing : ${villageConsumersService.getConsumptions(this,3)[62].toString()} "
-
   }
 
   /** This function is used in order to fill each week day of the aggregated daily Load 
@@ -150,7 +145,7 @@ class Village extends AbstractCustomer{
 
   @ Override
   double getConsumptionByTimeslot(int serial) {
-
+    
     int day = (int) (serial / Constants.HOURS_OF_DAY)
     int hour = (int) (serial % Constants.HOURS_OF_DAY)
     double ran = 0,summary = 0
@@ -255,7 +250,6 @@ class Village extends AbstractCustomer{
 
     int serial = ((timeService.currentTime.millis - timeService.base) / TimeService.HOUR)
     Instant base = timeService.currentTime - serial*TimeService.HOUR
-    println("Time Base: " + base.toString())
     int daylimit = (int) (serial / 24) + 1 // this will be changed to one or more random numbers
 
     float finalCostSummary = 0
@@ -263,32 +257,23 @@ class Village extends AbstractCustomer{
     daysList.each { day ->
 
       if (day < daylimit) day = (int) (day + (daylimit / Constants.RANDOM_DAYS_NUMBER))
-
       Instant now = base + day * TimeService.DAY
-
       float costSummary = 0
       float summary = 0, cumulativeSummary = 0
 
       for (int hour=0;hour < Constants.HOURS_OF_DAY;hour++){
-
         for (int j=0;j < 4;j++){
           summary = summary + villageConsumersService.getConsumptions(this,j)[day][hour]
         }
         summary = summary / Constants.PERCENTAGE
-
         cumulativeSummary += summary
         costSummary += tariff.getUsageCharge(now,summary,cumulativeSummary)
-
         now = now + TimeService.HOUR
       }
-
+      log.info "Variable Cost Summary: ${finalCostSummary}"
       finalCostSummary += costSummary
-
     }
-    log.info "Variable cost Summary: ${finalCostSummary}"
     return finalCostSummary / Constants.RANDOM_DAYS_NUMBER
-
-
   }
 
 

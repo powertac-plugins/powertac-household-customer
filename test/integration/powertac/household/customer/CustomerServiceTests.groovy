@@ -66,7 +66,7 @@ class CustomerServiceTests extends GroovyTestCase {
 
     // create a Competition, needed for initialization
     if (Competition.count() == 0) {
-      comp = new Competition(name: 'accounting-test')
+      comp = new Competition(name: 'household-customer-test')
       assert comp.save()
     }
     else {
