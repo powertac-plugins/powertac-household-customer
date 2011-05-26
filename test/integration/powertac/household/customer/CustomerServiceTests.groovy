@@ -324,7 +324,7 @@ class CustomerServiceTests extends GroovyTestCase {
     // current time is noon. Set pub interval to 3 hours.
     tariffMarketService.publicationInterval = 3 // hours
     //assertEquals("newTariffs list is empty", 0, Tariff.findAllByState(Tariff.State.PENDING).size())
-    assertEquals("one registration", 2, tariffMarketService.registrations.size())
+    assertEquals("one registration", 1, tariffMarketService.registrations.size())
     Village.list().each{ village ->
       // assertEquals("no tariffs at 12:00", 0, village.publishedTariffs.size())
     }
