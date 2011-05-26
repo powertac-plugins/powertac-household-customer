@@ -21,9 +21,9 @@ import java.util.Random
 import org.joda.time.Instant
 import org.powertac.common.CustomerInfo
 import org.powertac.common.PluginConfig
-import org.powertac.common.configurations.Constants
 import org.powertac.common.enumerations.CustomerType
 import org.powertac.common.enumerations.PowerType
+import org.powertac.common.interfaces.NewTariffListener
 import org.powertac.common.interfaces.TimeslotPhaseProcessor
 import org.powertac.consumers.Village
 
@@ -34,11 +34,10 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
   def timeService // autowire
   def competitionControlService
   def randomSeedService // autowire
+  def tariffMarketService
 
   PluginConfig configuration
-
   HashMap hm
-
   Random randomGen = null
 
   void afterPropertiesSet ()
@@ -55,6 +54,9 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
 
 
   void init(PluginConfig config) {
+
+    def listener = [publishNewTariffs:{tariffList -> Village.list().each{ it.possibilityEvaluationNewTariffs(tariffList)}}] as NewTariffListener
+    tariffMarketService?.registerNewTariffListener(listener)
 
     configuration = config
 
