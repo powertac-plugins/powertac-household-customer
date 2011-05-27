@@ -271,23 +271,6 @@ class Person {
     }
   }
 
-
-  /** This function fills out all the days of the person's week one by one.
-   * 
-   * @param vacationAbsence
-   * @return
-   */
-  /*  def fillWeeklyRoutine(float vacationAbsence, Random gen) {
-   // Create auxiliary variable
-   Vector v = new Vector()
-   // Fill out each day for the week
-   for (int i = 0;i < Constants.DAYS_OF_WEEK;i++) {
-   fillDailyRoutine(i,vacationAbsence, gen)
-   v.add(dailyRoutine)
-   }
-   return v
-   }*/
-
   /** This is the function utilized to show the information regarding
    * the person in question, its variables values etc.
    * @return
@@ -311,19 +294,13 @@ class Person {
   def setVectors(int index) {
 
     for (int i=0;i < weeklyRoutine.size();i++){
-
       for (int j=0;j < 96;j++){
-
         householdConsumersService.setPerson (memberOf, index, i, j, weeklyRoutine.get(i).get(j))
-
       }
-
     }
-
   }
 
   static constraints = {
-
     name()
     status()
   }
