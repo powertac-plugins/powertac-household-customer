@@ -104,9 +104,7 @@ class Household {
       member.setVectors(index)
       index = index+1
     }
-        
-    //log.info "Testing new Service: ${householdConsumersService.getPersons(this,members.size()-1)[62].toString()}"
-  
+
     householdConsumersService.createAppliancesOperationsMap(this,appliances.size())
     householdConsumersService.createAppliancesLoadsMap(this,appliances.size())
     
@@ -115,9 +113,6 @@ class Household {
       appliance.setVectors(index)
       index = index+1
     }
-    
-    //log.info "Testing new Service: ${householdConsumersService.getApplianceOperations(this,appliances.size()-1)[62].toString()}"
-    //log.info "Testing new Service: ${householdConsumersService.getApplianceLoads(this,appliances.size()-1)[62].toString()}"
     
   }
 
@@ -138,18 +133,15 @@ class Household {
     if (x < pp) {
       PeriodicPresentPerson ppp = new PeriodicPresentPerson()
       ppp.initialize("PPP" + counter,hm,publicVacationVector,gen)
-      //ppp.weeklyRoutine = ppp.fillWeeklyRoutine(va,gen)
       this.addToMembers(ppp)
     } else  {
       if (x >= pp & x < (pp + mp)) {
         MostlyPresentPerson mpp = new MostlyPresentPerson()
         mpp.initialize("MPP" + counter,hm,publicVacationVector,gen)
-        //mpp.weeklyRoutine = mpp.fillWeeklyRoutine(va,gen)
         this.addToMembers(mpp)
       } else  {
         RandomlyAbsentPerson rap = new RandomlyAbsentPerson()
         rap.initialize("RAP"+ counter,hm,publicVacationVector,gen)
-        //rap.weeklyRoutine = rap.fillWeeklyRoutine(va,gen)
         this.addToMembers(rap)
       }
     }
@@ -303,31 +295,31 @@ class Household {
    */
   def showStatus() {
     // Printing basic variables
-    System.out.println("HouseHold Name : " + name)
-    System.out.println("HouseHold Yearly Consumption : " + yearConsumption)
-    System.out.println("Number of Persons : " + members.size())
+    log.info("HouseHold Name : " + name)
+    log.info("HouseHold Yearly Consumption : " + yearConsumption)
+    log.info("Number of Persons : " + members.size())
     // Printing members' status
     Iterator iter = members.iterator();
     while (iter.hasNext()) iter.next().showInfo();
     // Printing appliances' status
     iter = appliances.iterator();
-    System.out.println(" Number Of Appliances = ")
-    System.out.println(appliances.size())
+    log.info(" Number Of Appliances = ")
+    log.info(appliances.size())
     while (iter.hasNext()) iter.next().showStatus();
     // Printing daily load
-    System.out.println(" Daily Load = ")
+    log.info(" Daily Load = ")
     for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
-      System.out.println("Day " + (i))
+      log.info("Day " + (i))
       ListIterator iter2 = weeklyLoad.get(i).listIterator();
-      for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) System.out.println("Quarter : " + (j+1) + " Load : " + iter2.next())
+      for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) log.info("Quarter : " + (j+1) + " Load : " + iter2.next())
     }
 
     // Printing daily load in hours
-    System.out.println(" Load In Hours = ")
+    log.info(" Load In Hours = ")
     for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
-      System.out.println("Day " + (i))
+      log.info("Day " + (i))
       ListIterator iter2 = weeklyLoadInHours.get(i).listIterator();
-      for (int j = 0;j < Constants.HOURS_OF_DAY; j++) System.out.println("Hours : " + (j+1) + " Load : " + iter2.next())
+      for (int j = 0;j < Constants.HOURS_OF_DAY; j++) log.info("Hours : " + (j+1) + " Load : " + iter2.next())
     }
   }
 
@@ -423,16 +415,10 @@ class Household {
    */
   def refresh(HashMap hm, Random gen) {
 
-    //log.info "Refresh Weekly Routine Of House ${name} "
-    //log.info "Refresh Weekly Routine Of House Of Household Members"
-
     // For each member of the household
     this.members.each {member ->
       member.refresh(hm,gen)
     }
-
-    // Refreshing appliance's function schedule
-    //log.info "Refresh Weekly Functions of Appliances"
 
     this.appliances.each { appliance ->
       appliance.refresh(gen)

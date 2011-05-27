@@ -65,32 +65,32 @@ class MostlyPresentPerson extends Person {
   @ Override
   def showInfo() {
     // Printing base variables
-    System.out.println("Name = " + name)
+    log.info("Name = " + name)
 
     // Printing Sickness variables
-    System.out.println("Sickness Days = ")
+    log.info("Sickness Days = ")
     ListIterator iter = sicknessVector.listIterator();
-    while (iter.hasNext()) System.out.println(iter.next());
+    while (iter.hasNext()) log.info(iter.next());
 
     // Printing Leisure variables
-    System.out.println("Leisure Days of Week = ");
+    log.info("Leisure Days of Week = ");
     iter = leisureVector.listIterator();
-    while (iter.hasNext()) System.out.println(iter.next());
-    System.out.println("Leisure Duration = " + leisureDuration);
+    while (iter.hasNext()) log.info(iter.next());
+    log.info("Leisure Duration = " + leisureDuration);
 
     // Printing Public Vacation Variables
-    System.out.println("Public Vacation of Year = ");
+    log.info("Public Vacation of Year = ");
     iter = publicVacationVector.listIterator();
-    while (iter.hasNext()) System.out.println(iter.next());
+    while (iter.hasNext()) log.info(iter.next());
 
     // Printing Weekly Schedule
-    System.out.println("Weekly Routine Length : " + weeklyRoutine.size())
-    System.out.println("Weekly Routine : ")
+    log.info("Weekly Routine Length : " + weeklyRoutine.size())
+    log.info("Weekly Routine : ")
 
     for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
-      System.out.println("Day " + (i))
+      log.info("Day " + (i))
       iter = weeklyRoutine.get(i).listIterator();
-      for (int j =0;j < Constants.QUARTERS_OF_DAY;j++) System.out.println("Quarter : " + (j+1) + " Status : " + iter.next())
+      for (int j =0;j < Constants.QUARTERS_OF_DAY;j++) log.info("Quarter : " + (j+1) + " Status : " + iter.next())
     }
   }
 

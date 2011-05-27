@@ -146,26 +146,6 @@ public class Config {
       }
     }
 
-    // Case we didn't find the variable in the file
-    if (test3.equals(""))
-      System.out.println("Variable " + str + " not found in file");
-
-  }
-
-  /**
-   * Function that returns in string form the contents of the HashMap variable
-   * by means of key and value.
-   */
-  public void showContents() {
-
-    Set set = variablesHashMap.entrySet();
-    Iterator it = set.iterator();
-    while (it.hasNext()) {
-      Map.Entry me = (Map.Entry) it.next();
-      System.out.println(me.getKey() + " : " + me.getValue());
-
-    }
-
   }
 
 }

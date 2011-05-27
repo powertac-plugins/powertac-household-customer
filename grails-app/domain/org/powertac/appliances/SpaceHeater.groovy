@@ -87,7 +87,6 @@ class SpaceHeater extends FullyShiftingAppliance{
   @ Override
   def refresh(Random gen) {
     fillWeeklyFunction(gen)
-    //log.info "Space Heater refreshed"
   }
 
   static constraints = {
