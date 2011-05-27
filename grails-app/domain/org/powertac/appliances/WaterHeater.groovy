@@ -100,51 +100,51 @@ class WaterHeater extends FullyShiftingAppliance{
   @ Override
   def showStatus() {
     // Printing basic variables
-    System.out.println("Name = " + name)
-    System.out.println("Saturation = " + saturation)
-    System.out.println("Consumption Share = " + consumptionShare)
-    System.out.println("Base Load Share = " + baseLoadShare)
-    System.out.println("Power = " + power)
-    System.out.println("Heater Type = " + type)
-    System.out.println("Cycle Duration = "+ cycleDuration)
-    System.out.println("Occupancy Dependence = "+ od)
-    System.out.println("In Use = " + inUse)
+    log.info("Name = " + name)
+    log.info("Saturation = " + saturation)
+    log.info("Consumption Share = " + consumptionShare)
+    log.info("Base Load Share = " + baseLoadShare)
+    log.info("Power = " + power)
+    log.info("Heater Type = " + type)
+    log.info("Cycle Duration = "+ cycleDuration)
+    log.info("Occupancy Dependence = "+ od)
+    log.info("In Use = " + inUse)
 
     // Printing Season Possibility
     Set set = probabilitySeason.entrySet();
     Iterator it = set.iterator();
-    System.out.println("Probability Season = ")
+    log.info("Probability Season = ")
     while (it.hasNext()) {
       Map.Entry me = (Map.Entry)it.next();
-      System.out.println(me.getKey() + " : " + me.getValue() );
+      log.info(me.getKey() + " : " + me.getValue() );
     }
 
     // Printing Weekday Possibility
     set = probabilityWeekday.entrySet();
     it = set.iterator();
-    System.out.println("Probability Weekday = ")
+    log.info("Probability Weekday = ")
     while (it.hasNext()) {
       Map.Entry me = (Map.Entry)it.next();
-      System.out.println(me.getKey() + " : " + me.getValue() );
+      log.info(me.getKey() + " : " + me.getValue() );
     }
 
     // Printing Operation Vector
     def iter = operationVector.listIterator();
-    System.out.println("Operation Vector = ")
+    log.info("Operation Vector = ")
     for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
-      System.out.println("Day " + (i+1))
+      log.info("Day " + (i+1))
       iter = operationVector.get(i).listIterator();
-      for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) System.out.println("Quarter : " + (j+1) + "  " + iter.next())
+      for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) log.info("Quarter : " + (j+1) + "  " + iter.next())
     }
 
     // Printing Weekly Operation Vector and Load Vector
-    System.out.println("Weekly Operation Vector and Load = ")
+    log.info("Weekly Operation Vector and Load = ")
 
     for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
-      System.out.println("Day " + (i+1))
+      log.info("Day " + (i+1))
       iter = weeklyOperation.get(i).listIterator();
       ListIterator iter2 = weeklyLoadVector.get(i).listIterator();
-      for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) System.out.println("Quarter " + (j+1) + " = " + iter.next() + "   Load = " + iter2.next())
+      for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) log.info("Quarter " + (j+1) + " = " + iter.next() + "   Load = " + iter2.next())
     }
   }
 
@@ -188,10 +188,8 @@ class WaterHeater extends FullyShiftingAppliance{
     if (type == HeaterType.InstantHeater) {
       createWeeklyOperationVector((int)(times + applianceOf.members.size()/2),gen)
       fillWeeklyFunction(gen)
-      //log.info "Instant Water Heater refreshed"
     } else  {
       fillWeeklyFunction(gen)
-      //log.info "Storage Water Heater refreshed"
     }
   }
 

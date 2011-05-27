@@ -176,44 +176,44 @@ class WorkingPerson extends Person{
   void showStatus() 
   {
     // Printing the base variable
-    System.out.println("Name = " + name)
+    log.info("Name = " + name)
 
     // Printing Sickness variables
-    System.out.println("Sickness Days = ")
+    log.info("Sickness Days = ")
     ListIterator iter = sicknessVector.listIterator();
-    while (iter.hasNext()) System.out.println(iter.next());
+    while (iter.hasNext()) log.info(iter.next());
 
     // Printing Leisure variables
-    System.out.println("Leisure Days of Week = ");
+    log.info("Leisure Days of Week = ");
     iter = leisureVector.listIterator();	
-    while (iter.hasNext()) System.out.println(iter.next());
-    System.out.println("Leisure Duration = " + leisureDuration);
+    while (iter.hasNext()) log.info(iter.next());
+    log.info("Leisure Duration = " + leisureDuration);
 
     // Printing working variables
-    System.out.println("Working Days = ");
+    log.info("Working Days = ");
     iter = workingDays.listIterator();
-    while (iter.hasNext()) System.out.println(iter.next());
-    System.out.println("Working Duration = " + workingDuration);
-    System.out.println("Working Starting Hour = " + workingStartHour)
+    while (iter.hasNext()) log.info(iter.next());
+    log.info("Working Duration = " + workingDuration);
+    log.info("Working Starting Hour = " + workingStartHour)
 
     // Printing vacation variables
-    System.out.println("Vacation Duration = " + vacationDuration);
-    System.out.println("Vacation Days = ");
+    log.info("Vacation Duration = " + vacationDuration);
+    log.info("Vacation Days = ");
     iter = vacationVector.listIterator();
-    while (iter.hasNext()) System.out.println(iter.next());
-    System.out.println("Public Vacation of Year = ");
+    while (iter.hasNext()) log.info(iter.next());
+    log.info("Public Vacation of Year = ");
     iter = publicVacationVector.listIterator();
 
-    while (iter.hasNext()) System.out.println(iter.next());
+    while (iter.hasNext()) log.info(iter.next());
 
     // Printing Weekly Schedule
-    System.out.println("Weekly Routine : ")
+    log.info("Weekly Routine : ")
     iter = weeklyRoutine.get(0).listIterator();
 
     for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
-      System.out.println("Day " + (i))
+      log.info("Day " + (i))
       iter = weeklyRoutine.get(i).listIterator();
-      for (int j =0;j < Constants.QUARTERS_OF_DAY;j++) System.out.println("Quarter : " + (j+1) + " Status : " + iter.next())
+      for (int j =0;j < Constants.QUARTERS_OF_DAY;j++) log.info("Quarter : " + (j+1) + " Status : " + iter.next())
     }
   }
 

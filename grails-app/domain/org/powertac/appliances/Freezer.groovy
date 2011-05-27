@@ -78,7 +78,6 @@ class Freezer extends FullyShiftingAppliance{
   @ Override
   def refresh(Random gen) {
     fillWeeklyFunction(gen)
-    //log.info "Freezer refreshed"
   }
 
   static constraints = {

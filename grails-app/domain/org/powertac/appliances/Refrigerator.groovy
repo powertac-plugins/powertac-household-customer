@@ -71,7 +71,6 @@ class Refrigerator extends FullyShiftingAppliance {
   @ Override
   def refresh(Random gen) {
     fillWeeklyFunction(gen)
-    //log.info "Refridgerator refreshed"
   }
 
   static constraints = {

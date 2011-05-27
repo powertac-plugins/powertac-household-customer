@@ -89,7 +89,6 @@ class ICT extends NotShiftingAppliance{
   def refresh(Random gen) {
     createWeeklyOperationVector(times + applianceOf.members.size(), gen)
     fillWeeklyFunction(gen)
-    //log.info "ICT refreshed"
   }
 
   static constraints = {

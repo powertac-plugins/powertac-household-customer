@@ -108,7 +108,6 @@ class Village extends AbstractCustomer{
    */
   def fillAggWeeklyLoad(String portion) {
     for (int i = 0; i < Constants.DAYS_OF_WEEK * 9;i++) {
-      //log.info "i = ${i}"
       setAggDailyLoad(fillAggDailyLoad(i, portion))
       setAggDailyLoadInHours(fillAggDailyLoadInHours(i,portion))
     }
