@@ -17,6 +17,8 @@
 
 package org.powertac.appliances
 
+import groovy.util.ConfigObject;
+
 import java.util.HashMap
 import java.util.Random
 
@@ -149,14 +151,13 @@ class WaterHeater extends FullyShiftingAppliance{
   }
 
   @ Override
-  def initialize(HashMap hm, Random gen) {
+  def initialize(ConfigObject conf, Random gen) {
     // Creating Auxiliary Variables
     int x = 1 + gen.nextInt(Constants.PERCENTAGE)
-    int limit = (int)hm.get("InstantHeater")
-
+    int limit = conf.household.appliances.waterHeater.InstantHeater
     // Filling the base variables
     name = "WaterHeater"
-    saturation = (float)hm.get("WaterHeaterSaturation")
+    saturation = conf.household.appliances.waterHeater.WaterHeaterSaturation
     if ( x < limit) {
       consumptionShare = (float) (Constants.PERCENTAGE * (Constants.INSTANT_HEATER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.INSTANT_HEATER_CONSUMPTION_SHARE_MEAN))
       baseLoadShare = Constants.PERCENTAGE * Constants.INSTANT_HEATER_BASE_LOAD_SHARE
@@ -167,7 +168,7 @@ class WaterHeater extends FullyShiftingAppliance{
       probabilitySeason = fillSeason(Constants.INSTANT_HEATER_POSSIBILITY_SEASON_1,Constants.INSTANT_HEATER_POSSIBILITY_SEASON_2,Constants.INSTANT_HEATER_POSSIBILITY_SEASON_3)
       probabilityWeekday = fillDay(Constants.INSTANT_HEATER_POSSIBILITY_DAY_1,Constants.INSTANT_HEATER_POSSIBILITY_DAY_2,Constants.INSTANT_HEATER_POSSIBILITY_DAY_3)
       setType(HeaterType.InstantHeater)
-      times = (float)hm.get("InstantHeaterDailyTimes")
+      times = conf.household.appliances.waterHeater.InstantHeaterDailyTimes
       createWeeklyOperationVector((int)(times + applianceOf.members.size()/2), gen)
     } else  {
       consumptionShare = (float) (Constants.PERCENTAGE * (Constants.STORAGE_HEATER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.STORAGE_HEATER_CONSUMPTION_SHARE_MEAN))

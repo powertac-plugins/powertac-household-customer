@@ -72,11 +72,11 @@ class Household {
    * @param publicVacationVector
    * @return
    */
-  def initialize(String HouseName, HashMap hm, Vector publicVacationVector, Random gen) {
-    float va = (float)hm.get("VacationAbsence")
+  def initialize(String HouseName, ConfigObject conf, Vector publicVacationVector, Random gen) {
+    float va = (float)conf.household.vacation.VacationAbsence
     setName(HouseName)
-    int persons = memberRandomizer(hm, gen)
-    for (int i = 0;i < persons; i++) addPerson(i+1,hm,publicVacationVector, gen)
+    int persons = memberRandomizer(conf, gen)
+    for (int i = 0;i < persons; i++) addPerson(i+1,conf,publicVacationVector, gen)
 
     this.members.each { member ->
       for (int i =0;i < Constants.DAYS_OF_WEEK;i++) {
@@ -85,7 +85,7 @@ class Household {
       }
     }
 
-    fillAppliances(hm, gen)
+    fillAppliances(conf, gen)
 
     for (int i =0;i < Constants.DAYS_OF_WEEK;i++) {
       setDailyLoad(fillDailyLoad(i))
@@ -95,7 +95,7 @@ class Household {
     }
 
     for (int week = 0;week < 8;week++){
-      refresh(hm,gen)
+      refresh(conf,gen)
     }
     
     householdConsumersService.createPersonsMap(this,members.size())
@@ -123,25 +123,25 @@ class Household {
    * @param publicVacationVector
    * @return
    */
-  def addPerson(int counter, HashMap hm, Vector publicVacationVector, Random gen) {
+  def addPerson(int counter, ConfigObject conf, Vector publicVacationVector, Random gen) {
     // Taking parameters from configuration file
-    int pp = (int)hm.get("PeriodicPresent")
-    int mp = (int)hm.get("MostlyPresent")
-    int ra = (int)hm.get("RandomlyAbsent")
+    int pp = (int)conf.household.person.personType.PeriodicPresent
+    int mp = (int)conf.household.person.personType.MostlyPresent
+    int ra = (int)conf.household.person.personType.RandomlyAbsent
 
     int x = gen.nextInt(Constants.PERCENTAGE);
     if (x < pp) {
       PeriodicPresentPerson ppp = new PeriodicPresentPerson()
-      ppp.initialize("PPP" + counter,hm,publicVacationVector,gen)
+      ppp.initialize("PPP" + counter,conf,publicVacationVector,gen)
       this.addToMembers(ppp)
     } else  {
       if (x >= pp & x < (pp + mp)) {
         MostlyPresentPerson mpp = new MostlyPresentPerson()
-        mpp.initialize("MPP" + counter,hm,publicVacationVector,gen)
+        mpp.initialize("MPP" + counter,conf,publicVacationVector,gen)
         this.addToMembers(mpp)
       } else  {
         RandomlyAbsentPerson rap = new RandomlyAbsentPerson()
-        rap.initialize("RAP"+ counter,hm,publicVacationVector,gen)
+        rap.initialize("RAP"+ counter,conf,publicVacationVector,gen)
         this.addToMembers(rap)
       }
     }
@@ -152,32 +152,32 @@ class Household {
    * @param hm
    * @return
    */
-  def memberRandomizer(HashMap hm, Random gen) {
-    int one = (int) hm.get("OnePerson")
-    int two = (int) hm.get("TwoPersons")
-    int three = (int) hm.get("ThreePersons")
-    int four = (int) hm.get("FourPersons")
-    int five = (int) hm.get("FivePersons")
+  def memberRandomizer(ConfigObject conf, Random gen) {
+    int one = conf.household.person.personsInHousehold.OnePerson
+    int two = conf.household.person.personsInHousehold.TwoPersons
+    int three = conf.household.person.personsInHousehold.ThreePersons
+    int four = conf.household.person.personsInHousehold.FourPersons
+    int five = conf.household.person.personsInHousehold.FivePersons
     int returnValue
 
     int x = gen.nextInt(Constants.PERCENTAGE);
     if (x < one) {
-      setYearConsumption((int) hm.get("OnePersonConsumption"))
+      setYearConsumption((int) conf.household.person.consumption.OnePersonConsumption)
       returnValue = 1
     } else  {
       if (x >= one &  x < (one + two)) {
-        setYearConsumption((int) hm.get("TwoPersonsConsumption"))
+        setYearConsumption((int) conf.household.person.consumption.TwoPersonsConsumption)
         returnValue = 2
       } else  {
         if (x >= (one + two) & x < (one + two + three)) {
-          setYearConsumption((int) hm.get("ThreePersonsConsumption"))
+          setYearConsumption((int) conf.household.person.consumption.ThreePersonsConsumption)
           returnValue = 3
         } else  {
           if (x >= (one + two + three) & x < (one + two + three + four)) {
-            setYearConsumption((int) hm.get("FourPersonsConsumption"))
+            setYearConsumption((int) conf.household.person.consumption.FourPersonsConsumption)
             returnValue = 4
           } else  {
-            setYearConsumption((int) hm.get("FivePersonsConsumption"))
+            setYearConsumption((int) conf.household.person.consumption.FivePersonsConsumption)
             returnValue = 5
           }
         }
@@ -206,71 +206,71 @@ class Household {
    * @param hm
    * @return
    */
-  def fillAppliances(HashMap hm, Random gen) {
+  def fillAppliances(ConfigObject conf, Random gen) {
 
     // Refrigerator
     Refrigerator ref = new Refrigerator();
     this.addToAppliances(ref)
-    ref.initialize(hm,gen);
+    ref.initialize(conf,gen);
     ref.fillWeeklyFunction(gen)
     // Washing Machine
     WashingMachine wm = new WashingMachine();
     this.addToAppliances(wm)
-    wm.initialize(hm,gen);
+    wm.initialize(conf,gen);
     wm.fillWeeklyFunction(gen)
     // Consumer Electronics
     ConsumerElectronics ce = new ConsumerElectronics();
     this.addToAppliances(ce)
-    ce.initialize(hm,gen);
+    ce.initialize(conf,gen);
     ce.fillWeeklyFunction(gen)
     // ICT
     ICT ict = new ICT();
     this.addToAppliances(ict)
-    ict.initialize(hm,gen);
+    ict.initialize(conf,gen);
     ict.fillWeeklyFunction(gen)
     // Lights
     Lights lights = new Lights();
     this.addToAppliances(lights)
-    lights.initialize(hm,gen);
+    lights.initialize(conf,gen);
     lights.fillWeeklyFunction(gen)
     //Others
     Others others = new Others();
     this.addToAppliances(others)
-    others.initialize(hm,gen);
+    others.initialize(conf,gen);
     others.fillWeeklyFunction(gen)
     // Freezer
     Freezer fr = new Freezer()
-    fr.initialize(hm,gen)
+    fr.initialize(conf,gen)
     checkProbability(fr,gen)
     // Dishwasher
     Dishwasher dw = new Dishwasher()
     this.addToAppliances(dw)
-    dw.initialize(hm,gen)
+    dw.initialize(conf,gen)
     checkProbability(dw,gen)
     //Stove
     Stove st = new Stove()
     this.addToAppliances(st)
-    st.initialize(hm,gen)
+    st.initialize(conf,gen)
     checkProbability(st,gen)
     //Dryer
     Dryer dr = new Dryer()
     this.addToAppliances(dr)
-    dr.initialize(hm,gen)
+    dr.initialize(conf,gen)
     checkProbability(dr,gen)
     //Water Heater
     WaterHeater wh = new WaterHeater()
     this.addToAppliances(wh)
-    wh.initialize(hm,gen)
+    wh.initialize(conf,gen)
     checkProbability(wh,gen)
     //Circulation Pump
     CirculationPump cp = new CirculationPump()
     this.addToAppliances(cp)
-    cp.initialize(hm,gen)
+    cp.initialize(conf,gen)
     checkProbability(cp,gen)
     //Space Heater
     SpaceHeater sh = new SpaceHeater()
     this.addToAppliances(sh)
-    sh.initialize(hm,gen)
+    sh.initialize(conf,gen)
     checkProbability(sh,gen)
   }
 
@@ -413,11 +413,11 @@ class Household {
    * @param hm
    * @return
    */
-  def refresh(HashMap hm, Random gen) {
+  def refresh(ConfigObject conf, Random gen) {
 
     // For each member of the household
     this.members.each {member ->
-      member.refresh(hm,gen)
+      member.refresh(conf,gen)
     }
 
     this.appliances.each { appliance ->

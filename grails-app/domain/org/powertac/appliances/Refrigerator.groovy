@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2009-2010 the original author or authors.
  *
@@ -33,11 +34,11 @@ import org.powertac.common.configurations.Constants
 class Refrigerator extends FullyShiftingAppliance {
 
   @ Override
-  def initialize(HashMap hm,Random gen) {
+  def initialize(ConfigObject conf,Random gen) {
 
     // Filling the base variables
     name = "Refrigerator"
-    saturation =  (float)hm.get("RefrigeratorSaturation")
+    saturation =  conf.household.appliances.refrigerator.RefrigeratorSaturation
     consumptionShare = (float) (Constants.PERCENTAGE * (Constants.REFRIDGERATOR_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.REFRIDGERATOR_CONSUMPTION_SHARE_MEAN))
     baseLoadShare = Constants.PERCENTAGE * Constants.REFRIDGERATOR_BASE_LOAD_SHARE
     power = (int) (Constants.REFRIDGERATOR_POWER_VARIANCE * gen.nextGaussian() + Constants.REFRIDGERATOR_POWER_MEAN)

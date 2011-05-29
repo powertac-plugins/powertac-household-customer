@@ -131,16 +131,16 @@ class WorkingPerson extends Person{
    * @param hm
    * @return
    */
-  def workingDaysRandomizer(HashMap hm, Random gen) 
+  def workingDaysRandomizer(ConfigObject conf, Random gen) 
   {
     def returnValue
-    int oneDay = ((int)hm.get("OneDay"))
-    int twoDays = ((int)hm.get("TwoDays"))
-    int threeDays = ((int)hm.get("ThreeDays"))
-    int fourDays = ((int)hm.get("FourDays"))
-    int fiveDays = ((int)hm.get("FiveDays"))
-    int sixDays = ((int)hm.get("SixDays"))
-    int sevenDays = ((int)hm.get("SevenDays"))
+    int oneDay = conf.household.work.daysPerWeek.OneDay
+    int twoDays = conf.household.work.daysPerWeek.TwoDays
+    int threeDays = conf.household.work.daysPerWeek.ThreeDays
+    int fourDays = conf.household.work.daysPerWeek.FourDays
+    int fiveDays = conf.household.work.daysPerWeek.FiveDays
+    int sixDays = conf.household.work.daysPerWeek.SixDays
+    int sevenDays = conf.household.work.daysPerWeek.SevenDays
 
     int x = (int) gen.nextInt(Constants.PERCENTAGE)
     if (x < fiveDays) {

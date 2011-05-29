@@ -235,7 +235,7 @@ class Appliance {
    * and so on.
    * @return
    */
-  def refresh(HashMap hm, Random gen) {
+  def refresh(ConfigObject conf, Random gen) {
   }
 
   /** This is an function to fill the maps utilized by Services in order to keep the vectors of each appliance

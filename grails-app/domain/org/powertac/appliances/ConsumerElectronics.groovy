@@ -33,17 +33,17 @@ import org.powertac.common.configurations.Constants
 class ConsumerElectronics extends NotShiftingAppliance {
 
   @ Override
-  def initialize(HashMap hm, Random gen) {
+  def initialize(ConfigObject conf, Random gen) {
 
 
     // Filling the base variables
     name = "ConsumerElectronics"
-    saturation = (float)hm.get("ConsumerElectronicsSaturation")
+    saturation = conf.household.appliances.consumerElectronics.ConsumerElectronicsSaturation
     consumptionShare = (float) (Constants.PERCENTAGE * (Constants.CONSUMER_ELECTRONICS_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.CONSUMER_ELECTRONICS_CONSUMPTION_SHARE_MEAN))
     baseLoadShare = Constants.PERCENTAGE * Constants.CONSUMER_ELECTRONICS_BASE_LOAD_SHARE
     power = (int) (Constants.CONSUMER_ELECTRONICS_POWER_VARIANCE * gen.nextGaussian() + Constants.CONSUMER_ELECTRONICS_POWER_MEAN)
     cycleDuration = Constants.CONSUMER_ELECTRONICS_DURATION_CYCLE
-    times = (float)hm.get("ConsumerElectronicsDailyTimes")
+    times = conf.household.appliances.consumerElectronics.ConsumerElectronicsDailyTimes
     od = false
     inUse = false
     probabilitySeason = fillSeason(Constants.CONSUMER_ELECTRONICS_POSSIBILITY_SEASON_1,Constants.CONSUMER_ELECTRONICS_POSSIBILITY_SEASON_2,Constants.CONSUMER_ELECTRONICS_POSSIBILITY_SEASON_3)

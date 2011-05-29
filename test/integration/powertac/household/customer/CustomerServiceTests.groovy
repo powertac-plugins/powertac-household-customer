@@ -32,7 +32,6 @@ import org.powertac.common.TariffSpecification
 import org.powertac.common.TariffSubscription
 import org.powertac.common.TariffTransaction
 import org.powertac.common.TimeService
-import org.powertac.common.configurations.Config
 import org.powertac.common.enumerations.PowerType
 import org.powertac.common.enumerations.TariffTransactionType
 import org.powertac.common.interfaces.CompetitionControl
@@ -58,7 +57,6 @@ class CustomerServiceTests extends GroovyTestCase {
   Instant exp
   Instant start
   Instant now
-  Config conf
 
   protected void setUp() {
     super.setUp()
@@ -122,7 +120,7 @@ class CustomerServiceTests extends GroovyTestCase {
   void initializeService () {
     householdCustomerInitializationService.setDefaults()
     PluginConfig config = PluginConfig.findByRoleName('HouseholdCustomer')
-    config.configuration['configFile'] = 'config.txt'
+    config.configuration['configFile'] = 'grails-app/conf/HouseholdConfig.groovy'
     householdCustomerInitializationService.initialize(comp, [
       'TariffMarket',
       'DefaultBroker'
@@ -138,7 +136,7 @@ class CustomerServiceTests extends GroovyTestCase {
       'DefaultBroker'
     ])
     assertEquals("correct return value", 'HouseholdCustomer', result)
-    assertEquals("correct configuration file", 'config.txt', householdCustomerService.getConfigFile())
+    assertEquals("correct configuration file", 'grails-app/conf/HouseholdConfig.groovy', householdCustomerService.getConfigFile())
   }
   void testBogusInitialization () {
     PluginConfig config = PluginConfig.findByRoleName('HouseholdCustomer')
@@ -149,6 +147,13 @@ class CustomerServiceTests extends GroovyTestCase {
     ])
     assertEquals("failure return value", 'fail', result)
   }
+  
+  void testConfiguration(){
+    def config = new ConfigSlurper("test").parse(new File('grails-app/conf/HouseholdConfig.groovy').toURL())
+    assert config.household.general.NumberOfVillages == 2
+    assert config.household.houses.NotShiftingCustomers == 200
+  }
+ 
   void testVillagesInitialization() {
     initializeService()
     assertEquals("Two Villages Created", Village.count(), AbstractCustomer.count())
@@ -166,6 +171,7 @@ class CustomerServiceTests extends GroovyTestCase {
     }
     assertEquals("Tariff Transactions Created", Village.count(), TariffTransaction.findByTxType(TariffTransactionType.CONSUME).count())
   }
+  
   void testChangingSubscriptions() {
     initializeService()
     def tsc1 = new TariffSpecification(broker: broker2,
@@ -436,6 +442,4 @@ class CustomerServiceTests extends GroovyTestCase {
     println(householdConsumersService.appliancesOperations.toString())
     println(householdConsumersService.appliancesLoads.toString())
   }
-
-
 }

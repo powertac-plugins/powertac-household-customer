@@ -43,17 +43,17 @@ class RandomlyAbsentPerson extends WorkingPerson {
    * @return
    */
 
-  def initialize(String AgentName, HashMap hm, Vector publicVacationVector, Random gen) {
+  def initialize(String AgentName, ConfigObject conf, Vector publicVacationVector, Random gen) {
     // Variables Taken from the configuration file
-    float sicknessMean = ((float)hm.get("SicknessMean"))
-    float sicknessDev = ((float)hm.get("SicknessDev"))
-    float leisureDurationMean = ((int)hm.get("LeisureDurationMean"))
-    float leisureDurationDev = ((int)hm.get("LeisureDurationDev"))
-    float RALeisure = ((int)hm.get("RALeisure"))
-    int workingDurationMean = ((int)hm.get("WorkingDurationMean"))
-    int workingDurationDev = ((int)hm.get("WorkingDurationDev"))
-    int vacationDurationMean = ((int)hm.get("VacationDurationMean"))
-    int vacationDurationDev = ((int)hm.get("VacationDurationDev"))
+    float sicknessMean = conf.household.sickness.SicknessMean
+    float sicknessDev = conf.household.sickness.SicknessDev
+    float leisureDurationMean = conf.household.leisure.duration.LeisureDurationMean
+    float leisureDurationDev = conf.household.leisure.duration.LeisureDurationDev
+    float RALeisure = conf.household.leisure.numberByType.RALeisure
+    int workingDurationMean = conf.household.work.duration.WorkingDurationMean
+    int workingDurationDev = conf.household.work.duration.WorkingDurationDev
+    int vacationDurationMean = conf.household.vacation.VacationDurationMean
+    int vacationDurationDev = conf.household.vacation.VacationDurationDev
 
     // Filling the main variables
     name = AgentName
@@ -67,7 +67,7 @@ class RandomlyAbsentPerson extends WorkingPerson {
     leisureVector = createLeisureVector(x, gen)
     leisureDuration = (int) (leisureDurationDev * gen.nextGaussian() + leisureDurationMean)
     // Filling Working variables
-    int work = workingDaysRandomizer(hm,gen)
+    int work = workingDaysRandomizer(conf,gen)
     workingDays = createWorkingDaysVector(work, gen)
     workingStartHour = createWorkingStartHour(gen)
     workingDuration = (int) (workingDurationDev * gen.nextGaussian() + workingDurationMean)
@@ -197,14 +197,14 @@ class RandomlyAbsentPerson extends WorkingPerson {
   }
 
   @ Override
-  void refresh(HashMap hm, Random gen)
+  void refresh(ConfigObject conf, Random gen)
   {
     // Renew Variables
-    float leisureDurationMean = ((int)hm.get("LeisureDurationMean"))
-    float leisureDurationDev = ((int)hm.get("LeisureDurationDev"))
-    float RALeisure = ((int)hm.get("RALeisure"))
-    float vacationAbsence = ((float)hm.get("VacationAbsence"))
-    int work = workingDaysRandomizer(hm,gen)
+    float leisureDurationMean = conf.household.leisure.duration.LeisureDurationMean
+    float leisureDurationDev = conf.household.leisure.duration.LeisureDurationDev
+    float RALeisure = conf.household.leisure.numberByType.RALeisure
+    float vacationAbsence = conf.household.vacation.VacationAbsence
+    int work = workingDaysRandomizer(conf,gen)
     workingDays = createWorkingDaysVector(work,gen)
     workingStartHour = createWorkingStartHour(gen)
 

@@ -15,7 +15,6 @@
  */
 package org.powertac.consumers
 
-import java.math.BigDecimal
 import java.util.Random
 
 import org.joda.time.Instant
@@ -53,13 +52,14 @@ class Village extends AbstractCustomer{
    * @param publicVacationVector
    */
 
-  void initialize(HashMap hm, Random gen) {
+  void initialize(ConfigObject conf, Random gen) {
     // Initializing variables
-    int nshouses = (int)hm.get("NotShiftingCustomers")
-    int rashouses = (int)hm.get("RandomlyShiftingCustomers")
-    int reshouses = (int)hm.get("RegularlyShiftingCustomers")
-    int sshouses = (int)hm.get("SmartShiftingCustomers")
-    int days = (int)hm.get("PublicVacationDuration")
+    
+    int nshouses = conf.household.houses.NotShiftingCustomers
+    int rashouses = conf.household.houses.RandomlyShiftingCustomers
+    int reshouses = conf.household.houses.RegularlyShiftingCustomers
+    int sshouses = conf.household.houses.SmartShiftingCustomers
+    int days = conf.household.general.PublicVacationDuration
 
     customerInfo.population = nshouses + rashouses + reshouses + sshouses
     villageConsumersService.createHouseholdsMap(this, 4, nshouses)
@@ -71,26 +71,26 @@ class Village extends AbstractCustomer{
     for (i in 0..nshouses-1) {
       log.info "Initializing ${this.customerInfo.name} NSHouse ${i} "
       def hh = new Household()
-      hh.initialize(this.customerInfo.name+" NSHouse" + i,hm, publicVacationVector, gen)
+      hh.initialize(this.customerInfo.name+" NSHouse" + i,conf, publicVacationVector, gen)
       villageConsumersService.setHousehold(this, 0, i, hh)
     }
 
     for (i in 0..rashouses-1) {
       log.info "Initializing ${this.customerInfo.name} RaSHouse ${i} "
       def hh = new Household()
-      hh.initialize(this.customerInfo.name+" RaSHouse" + i,hm, publicVacationVector, gen)
+      hh.initialize(this.customerInfo.name+" RaSHouse" + i,conf, publicVacationVector, gen)
       villageConsumersService.setHousehold(this, 1, i, hh)
     }
     for (i in 0..reshouses-1) {
       log.info "Initializing ${this.customerInfo.name} ReSHouse ${i} "
       def hh = new Household()
-      hh.initialize(this.customerInfo.name+" ReSHouse" + i,hm, publicVacationVector, gen)
+      hh.initialize(this.customerInfo.name+" ReSHouse" + i,conf, publicVacationVector, gen)
       villageConsumersService.setHousehold(this, 2, i, hh)
     }
     for (i in 0..sshouses-1) {
       log.info "Initializing ${this.customerInfo.name} SSHouse ${i} "
       def hh = new Household()
-      hh.initialize(this.customerInfo.name+" SSHouse" + i,hm, publicVacationVector, gen)
+      hh.initialize(this.customerInfo.name+" SSHouse" + i,conf, publicVacationVector, gen)
       villageConsumersService.setHousehold(this, 3, i, hh)
     }
 
@@ -227,10 +227,10 @@ class Village extends AbstractCustomer{
    * @param hm
    * @return
    */
-  def refresh(HashMap hm, Random gen) {
+  def refresh(ConfigObject conf, Random gen) {
     for (int i=0; i < villageConsumersService.households.size();i++){
       for (int j=0; j < villageConsumersService.getHouseholds(this,i).size();j++){
-        villageConsumersService.getHouseholds(this,i)[j].refresh(hm,gen)
+        villageConsumersService.getHouseholds(this,i)[j].refresh(conf,gen)
       }
     }
 

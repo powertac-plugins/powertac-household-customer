@@ -17,6 +17,8 @@
 
 package org.powertac.appliances
 
+import groovy.util.ConfigObject;
+
 import java.util.HashMap
 
 import org.powertac.common.configurations.Constants
@@ -33,7 +35,7 @@ import org.powertac.common.configurations.Constants
 class Others extends NotShiftingAppliance{
 
   @ Override
-  def initialize(HashMap hm, Random gen) {
+  def initialize(ConfigObject conf, Random gen) {
 
 
     // Filling the base variables
@@ -43,7 +45,7 @@ class Others extends NotShiftingAppliance{
     baseLoadShare = Constants.PERCENTAGE * Constants.CONSUMER_ELECTRONICS_BASE_LOAD_SHARE
     power = (int) (Constants.CONSUMER_ELECTRONICS_POWER_VARIANCE * gen.nextGaussian() + Constants.CONSUMER_ELECTRONICS_POWER_MEAN)
     cycleDuration = Constants.CONSUMER_ELECTRONICS_DURATION_CYCLE
-    times = (float)hm.get("OthersDailyTimes")
+    times = conf.household.appliances.others.OthersDailyTimes
     od = false
     inUse = false
     probabilitySeason = fillSeason(Constants.CONSUMER_ELECTRONICS_POSSIBILITY_SEASON_1,Constants.CONSUMER_ELECTRONICS_POSSIBILITY_SEASON_2,Constants.CONSUMER_ELECTRONICS_POSSIBILITY_SEASON_3)

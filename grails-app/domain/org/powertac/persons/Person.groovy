@@ -284,7 +284,7 @@ class Person {
    * and so on.
    * @return
    */
-  void refresh(HashMap hm, Random gen) {
+  void refresh(ConfigObject conf, Random gen) {
   }
 
   /** This is an function to fill the maps utilized by Services in order to keep the vectors of each appliance

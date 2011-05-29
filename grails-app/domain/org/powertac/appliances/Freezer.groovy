@@ -17,6 +17,8 @@
 
 package org.powertac.appliances
 
+import groovy.util.ConfigObject;
+
 import java.util.HashMap
 import java.util.Random
 
@@ -39,12 +41,12 @@ class Freezer extends FullyShiftingAppliance{
   }
 
   @ Override
-  def initialize(HashMap hm,Random gen) {
+  def initialize(ConfigObject conf,Random gen) {
 
 
     // Filling the base variables
     name = "Freezer"
-    saturation = (float)hm.get("FreezerSaturation")
+    saturation = conf.household.appliances.freezer.FreezerSaturation
     consumptionShare = (float) (Constants.PERCENTAGE * (Constants.FREEZER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.FREEZER_CONSUMPTION_SHARE_MEAN))
     baseLoadShare = Constants.PERCENTAGE * Constants.FREEZER_BASE_LOAD_SHARE
     power = (int) (Constants.FREEZER_POWER_VARIANCE * gen.nextGaussian() + Constants.FREEZER_POWER_MEAN)

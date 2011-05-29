@@ -43,13 +43,13 @@ class MostlyPresentPerson extends Person {
    * @param publicVacationVector
    * @return
    */
-  def initialize(String AgentName, HashMap hm, Vector publicVacationVector, Random gen) {
+  def initialize(String AgentName, ConfigObject conf, Vector publicVacationVector, Random gen) {
     // Variables Taken from the configuration file
-    float sicknessMean = ((float)hm.get("SicknessMean"))
-    float sicknessDev = ((float)hm.get("SicknessDev"))
-    float leisureDurationMean = ((int)hm.get("LeisureDurationMean"))
-    float leisureDurationDev = ((int)hm.get("LeisureDurationDev"))
-    float MPLeisure = ((int)hm.get("MPLeisure"))
+    float sicknessMean = conf.household.sickness.SicknessMean
+    float sicknessDev = conf.household.sickness.SicknessDev
+    float leisureDurationMean = conf.household.leisure.duration.LeisureDurationMean
+    float leisureDurationDev = conf.household.leisure.duration.LeisureDurationDev
+    float MPLeisure = conf.household.leisure.numberByType.MPLeisure
 
     // Filling the main variables
     name = AgentName
@@ -95,14 +95,14 @@ class MostlyPresentPerson extends Person {
   }
 
   @ Override
-  void refresh(HashMap hm, Random gen)
+  void refresh(ConfigObject conf, Random gen)
   {
 
     // Renew Variables
-    float leisureDurationMean = ((int)hm.get("LeisureDurationMean"))
-    float leisureDurationDev = ((int)hm.get("LeisureDurationDev"))
-    float MPLeisure = ((int)hm.get("MPLeisure"))
-    float vacationAbsence = ((float)hm.get("VacationAbsence"))
+    float leisureDurationMean = conf.household.leisure.duration.LeisureDurationMean
+    float leisureDurationDev = conf.household.leisure.duration.LeisureDurationDev
+    float MPLeisure = conf.household.leisure.numberByType.MPLeisure
+    float vacationAbsence = conf.household.vacation.VacationAbsence
     int x = (int) (gen.nextGaussian() + MPLeisure)
     leisureDuration = (int) (leisureDurationDev * gen.nextGaussian() + leisureDurationMean)
     leisureVector = createLeisureVector(x,gen)
