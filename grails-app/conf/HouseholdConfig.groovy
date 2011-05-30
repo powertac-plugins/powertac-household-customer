@@ -154,7 +154,7 @@ household {
 }
 
 environments {
-  development {
+  Phoenix {
     household {
       houses {
             NotShiftingCustomers = 1
@@ -164,7 +164,7 @@ environments {
        }
     }
   }
-  test {
+  LA {
     household {
        houses {
             NotShiftingCustomers = 200

@@ -149,7 +149,7 @@ class CustomerServiceTests extends GroovyTestCase {
   }
   
   void testConfiguration(){
-    def config = new ConfigSlurper("test").parse(new File('grails-app/conf/HouseholdConfig.groovy').toURL())
+    def config = new ConfigSlurper("LA").parse(new File('grails-app/conf/HouseholdConfig.groovy').toURL())
     assert config.household.general.NumberOfVillages == 2
     assert config.household.houses.NotShiftingCustomers == 200
   }
