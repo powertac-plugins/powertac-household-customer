@@ -171,6 +171,7 @@ environments {
             RandomlyShiftingCustomers = 200
             RegularlyShiftingCustomers = 200
             SmartShiftingCustomers = 200
+            NewShiftingCustomers = 200
        }
     }
   }

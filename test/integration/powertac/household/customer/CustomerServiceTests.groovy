@@ -151,9 +151,9 @@ class CustomerServiceTests extends GroovyTestCase {
   void testConfiguration(){
     def config = new ConfigSlurper("LA").parse(new File('grails-app/conf/HouseholdConfig.groovy').toURL())
     assert config.household.general.NumberOfVillages == 2
-    assert config.household.houses.NotShiftingCustomers == 200
+    assert config.household.houses.NewShiftingCustomers == 200
   }
- 
+
   void testVillagesInitialization() {
     initializeService()
     assertEquals("Two Villages Created", Village.count(), AbstractCustomer.count())
