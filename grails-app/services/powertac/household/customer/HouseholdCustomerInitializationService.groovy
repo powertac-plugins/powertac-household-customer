@@ -38,7 +38,7 @@ implements InitializationService {
   {
     PluginConfig household =
         new PluginConfig(roleName:'HouseholdCustomer',
-        configuration: [configFile: 'grails-app/conf/HouseholdConfig.groovy'])
+        configuration: [configFile: '../powertac-household-customer/grails-app/conf/HouseholdConfig.groovy'])
     household.save()
   }
 

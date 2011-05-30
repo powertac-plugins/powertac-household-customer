@@ -120,7 +120,7 @@ class CustomerServiceTests extends GroovyTestCase {
   void initializeService () {
     householdCustomerInitializationService.setDefaults()
     PluginConfig config = PluginConfig.findByRoleName('HouseholdCustomer')
-    config.configuration['configFile'] = 'grails-app/conf/HouseholdConfig.groovy'
+    config.configuration['configFile'] = '../powertac-household-customer/grails-app/conf/HouseholdConfig.groovy'
     householdCustomerInitializationService.initialize(comp, [
       'TariffMarket',
       'DefaultBroker'
@@ -136,7 +136,7 @@ class CustomerServiceTests extends GroovyTestCase {
       'DefaultBroker'
     ])
     assertEquals("correct return value", 'HouseholdCustomer', result)
-    assertEquals("correct configuration file", 'grails-app/conf/HouseholdConfig.groovy', householdCustomerService.getConfigFile())
+    assertEquals("correct configuration file", '../powertac-household-customer/grails-app/conf/HouseholdConfig.groovy', householdCustomerService.getConfigFile())
   }
   void testBogusInitialization () {
     PluginConfig config = PluginConfig.findByRoleName('HouseholdCustomer')
