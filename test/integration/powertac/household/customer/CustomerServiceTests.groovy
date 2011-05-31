@@ -85,7 +85,6 @@ class CustomerServiceTests extends GroovyTestCase {
     timeService.currentTime = now
     timeService.base = now.millis
 
-
     // initialize the tariff market
     PluginConfig.findByRoleName('TariffMarket')?.delete()
     tariffMarketInitializationService.setDefaults()
@@ -156,12 +155,14 @@ class CustomerServiceTests extends GroovyTestCase {
 
   void testVillagesInitialization() {
     initializeService()
+    
     assertEquals("Two Villages Created", Village.count(), AbstractCustomer.count())
     assertFalse("Village 1 subscribed", AbstractCustomer.findByCustomerInfo(CustomerInfo.findByName("Village 1")).subscriptions == null)
     assertFalse("Village 2 subscribed", AbstractCustomer.findByCustomerInfo(CustomerInfo.findByName("Village 2")).subscriptions == null)
     assertFalse("Village 1 subscribed to default", AbstractCustomer.findByCustomerInfo(CustomerInfo.findByName("Village 1")).subscriptions == tariffMarketService.getDefaultTariff(PowerType.CONSUMPTION))
     assertFalse("Village 2 subscribed to default", AbstractCustomer.findByCustomerInfo(CustomerInfo.findByName("Village 2")).subscriptions == tariffMarketService.getDefaultTariff(PowerType.CONSUMPTION))
   }
+ 
   void testPowerConsumption() {
     initializeService()
     timeService.setCurrentTime(new Instant(now.millis + (TimeService.HOUR)))
@@ -307,87 +308,6 @@ class CustomerServiceTests extends GroovyTestCase {
     Village.list().each{ village ->
       assertEquals("1 Subscriptions for customer", 1, village.subscriptions?.size())
     }
-  }
-
-  void testTariffPublication() {
-    // test competitionControl registration
-    def registrationThing = null
-    def registrationPhase = -1
-    def competitionControlService =
-        [registerTimeslotPhase: { thing, phase ->
-            registrationThing = thing
-            registrationPhase = phase
-          }] as CompetitionControl
-    tariffMarketService.registrations = []
-    tariffMarketService.competitionControlService = competitionControlService
-    //tariffMarketService.afterPropertiesSet()
-    tariffMarketInitializationService.initialize(comp, ['AccountingService'])
-    //assertEquals("correct thing", tariffMarketService, registrationThing)
-    assertEquals("correct phase", tariffMarketService.simulationPhase, registrationPhase)
-    start = new DateTime(2011, 1, 1, 12, 0, 0, 0, DateTimeZone.UTC).toInstant()
-    initializeService()
-
-    // current time is noon. Set pub interval to 3 hours.
-    tariffMarketService.publicationInterval = 3 // hours
-    //assertEquals("newTariffs list is empty", 0, Tariff.findAllByState(Tariff.State.PENDING).size())
-    assertEquals("one registration", 1, tariffMarketService.registrations.size())
-    Village.list().each{ village ->
-      // assertEquals("no tariffs at 12:00", 0, village.publishedTariffs.size())
-    }
-    // publish some tariffs over a period of three hours, check for publication
-    def tsc1 = new TariffSpecification(broker: broker1,
-        expiration: new Instant(start.millis + TimeService.DAY),
-        minDuration: TimeService.WEEK * 8, powerType: PowerType.CONSUMPTION)
-    Rate r1 = new Rate(value: 0.222)
-    tsc1.addToRates(r1)
-    tariffMarketService.processTariff(tsc1)
-    timeService.currentTime += TimeService.HOUR
-    // it's 13:00
-    householdCustomerService.activate(timeService.currentTime, 1)
-    householdCustomerService.activate(timeService.currentTime, 2)
-    tariffMarketService.activate(timeService.currentTime, 2)
-    Village.list().each{ village ->
-      // assertEquals("no tariffs at 13:00", 0, village.publishedTariffs.size())
-    }
-    def tsc2 = new TariffSpecification(broker: broker1,
-        expiration: new Instant(start.millis + TimeService.DAY * 2),
-        minDuration: TimeService.WEEK * 8, powerType: PowerType.CONSUMPTION)
-    tsc2.addToRates(r1)
-    tariffMarketService.processTariff(tsc2)
-    def tsc3 = new TariffSpecification(broker: broker1,
-        expiration: new Instant(start.millis + TimeService.DAY * 3),
-        minDuration: TimeService.WEEK * 8, powerType: PowerType.CONSUMPTION)
-    tsc3.addToRates(r1)
-    tariffMarketService.processTariff(tsc3)
-    timeService.currentTime += TimeService.HOUR
-    // it's 14:00
-    householdCustomerService.activate(timeService.currentTime, 1)
-    householdCustomerService.activate(timeService.currentTime, 2)
-    tariffMarketService.activate(timeService.currentTime, 2)
-    Village.list().each{ village ->
-      // assertEquals("no tariffs at 14:00", 0, village.publishedTariffs.size())
-    }
-    def tsp1 = new TariffSpecification(broker: broker1,
-        expiration: new Instant(start.millis + TimeService.DAY),
-        minDuration: TimeService.WEEK * 8, powerType: PowerType.PRODUCTION)
-    def tsp2 = new TariffSpecification(broker: broker1,
-        expiration: new Instant(start.millis + TimeService.DAY * 2),
-        minDuration: TimeService.WEEK * 8, powerType: PowerType.PRODUCTION)
-    Rate r2 = new Rate(value: 0.119)
-    tsp1.addToRates(r2)
-    tsp2.addToRates(r2)
-    tariffMarketService.processTariff(tsp1)
-    tariffMarketService.processTariff(tsp2)
-    assertEquals("six tariffs", 6, Tariff.count())
-    timeService.currentTime += TimeService.HOUR
-    // it's 15:00 - time to publish
-    householdCustomerService.activate(timeService.currentTime, 1)
-    tariffMarketService.activate(timeService.currentTime, 2)
-    householdCustomerService.activate(timeService.currentTime, 2)
-    Village.list().each{ village ->
-      // assertEquals("6 tariffs at 15:00", 6, village.publishedTariffs.size())
-    }
-    assertEquals("newTariffs list is again empty", 0, Tariff.findAllByState(Tariff.State.PENDING).size())
   }
 
   void testEvaluatingTariffs() {
