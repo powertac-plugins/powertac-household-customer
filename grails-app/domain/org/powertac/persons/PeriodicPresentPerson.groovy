@@ -41,17 +41,17 @@ class PeriodicPresentPerson extends WorkingPerson {
    * @param publicVacationVector
    * @return
    */
-  def initialize(String AgentName, HashMap hm, Vector publicVacationVector, Random gen) {
+  def initialize(String AgentName,ConfigObject conf, Vector publicVacationVector, Random gen) {
     // Variables Taken from the configuration file
-    float sicknessMean = ((float)hm.get("SicknessMean"))
-    float sicknessDev = ((float)hm.get("SicknessDev"))
-    float leisureDurationMean = ((int)hm.get("LeisureDurationMean"))
-    float leisureDurationDev = ((int)hm.get("LeisureDurationDev"))
-    float PPLeisure = ((int)hm.get("PPLeisure"))
-    int workingDurationMean = ((int)hm.get("WorkingDurationMean"))
-    int workingDurationDev = ((int)hm.get("WorkingDurationDev"))
-    int vacationDurationMean = ((int)hm.get("VacationDurationMean"))
-    int vacationDurationDev = ((int)hm.get("VacationDurationDev"))
+    float sicknessMean = conf.household.sickness.SicknessMean
+    float sicknessDev = conf.household.sickness.SicknessDev
+    float leisureDurationMean = conf.household.leisure.duration.LeisureDurationMean
+    float leisureDurationDev = conf.household.leisure.duration.LeisureDurationDev
+    float PPLeisure = conf.household.leisure.numberByType.PPLeisure   
+    int workingDurationMean = conf.household.work.duration.WorkingDurationMean
+    int workingDurationDev = conf.household.work.duration.WorkingDurationDev
+    int vacationDurationMean = conf.household.vacation.VacationDurationMean
+    int vacationDurationDev = conf.household.vacation.VacationDurationDev
     // Filling the main variables
     name = AgentName
     status = Status.Normal
@@ -65,12 +65,12 @@ class PeriodicPresentPerson extends WorkingPerson {
     leisureDuration = (int) (leisureDurationDev * gen.nextGaussian() + leisureDurationMean)
     // Filling Working variables
     workingStartHour = Constants.START_OF_WORK
-    int work = workingDaysRandomizer(hm, gen)
+    int work = workingDaysRandomizer(conf, gen)
     workingDays = createWorkingDaysVector(work, gen)
     workingDuration = (int) (workingDurationDev * gen.nextGaussian() + workingDurationMean)
     // Filling Vacation Variables
     vacationDuration = (int) (vacationDurationDev * gen.nextGaussian() + vacationDurationMean)
-    vacationVector = createVacationVector(vacationDuration,gen)
+    vacationVector = createVacationVector(Math.max(0,vacationDuration),gen)
   }
 
 
@@ -111,14 +111,14 @@ class PeriodicPresentPerson extends WorkingPerson {
   }
 
   @ Override
-  void refresh(HashMap hm, Random gen)
+  void refresh(ConfigObject conf, Random gen)
   {
 
     // Renew Variables
-    float leisureDurationMean = ((int)hm.get("LeisureDurationMean"))
-    float leisureDurationDev = ((int)hm.get("LeisureDurationDev"))
-    float PPLeisure = ((int)hm.get("PPLeisure"))
-    float vacationAbsence = ((float)hm.get("VacationAbsence"))
+    float leisureDurationMean = conf.household.leisure.duration.LeisureDurationMean
+    float leisureDurationDev = conf.household.leisure.duration.LeisureDurationDev
+    float PPLeisure = conf.household.leisure.numberByType.PPLeisure
+    float vacationAbsence = conf.household.vacation.VacationAbsence
     int x = (int) (gen.nextGaussian() + PPLeisure)
     leisureDuration = (int) (leisureDurationDev * gen.nextGaussian() + leisureDurationMean)
     leisureVector = createLeisureVector(x,gen)

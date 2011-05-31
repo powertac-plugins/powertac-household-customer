@@ -17,6 +17,8 @@
 
 package org.powertac.appliances
 
+import groovy.util.ConfigObject;
+
 import java.util.HashMap
 
 import org.powertac.common.configurations.Constants
@@ -33,11 +35,11 @@ import org.powertac.common.configurations.Constants
 class Stove extends NotShiftingAppliance{
 
   @ Override
-  def initialize(HashMap hm, Random gen) {
+  def initialize(ConfigObject conf, Random gen) {
 
     // Filling the base variables
     name = "Stove"
-    saturation = (float)hm.get("StoveSaturation")
+    saturation = conf.household.appliances.stove.StoveSaturation
     consumptionShare = (float) (Constants.PERCENTAGE * (Constants.STOVE_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.STOVE_CONSUMPTION_SHARE_MEAN))
     baseLoadShare = Constants.PERCENTAGE * Constants.STOVE_BASE_LOAD_SHARE
     power = (int) (Constants.STOVE_POWER_VARIANCE * gen.nextGaussian() + Constants.STOVE_POWER_MEAN)
@@ -46,7 +48,7 @@ class Stove extends NotShiftingAppliance{
     inUse = false
     probabilitySeason = fillSeason(Constants.STOVE_POSSIBILITY_SEASON_1,Constants.STOVE_POSSIBILITY_SEASON_2,Constants.STOVE_POSSIBILITY_SEASON_3)
     probabilityWeekday = fillDay(Constants.STOVE_POSSIBILITY_DAY_1,Constants.STOVE_POSSIBILITY_DAY_2,Constants.STOVE_POSSIBILITY_DAY_3)
-    times = (int)hm.get("StoveDailyTimes")
+    times = conf.household.appliances.stove.StoveDailyTimes
     createWeeklyOperationVector(times,gen)
   }
 

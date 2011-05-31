@@ -40,11 +40,11 @@ class Dishwasher extends SemiShiftingAppliance {
   Mode mode = Mode.One
 
   @ Override
-  def initialize(HashMap hm,Random gen) {
+  def initialize(ConfigObject conf,Random gen) {
 
     // Filling the base variables
     name = "Dishwasher"
-    saturation = (float)hm.get("DishwasherSaturation")
+    saturation = conf.household.appliances.dishwasher.DishwasherSaturation
     consumptionShare = (float) (Constants.PERCENTAGE * (Constants.DISHWASHER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.DISHWASHER_CONSUMPTION_SHARE_MEAN))
     baseLoadShare = Constants.PERCENTAGE * Constants.DISHWASHER_BASE_LOAD_SHARE
     power = (int) (Constants.DISHWASHER_POWER_VARIANCE * gen.nextGaussian() + Constants.DISHWASHER_POWER_MEAN)
@@ -53,7 +53,7 @@ class Dishwasher extends SemiShiftingAppliance {
     inUse = false
     probabilitySeason = fillSeason(Constants.DISHWASHER_POSSIBILITY_SEASON_1,Constants.DISHWASHER_POSSIBILITY_SEASON_2,Constants.DISHWASHER_POSSIBILITY_SEASON_3)
     probabilityWeekday = fillDay(Constants.DISHWASHER_POSSIBILITY_DAY_1,Constants.DISHWASHER_POSSIBILITY_DAY_2,Constants.DISHWASHER_POSSIBILITY_DAY_3)
-    times = (int)hm.get("DishwasherWeeklyTimes")
+    times = conf.household.appliances.dishwasher.DishwasherWeeklyTimes
     createWeeklyOperationVector((int)(times + applianceOf.members.size()),gen)
   }
 

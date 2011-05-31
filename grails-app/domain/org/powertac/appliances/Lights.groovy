@@ -17,6 +17,8 @@
 
 package org.powertac.appliances
 
+import groovy.util.ConfigObject;
+
 import java.util.HashMap
 
 import org.powertac.common.configurations.Constants
@@ -30,7 +32,7 @@ import org.powertac.common.configurations.Constants
  */
 class Lights extends NotShiftingAppliance{
   @ Override
-  def initialize(HashMap hm, Random gen) {
+  def initialize(ConfigObject conf, Random gen) {
 
     // Filling the base variables
     name = "Lights"
@@ -39,7 +41,7 @@ class Lights extends NotShiftingAppliance{
     baseLoadShare = Constants.PERCENTAGE * Constants.LIGHTS_BASE_LOAD_SHARE
     power = (int) (Constants.LIGHTS_POWER_VARIANCE * gen.nextGaussian() + Constants.LIGHTS_POWER_MEAN)
     cycleDuration = Constants.LIGHTS_DURATION_CYCLE
-    times = (float)hm.get("LightsDailyTimes")
+    times = conf.household.appliances.lights.LightsDailyTimes
     od = false
     inUse = false
     probabilitySeason = fillSeason(Constants.LIGHTS_POSSIBILITY_SEASON_1,Constants.LIGHTS_POSSIBILITY_SEASON_2,Constants.LIGHTS_POSSIBILITY_SEASON_3)

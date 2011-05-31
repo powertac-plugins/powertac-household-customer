@@ -59,22 +59,18 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
     tariffMarketService?.registerNewTariffListener(listener)
 
     configuration = config
-
+    
     //Reading the config file
-    Scanner sc = new Scanner(System.in);
-    def conf = new org.powertac.common.configurations.Config();
-    conf.readConf(getConfigFile());
-
+    ConfigObject conf = new ConfigSlurper().parse(new File(getConfigFile()).toURL())
+       
     Random gen = ensureRandomSeed()
 
-    hm = conf.variablesHashMap
-
-    def number = (int)conf.variablesHashMap.get("NumberOfVillages")
+    def number = (int)conf.household.general.NumberOfVillages
     for (int i = 1; i < number+1;i++){
       def villageInfo = new CustomerInfo(Name: "Village " + i,customerType: CustomerType.CustomerHousehold, powerTypes: [PowerType.CONSUMPTION])
       assert(villageInfo.save())
-      def village = new Village(customerInfo: villageInfo)
-      village.initialize(hm,gen)
+      def village = new Village(CustomerInfo: villageInfo)
+      village.initialize(conf,gen)
       village.init()
       village.subscribeDefault()
       assert(village.save())

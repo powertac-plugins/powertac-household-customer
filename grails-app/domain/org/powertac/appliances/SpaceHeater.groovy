@@ -17,6 +17,8 @@
 
 package org.powertac.appliances
 
+import groovy.util.ConfigObject;
+
 import java.util.HashMap
 
 import org.powertac.common.configurations.Constants
@@ -38,12 +40,12 @@ class SpaceHeater extends FullyShiftingAppliance{
   float percentage
 
   @ Override
-  def initialize(HashMap hm, Random gen) {
+  def initialize(ConfigObject conf, Random gen) {
 
     // Filling the base variables
     name = "SpaceHeater"
-    saturation = (float)hm.get("SpaceHeaterSaturation")
-    float percentage = (float)hm.get("SpaceHeaterPercentage")
+    saturation = conf.household.appliances.spaceHeater.SpaceHeaterSaturation
+    float percentage = conf.household.appliances.spaceHeater.SpaceHeaterPercentage
     consumptionShare = (float) (Constants.PERCENTAGE * (Constants.SPACE_HEATER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.SPACE_HEATER_CONSUMPTION_SHARE_MEAN))
     baseLoadShare = Constants.PERCENTAGE * Constants.SPACE_HEATER_BASE_LOAD_SHARE
     power = (int) (Constants.SPACE_HEATER_POWER_VARIANCE * gen.nextGaussian() + Constants.SPACE_HEATER_POWER_MEAN)
