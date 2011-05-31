@@ -55,9 +55,6 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
 
   void init(PluginConfig config) {
 
-    def listener = [publishNewTariffs:{tariffList -> Village.list().each{ it.possibilityEvaluationNewTariffs(tariffList)}}] as NewTariffListener
-    tariffMarketService?.registerNewTariffListener(listener)
-
     configuration = config
     
     //Reading the config file
