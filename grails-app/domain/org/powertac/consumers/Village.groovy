@@ -81,6 +81,7 @@ class Village extends AbstractCustomer{
       hh.initialize(this.customerInfo.name+" RaSHouse" + i,conf, publicVacationVector, gen)
       villageConsumersService.setHousehold(this, 1, i, hh)
     }
+    
     for (i in 0..reshouses-1) {
       log.info "Initializing ${this.customerInfo.name} ReSHouse ${i} "
       def hh = new Household()
