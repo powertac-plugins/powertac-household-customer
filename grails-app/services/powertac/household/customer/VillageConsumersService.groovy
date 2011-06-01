@@ -17,6 +17,7 @@ package powertac.household.customer
 
 import org.powertac.consumers.Household
 import org.powertac.consumers.Village
+import org.powertac.common.configurations.Constants
 
 /**
  * Stores Households in each category of consumers and consumption vectors on behalf of Household Customers, bypassing the database.
@@ -28,6 +29,7 @@ class VillageConsumersService {
 
   Map households = [:]
   Map consumptions = [:]
+  Map days = [:]
 
   // manage rate maps
   void createHouseholdsMap (Village village, int types, int population)
@@ -47,7 +49,7 @@ class VillageConsumersService {
     }
     return householdMap[type]
   }
-
+ 
   void setHousehold(Village village, int type, int index, Household house)
   {
     def householdMap = households[village.customerInfo.name]
@@ -78,6 +80,35 @@ class VillageConsumersService {
       return
     }
     consumptionMap[type][day][hour] = value
+  }
+  
+  // manage rate maps
+  void createDaysMap (Village village)
+  {
+    log.info "create Days List map for Household Customer ${village.toString()}"
+    days[village.customerInfo.name] = new int[Constants.RANDOM_DAYS_NUMBER]
+  }
+  
+  // manage tier lists
+  def getDays(Village village)
+  {
+    def dayMap = days[village.customerInfo.name]
+
+    if (dayMap == null) {
+      log.error "could not find household map for Village ${village.toString()}"
+      return
+    }
+    return dayMap
+  }
+  
+  void setDays(Village village, int index, int value)
+  {
+    def dayMap = days[village.customerInfo.name]
+    if (dayMap == null) {
+      log.error "could not find Household map for village ${village.toString()}"
+      return
+    }
+    dayMap[index] = value
   }
 
 }
