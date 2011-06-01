@@ -40,8 +40,7 @@ class Village extends AbstractCustomer{
   /** This is an agreggated vector containing each day's load of all the households in hours. **/
   Vector aggDailyLoadInHours = new Vector()
 
-  List daysList = new List[Constants.RANDOM_DAYS_NUMBER]
-
+ 
   /** This hashmap variable is utilized to show which portion of the population is under which subscription **/
   // HashMap subscriptionMap = new HashMap()
 
@@ -64,6 +63,7 @@ class Village extends AbstractCustomer{
     customerInfo.population = nshouses + rashouses + reshouses + sshouses
     villageConsumersService.createHouseholdsMap(this, 4, nshouses)
     villageConsumersService.createConsumptionsMap(this,4)
+    villageConsumersService.createDaysMap(this)
     createCostEstimationDaysList(Constants.RANDOM_DAYS_NUMBER,gen)
 
     def publicVacationVector = createPublicVacationVector(days, gen)
@@ -250,12 +250,14 @@ class Village extends AbstractCustomer{
 
     int serial = ((timeService.currentTime.millis - timeService.base) / TimeService.HOUR)
     Instant base = timeService.currentTime - serial*TimeService.HOUR
-    int daylimit = (int) (serial / 24) + 1 // this will be changed to one or more random numbers
+    int daylimit = (int) (serial / Constants.HOURS_OF_DAY) + 1 // this will be changed to one or more random numbers
 
     float finalCostSummary = 0
 
+    def daysList = villageConsumersService.getDays(this)
+    
     daysList.each { day ->
-
+      println(day)
       if (day < daylimit) day = (int) (day + (daylimit / Constants.RANDOM_DAYS_NUMBER))
       Instant now = base + day * TimeService.DAY
       float costSummary = 0
@@ -349,6 +351,8 @@ class Village extends AbstractCustomer{
 
   def createCostEstimationDaysList(int days, Random gen) {
 
+    Vector daysList = new Vector()
+    
     for (int i = 0; i < days; i++) {
       int x = gen.nextInt(Constants.DAYS_OF_COMPETITION)
       ListIterator iter = daysList.listIterator();
@@ -359,9 +363,13 @@ class Village extends AbstractCustomer{
           iter = daysList.listIterator();
         }
       }
-      daysList[i] = x
+      daysList.add(x)
     }
     java.util.Collections.sort(daysList)
+    
+    for (int i = 0;i < daysList.size();i++){
+      villageConsumersService.setDays(this,i,daysList.get(i))
+    }
 
   }
 
