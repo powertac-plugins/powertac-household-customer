@@ -15,7 +15,8 @@
  */
 package org.powertac.consumers
 
-import java.util.HashMap
+import groovy.util.ConfigObject
+
 import java.util.Random
 import java.util.Vector
 
@@ -23,7 +24,6 @@ import org.powertac.appliances.*
 import org.powertac.common.configurations.Constants
 import org.powertac.common.enumerations.Status
 import org.powertac.persons.*
-
 /**
  * The household is the domain instance represents a single house with the tenants living
  * inside it and fully equipped with appliances statistically distributed. There
@@ -38,24 +38,36 @@ import org.powertac.persons.*
 class Household {
 
   def householdConsumersService
-  
+
   /** the household name. It is different for each one to be able to tell them apart.*/
   String name
 
   /** This is a vector containing each day's load from the appliances installed inside the household. **/
-  Vector dailyLoad = new Vector()
+  Vector dailyBaseLoad = new Vector()
+
+  /** This is a vector containing each day's load from the appliances installed inside the household. **/
+  Vector dailyControllableLoad = new Vector()
 
   /** This is a vector containing the load from the appliances installed inside the household for all the week days.**/
-  Vector weeklyLoad = new Vector()
+  Vector weeklyBaseLoad = new Vector()
+
+  /** This is a vector containing the load from the appliances installed inside the household for all the week days.**/
+  Vector weeklyControllableLoad = new Vector()
 
   /** This is a statistical measure of the household, giving a general idea of the consumption level during a year.*/
   int yearConsumption
 
   /** This is an agreggated vector containing each day's load in hours. **/
-  Vector dailyLoadInHours = new Vector()
+  Vector dailyBaseLoadInHours = new Vector()
 
-  /** This is an agreggated vector containing the weekly load in hours. **/
-  Vector weeklyLoadInHours = new Vector()
+  /** This is an agreggated vector containing each day's load in hours. **/
+  Vector dailyControllableLoadInHours = new Vector()
+
+  /** This is an agreggated vector containing the weekly base load in hours. **/
+  Vector weeklyBaseLoadInHours = new Vector()
+
+  /** This is an agreggated vector containing the weekly controllable load in hours. **/
+  Vector weeklyControllableLoadInHours = new Vector()
 
   /** This variable shows the current load of the house, for the current quarter or hour. **/
   int currentLoad
@@ -88,16 +100,20 @@ class Household {
     fillAppliances(conf, gen)
 
     for (int i =0;i < Constants.DAYS_OF_WEEK;i++) {
-      setDailyLoad(fillDailyLoad(i))
-      weeklyLoad.add(dailyLoad)
-      setDailyLoadInHours(fillDailyLoadInHours())
-      weeklyLoadInHours.add(dailyLoadInHours)
+      setDailyBaseLoad(fillDailyBaseLoad(i))
+      setDailyControllableLoad(fillDailyControllableLoad(i))
+      weeklyBaseLoad.add(dailyBaseLoad)
+      weeklyControllableLoad.add(dailyControllableLoad)
+      setDailyBaseLoadInHours(fillDailyBaseLoadInHours())
+      setDailyControllableLoadInHours(fillDailyControllableLoadInHours())
+      weeklyBaseLoadInHours.add(dailyBaseLoadInHours)
+      weeklyControllableLoadInHours.add(dailyControllableLoadInHours)
     }
 
     for (int week = 0;week < 8;week++){
       refresh(conf,gen)
     }
-    
+
     householdConsumersService.createPersonsMap(this,members.size())
     def index = 0
     this.members.each{ member ->
@@ -107,13 +123,12 @@ class Household {
 
     householdConsumersService.createAppliancesOperationsMap(this,appliances.size())
     householdConsumersService.createAppliancesLoadsMap(this,appliances.size())
-    
+
     index = 0
     this.appliances.each{ appliance ->
       appliance.setVectors(index)
       index = index+1
     }
-    
   }
 
   /** This function is creating a random number of person (given by the next
@@ -310,32 +325,53 @@ class Household {
     log.info(" Daily Load = ")
     for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
       log.info("Day " + (i))
-      ListIterator iter2 = weeklyLoad.get(i).listIterator();
-      for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) log.info("Quarter : " + (j+1) + " Load : " + iter2.next())
+      ListIterator iter2 = weeklyBaseLoad.get(i).listIterator();
+      ListIterator iter3 = weeklyControllableLoad.get(i).listIterator();
+      for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) log.info("Quarter : " + (j+1) + " Base Load : " + iter2.next() + " Controllable Load: " + iter3.next())
     }
 
     // Printing daily load in hours
     log.info(" Load In Hours = ")
     for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
       log.info("Day " + (i))
-      ListIterator iter2 = weeklyLoadInHours.get(i).listIterator();
-      for (int j = 0;j < Constants.HOURS_OF_DAY; j++) log.info("Hours : " + (j+1) + " Load : " + iter2.next())
+      ListIterator iter2 = weeklyBaseLoadInHours.get(i).listIterator();
+      ListIterator iter3 = weeklyControllableLoadInHours.get(i).listIterator();
+      for (int j = 0;j < Constants.HOURS_OF_DAY; j++) log.info("Hours : " + (j+1) + " Base Load : " + iter2.next() + " Controllable Load: " + iter3.next())
     }
   }
 
-  /** This function is used in order to fill the daily Load of the household for each quarter of the hour
+  /** This function is used in order to fill the daily Base Load of the household for each quarter of the hour
    * 
    * @param weekday
    * @return
    */
-  def fillDailyLoad(int weekday) {
+  def fillDailyBaseLoad(int weekday) {
     // Creating auxiliary variables
     Vector v = new Vector(Constants.QUARTERS_OF_DAY)
     int sum = 0
     for (int i = 0;i < Constants.QUARTERS_OF_DAY; i++) {
       sum = 0
       this.appliances.each {
-        sum = sum + it.weeklyLoadVector.get(weekday).get(i)
+        if (it instanceof NotShiftingAppliance) sum = sum + it.weeklyLoadVector.get(weekday).get(i)
+      }
+      v.add(sum)
+    }
+    return v
+  }
+
+  /** This function is used in order to fill the daily Controllable Load of the household for each quarter of the hour
+   *
+   * @param weekday
+   * @return
+   */
+  def fillDailyControllableLoad(int weekday) {
+    // Creating auxiliary variables
+    Vector v = new Vector(Constants.QUARTERS_OF_DAY)
+    int sum = 0
+    for (int i = 0;i < Constants.QUARTERS_OF_DAY; i++) {
+      sum = 0
+      this.appliances.each {
+        if (!(it instanceof NotShiftingAppliance)) sum = sum + it.weeklyLoadVector.get(weekday).get(i)
       }
       v.add(sum)
     }
@@ -380,22 +416,40 @@ class Household {
     log.info "Current Load: ${currentLoad} "
   }
 
-  /** This function fills out the daily load in hours vector taking in consideration the load per quarter of an hour
+  /** This function fills out the daily Base Load in hours vector taking in consideration the load per quarter of an hour
    * 
    * @return
    */
-  def fillDailyLoadInHours() {
+  def fillDailyBaseLoadInHours() {
 
     // Creating Auxiliary Variables
     Vector v = new Vector(Constants.HOURS_OF_DAY)
     int sum = 0
     for (int i = 0;i < Constants.HOURS_OF_DAY; i++) {
       sum = 0
-      sum = dailyLoad.get(i*Constants.QUARTERS_OF_HOUR) + dailyLoad.get(i*Constants.QUARTERS_OF_HOUR +1) + dailyLoad.get(i*Constants.QUARTERS_OF_HOUR+2) + dailyLoad.get(i*Constants.QUARTERS_OF_HOUR+3)
+      sum = dailyBaseLoad.get(i*Constants.QUARTERS_OF_HOUR) + dailyBaseLoad.get(i*Constants.QUARTERS_OF_HOUR +1) + dailyBaseLoad.get(i*Constants.QUARTERS_OF_HOUR+2) + dailyBaseLoad.get(i*Constants.QUARTERS_OF_HOUR+3)
       v.add(sum)
     }
     return v
   }
+
+  /** This function fills out the daily Controllable Load in hours vector taking in consideration the load per quarter of an hour
+   *
+   * @return
+   */
+  def fillDailyControllableLoadInHours() {
+
+    // Creating Auxiliary Variables
+    Vector v = new Vector(Constants.HOURS_OF_DAY)
+    int sum = 0
+    for (int i = 0;i < Constants.HOURS_OF_DAY; i++) {
+      sum = 0
+      sum = dailyControllableLoad.get(i*Constants.QUARTERS_OF_HOUR) + dailyControllableLoad.get(i*Constants.QUARTERS_OF_HOUR +1) + dailyControllableLoad.get(i*Constants.QUARTERS_OF_HOUR+2) + dailyControllableLoad.get(i*Constants.QUARTERS_OF_HOUR+3)
+      v.add(sum)
+    }
+    return v
+  }
+
 
   /** This function set the current load in accordance with the time of the competition
    * 
@@ -404,7 +458,7 @@ class Household {
    * @return
    */
   def setCurrentLoad(int day, int quarter) {
-    setCurrentLoad(weeklyLoad.get(day).get(quarter))
+    setCurrentLoad(weeklyBaseLoad.get(day).get(quarter) + weeklyControllableLoad.get(day).get(quarter))
   }
 
   /** At the end of each week the household models refresh their schedule. This way
@@ -420,16 +474,20 @@ class Household {
       member.refresh(conf,gen)
     }
 
+    // For each appliance of the household
     this.appliances.each { appliance ->
       appliance.refresh(gen)
     }
 
-    // Erase information from vectors
     for (int i =0;i < Constants.DAYS_OF_WEEK;i++) {
-      setDailyLoad(fillDailyLoad(i))
-      weeklyLoad.add(dailyLoad)
-      setDailyLoadInHours(fillDailyLoadInHours())
-      weeklyLoadInHours.add(dailyLoadInHours)
+      setDailyBaseLoad(fillDailyBaseLoad(i))
+      setDailyControllableLoad(fillDailyControllableLoad(i))
+      weeklyBaseLoad.add(dailyBaseLoad)
+      weeklyControllableLoad.add(dailyControllableLoad)
+      setDailyBaseLoadInHours(fillDailyBaseLoadInHours())
+      setDailyControllableLoadInHours(fillDailyControllableLoadInHours())
+      weeklyBaseLoadInHours.add(dailyBaseLoadInHours)
+      weeklyControllableLoadInHours.add(dailyControllableLoadInHours)
     }
 
     this.save()
@@ -441,9 +499,10 @@ class Household {
    * @return
    */
   def printDailyLoad(int day) {
-    ListIterator iter = weeklyLoadInHours.get(day).listIterator()
+    ListIterator iter = weeklyBaseLoadInHours.get(day).listIterator()
+    ListIterator iter2 = weeklyControllableLoadInHours.get(day).listIterator()
     log.info "Summary of Daily Load of House ${name} "
-    for (int j = 0;j < Constants.HOURS_OF_DAY; j++) log.info "Hour : ${j+1} Load : ${iter.next()} "
+    for (int j = 0;j < Constants.HOURS_OF_DAY; j++) log.info "Hour : ${j+1} Base Load : ${iter.next()} Controllable Load : ${iter2.next()} "
   }
 
   public String toString() {

@@ -136,6 +136,7 @@ class CustomerServiceTests extends GroovyTestCase {
     assertEquals("correct return value", 'HouseholdCustomer', result)
     assertEquals("correct configuration file", '../powertac-household-customer/grails-app/conf/HouseholdConfig.groovy', householdCustomerService.getConfigFile())
   }
+
   void testBogusInitialization () {
     PluginConfig config = PluginConfig.findByRoleName('HouseholdCustomer')
     assertNull("config not created", config)
@@ -145,23 +146,19 @@ class CustomerServiceTests extends GroovyTestCase {
     ])
     assertEquals("failure return value", 'fail', result)
   }
-
   void testConfiguration(){
     def config = new ConfigSlurper("LA").parse(new File('grails-app/conf/HouseholdConfig.groovy').toURL())
     assert config.household.general.NumberOfVillages == 2
     assert config.household.houses.NewShiftingCustomers == 200
   }
-
   void testVillagesInitialization() {
     initializeService()
-
     assertEquals("Two Villages Created", Village.count(), AbstractCustomer.count())
     assertFalse("Village 1 subscribed", AbstractCustomer.findByCustomerInfo(CustomerInfo.findByName("Village 1")).subscriptions == null)
     assertFalse("Village 2 subscribed", AbstractCustomer.findByCustomerInfo(CustomerInfo.findByName("Village 2")).subscriptions == null)
     assertFalse("Village 1 subscribed to default", AbstractCustomer.findByCustomerInfo(CustomerInfo.findByName("Village 1")).subscriptions == tariffMarketService.getDefaultTariff(PowerType.CONSUMPTION))
     assertFalse("Village 2 subscribed to default", AbstractCustomer.findByCustomerInfo(CustomerInfo.findByName("Village 2")).subscriptions == tariffMarketService.getDefaultTariff(PowerType.CONSUMPTION))
   }
-
   void testPowerConsumption() {
     initializeService()
     timeService.setCurrentTime(new Instant(now.millis + (TimeService.HOUR)))
@@ -171,7 +168,6 @@ class CustomerServiceTests extends GroovyTestCase {
     }
     assertEquals("Tariff Transactions Created", Village.count(), TariffTransaction.findByTxType(TariffTransactionType.CONSUME).count())
   }
-
   void testChangingSubscriptions() {
     initializeService()
     def tsc1 = new TariffSpecification(broker: broker2,
@@ -194,9 +190,7 @@ class CustomerServiceTests extends GroovyTestCase {
     assertEquals("Four tariffs", 4, Tariff.count())
     Village.list().each {village ->
       village.changeSubscription(tariffMarketService.getDefaultTariff(defaultTariffSpec.powerType))
-
       List<Tariff> lastTariff = village.subscriptions?.tariff
-
       lastTariff.each { tariff ->
         village.changeSubscription(tariff,tariffMarketService.getDefaultTariff(defaultTariffSpec.powerType))
         village.changeSubscription(tariffMarketService.getDefaultTariff(defaultTariffSpec.powerType), tariff, 5)
@@ -204,7 +198,6 @@ class CustomerServiceTests extends GroovyTestCase {
       assertFalse("Changed from default tariff", village.subscriptions?.tariff.toString() == tariffMarketService.getDefaultTariff(defaultTariffSpec.powerType).toString())
     }
   }
-
   void testRevokingSubscriptions() {
     initializeService()
     println("Number Of Subscriptions in DB: ${TariffSubscription.count()}")
@@ -256,7 +249,6 @@ class CustomerServiceTests extends GroovyTestCase {
       assertEquals("4 Subscriptions for customer",4, village.subscriptions?.size())
       timeService.currentTime = new Instant(timeService.currentTime.millis + TimeService.HOUR)
     }
-
     TariffRevoke tex = new TariffRevoke(tariffId: tsc2.id, broker: tc2.broker)
     def status = tariffMarketService.processTariff(tex)
     assertNotNull("non-null status", status)
@@ -315,11 +307,8 @@ class CustomerServiceTests extends GroovyTestCase {
       assertEquals("1 Subscriptions for customer", 1, village.subscriptions?.size())
     }
   }
-
   void testEvaluatingTariffs() {
-
     initializeService()
-
     println("Number Of Subscriptions in DB: ${TariffSubscription.count()}")
     // create some tariffs
     def tsc1 = new TariffSpecification(broker: broker1,
@@ -344,26 +333,20 @@ class CustomerServiceTests extends GroovyTestCase {
     assertNotNull("second tariff found", tc2)
     Tariff tc3 = Tariff.findBySpecId(tsc3.id)
     assertNotNull("third tariff found", tc3)
-
     // make sure we have three active tariffs
     def tclist = tariffMarketService.getActiveTariffList(PowerType.CONSUMPTION)
     assertEquals("4 consumption tariffs", 4, tclist.size())
     assertEquals("three transaction", 3, TariffTransaction.count())
-
     Village.list().each{ customer ->
       customer.possibilityEvaluationNewTariffs(Tariff.list())
     }
-
   }
-
   void testVillageRefreshModels() {
     initializeService()
     timeService.base = now.toInstant().millis
     timeService.currentTime = new Instant(timeService.currentTime.millis + TimeService.HOUR*22)
     timeService.currentTime = new Instant(timeService.currentTime.millis + TimeService.DAY*6)
-
     householdCustomerService.activate(timeService.currentTime, 1)
-
     println(householdConsumersService.persons.toString())
     println(householdConsumersService.appliancesOperations.toString())
     println(householdConsumersService.appliancesLoads.toString())
