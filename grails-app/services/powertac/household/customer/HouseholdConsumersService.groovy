@@ -26,9 +26,17 @@ class HouseholdConsumersService {
 
   static transactional = true
 
+  /** This variable contains the persons' schedule during the competition period.*/
   Map persons = [:]
+
+  /** This variable contains the operating vectors of each appliance during the competition period. */
   Map appliancesOperations = [:]
+
+  /** This variable contains the load of the appliances usage throughout the competition */
   Map appliancesLoads = [:]
+
+  /** This variable contains the possible operation times of each appliance for the competition's duration. */
+  Map appliancesPossibilityOperations = [:]
 
   void createPersonsMap (Household household, int persons) {
     log.info "create persons map for Household ${household.toString()} [${persons}]"
@@ -43,6 +51,11 @@ class HouseholdConsumersService {
   void createAppliancesLoadsMap (Household household, int appliances) {
     log.info "create appliance load map for Household ${household.toString()} [${appliances}]"
     appliancesLoads[household.name] = new int[appliances][63][96]
+  }
+
+  void createAppliancesPossibilityOperationsMap (Household household, int appliances) {
+    log.info "create appliance Possibility Operations map for Household ${household.toString()} [${appliances}]"
+    appliancesPossibilityOperations[household.name] = new boolean[appliances][63][96]
   }
 
   void setPerson(Household household, int index, int day, int quarter, Status status) {
@@ -72,14 +85,23 @@ class HouseholdConsumersService {
     applianceLoadMap[index][day][quarter] = value
   }
 
+  void setAppliancePossibilityOperation(Household household, int index, int day, int quarter, Boolean function) {
+    def appliancePossibilityOperationMap = appliancesPossibilityOperations[household.name]
+    if (appliancePossibilityOperationMap == null) {
+      log.error "could not find Appliance Operation map for household ${household.toString()}"
+      return
+    }
+    appliancePossibilityOperationMap[index][day][quarter] = function
+  }
+
   def getPersons(Household household, int index) {
     return persons[household.name][index]
   }
-  
+
   def getPersons(Household household, int index, int day) {
     return persons[household.name][index][day]
   }
-  
+
   def getPersons(Household household, int index, int day, int quarter) {
     return persons[household.name][index][day][quarter]
   }
@@ -87,11 +109,11 @@ class HouseholdConsumersService {
   def getApplianceOperations(Household household, int index) {
     return appliancesOperations[household.name][index]
   }
-  
+
   def getApplianceOperations(Household household, int index, int day) {
     return appliancesOperations[household.name][index][day]
   }
-  
+
   def getApplianceOperations(Household household, int index, int day, int quarter) {
     return appliancesOperations[household.name][index][day][quarter]
   }
@@ -99,13 +121,25 @@ class HouseholdConsumersService {
   def getApplianceLoads(Household household, int index) {
     return appliancesLoads[household.name][index]
   }
-  
+
   def getApplianceLoads(Household household, int index, int day) {
     return appliancesLoads[household.name][index][day]
   }
-  
+
   def getApplianceLoads(Household household, int index, int day, int quarter) {
     return appliancesLoads[household.name][index][day][quarter]
+  }
+
+  def getAppliancePossibilityOperations(Household household, int index) {
+    return appliancesPossibilityOperations[household.name][index]
+  }
+
+  def getAppliancePossibilityOperations(Household household, int index, int day) {
+    return appliancesPossibilityOperations[household.name][index][day]
+  }
+
+  def getAppliancePossibilityOperations(Household household, int index, int day, int quarter) {
+    return appliancesPossibilityOperations[household.name][index][day][quarter]
   }
 }
 

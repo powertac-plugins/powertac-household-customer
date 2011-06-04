@@ -17,7 +17,7 @@
 
 package org.powertac.appliances
 
-import java.util.Random;
+import java.util.Random
 
 import org.powertac.common.configurations.Constants
 
@@ -57,7 +57,7 @@ class NotShiftingAppliance extends Appliance {
    * @param times
    * @return
    */
-  def createWeeklyOperationVector(int times,Random gen) 
+  def createWeeklyOperationVector(int times,Random gen)
   {
     for (int i = 0;i < Constants.DAYS_OF_WEEK; i++) operationVector.add(createDailyOperationVector(times,gen))
   }
@@ -66,10 +66,12 @@ class NotShiftingAppliance extends Appliance {
    * 
    * @return
    */
-  def fillWeeklyFunction(Random gen) 
+  def fillWeeklyFunction(Random gen)
   {
-    for (int i = 0;i < Constants.DAYS_OF_WEEK; i++) fillDailyFunction(i,gen)	
+    for (int i = 0;i < Constants.DAYS_OF_WEEK; i++) fillDailyFunction(i,gen)
   }
+
+
 
 
   static constraints = {
