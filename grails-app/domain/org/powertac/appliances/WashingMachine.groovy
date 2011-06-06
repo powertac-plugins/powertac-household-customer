@@ -46,10 +46,10 @@ class WashingMachine extends SemiShiftingAppliance{
   Reaction reaction = Reaction.Strong
 
   @ Override
-  def initialize(ConfigObject conf, Random gen) {
+  def initialize(String household,ConfigObject conf, Random gen) {
 
     // Filling the base variables
-    name = "Washing Machine"
+    name = household + " Washing Machine"
     saturation = conf.household.appliances.washingMachine.WashingMachineSaturation
     consumptionShare = (float) (Constants.PERCENTAGE * (Constants.DISHWASHER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.DISHWASHER_CONSUMPTION_SHARE_MEAN))
     baseLoadShare = Constants.PERCENTAGE * Constants.DISHWASHER_BASE_LOAD_SHARE

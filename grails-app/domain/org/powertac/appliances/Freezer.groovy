@@ -41,11 +41,11 @@ class Freezer extends FullyShiftingAppliance{
   }
 
   @ Override
-  def initialize(ConfigObject conf,Random gen) {
+  def initialize(String household,ConfigObject conf,Random gen) {
 
 
     // Filling the base variables
-    name = "Freezer"
+    name = household + " Freezer"
     saturation = conf.household.appliances.freezer.FreezerSaturation
     consumptionShare = (float) (Constants.PERCENTAGE * (Constants.FREEZER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.FREEZER_CONSUMPTION_SHARE_MEAN))
     baseLoadShare = Constants.PERCENTAGE * Constants.FREEZER_BASE_LOAD_SHARE

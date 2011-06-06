@@ -170,12 +170,12 @@ class WaterHeater extends FullyShiftingAppliance{
   }
 
   @ Override
-  def initialize(ConfigObject conf, Random gen) {
+  def initialize(String household, ConfigObject conf, Random gen) {
     // Creating Auxiliary Variables
     int x = 1 + gen.nextInt(Constants.PERCENTAGE)
     int limit = conf.household.appliances.waterHeater.InstantHeater
     // Filling the base variables
-    name = "WaterHeater"
+    name = household + " WaterHeater"
     saturation = conf.household.appliances.waterHeater.WaterHeaterSaturation
     if ( x < limit) {
       consumptionShare = (float) (Constants.PERCENTAGE * (Constants.INSTANT_HEATER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.INSTANT_HEATER_CONSUMPTION_SHARE_MEAN))
