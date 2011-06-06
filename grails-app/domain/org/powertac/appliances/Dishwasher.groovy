@@ -113,6 +113,18 @@ class Dishwasher extends SemiShiftingAppliance {
     }
   }
 
+  @Override
+  def createDailyPossibilityOperationVector(int day) {
+
+    def possibilityDailyOperation = new Vector()
+
+    for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
+      if (checkHouse(day,j) == true) possibilityDailyOperation.add(false)
+      else possibilityDailyOperation.add(true)
+    }
+    return possibilityDailyOperation
+  }
+
   @ Override
   def fillDailyFunction(int weekday,Random gen) {
 
@@ -130,7 +142,7 @@ class Dishwasher extends SemiShiftingAppliance {
       if (operation.get(i) == true) {
         boolean flag = true
         while (flag && i < (Constants.QUARTERS_OF_DAY - Constants.DISHWASHER_DURATION_CYCLE + 1)) {
-          boolean empty = checkHouse(i)
+          boolean empty = checkHouse(weekday,i)
           if (empty == false) {
             for (int k = i;k < i + Constants.DISHWASHER_DURATION_CYCLE;k++) {
               loadVector.set(k,power)
@@ -155,22 +167,18 @@ class Dishwasher extends SemiShiftingAppliance {
    * @param hour
    * @return
    */
-  def checkHouse(int hour) {
-    // Creating auxiliary variable
-    boolean empty = true
-    int j = hour
-    while ((j < hour + Constants.DISHWASHER_DURATION_CYCLE + 1) && (empty == true)) {
-      empty = empty & applianceOf.isEmpty(j+1)
-      j++
-      if (j == Constants.QUARTERS_OF_DAY - 1) break
-    }
-    return empty
+  def checkHouse(int weekday,int quarter) {
+
+    if (quarter+Constants.DISHWASHER_DURATION_CYCLE >= Constants.QUARTERS_OF_DAY) return true
+    else return applianceOf.isEmpty(weekday,quarter+Constants.DISHWASHER_DURATION_CYCLE)
+
   }
 
   @ Override
   def refresh(Random gen) {
     createWeeklyOperationVector((int)(times + applianceOf.members.size()), gen)
     fillWeeklyFunction(gen)
+    createWeeklyPossibilityOperationVector()
   }
 
   static constraints = {

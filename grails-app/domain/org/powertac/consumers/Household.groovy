@@ -72,6 +72,9 @@ class Household {
   /** This variable shows the current load of the house, for the current quarter or hour. **/
   int currentLoad
 
+  /** Helping variable for the correct refreshing of the schedules.*/
+  int week = 0
+
   static hasMany = [members:Person, appliances:Appliance]
 
   static belongsTo = [village:Village]
@@ -110,7 +113,7 @@ class Household {
       weeklyControllableLoadInHours.add(dailyControllableLoadInHours)
     }
 
-    for (int week = 0;week < 8;week++){
+    for (week;week < 8;week++){
       refresh(conf,gen)
     }
 
@@ -123,6 +126,7 @@ class Household {
 
     householdConsumersService.createAppliancesOperationsMap(this,appliances.size())
     householdConsumersService.createAppliancesLoadsMap(this,appliances.size())
+    householdConsumersService.createAppliancesPossibilityOperationsMap(this,appliances.size())
 
     index = 0
     this.appliances.each{ appliance ->
@@ -211,7 +215,10 @@ class Household {
 
     int x = gen.nextInt(Constants.PERCENTAGE);
     int threshold = app.saturation * Constants.PERCENTAGE
-    if (x < threshold) app.fillWeeklyFunction(gen)
+    if (x < threshold) {
+      app.fillWeeklyFunction(gen)
+      app.createWeeklyPossibilityOperationVector()
+    }
     else this.appliances.remove(app);
   }
 
@@ -228,31 +235,37 @@ class Household {
     this.addToAppliances(ref)
     ref.initialize(conf,gen);
     ref.fillWeeklyFunction(gen)
+    ref.createWeeklyPossibilityOperationVector()
     // Washing Machine
     WashingMachine wm = new WashingMachine();
     this.addToAppliances(wm)
     wm.initialize(conf,gen);
     wm.fillWeeklyFunction(gen)
+    wm.createWeeklyPossibilityOperationVector()
     // Consumer Electronics
     ConsumerElectronics ce = new ConsumerElectronics();
     this.addToAppliances(ce)
     ce.initialize(conf,gen);
     ce.fillWeeklyFunction(gen)
+    ce.createWeeklyPossibilityOperationVector()
     // ICT
     ICT ict = new ICT();
     this.addToAppliances(ict)
     ict.initialize(conf,gen);
     ict.fillWeeklyFunction(gen)
+    ict.createWeeklyPossibilityOperationVector()
     // Lights
     Lights lights = new Lights();
     this.addToAppliances(lights)
     lights.initialize(conf,gen);
     lights.fillWeeklyFunction(gen)
+    lights.createWeeklyPossibilityOperationVector()
     //Others
     Others others = new Others();
     this.addToAppliances(others)
     others.initialize(conf,gen);
     others.fillWeeklyFunction(gen)
+    others.createWeeklyPossibilityOperationVector()
     // Freezer
     Freezer fr = new Freezer()
     fr.initialize(conf,gen)
@@ -294,10 +307,10 @@ class Household {
    * @param quarter
    * @return
    */
-  def isEmpty(int quarter) {
+  def isEmpty(int weekday, int quarter) {
     boolean x = true
     this.members.each {
-      if (it.getDailyRoutine().get(quarter-1) == Status.Normal || it.getDailyRoutine().get(quarter-1) == Status.Sick) {
+      if (it.weeklyRoutine.get(week*Constants.DAYS_OF_WEEK+weekday).get(quarter) == Status.Normal || it.weeklyRoutine.get(week*Constants.DAYS_OF_WEEK+weekday).get(quarter) == Status.Sick) {
         x = false
       }
     }
@@ -386,7 +399,7 @@ class Household {
   def isOnVacation(int quarter) {
     boolean x = false
     this.members.each {
-      if (it.getDailyRoutine().get(quarter-1) == Status.Vacation) {
+      if (it.getDailyRoutine().get(quarter) == Status.Vacation) {
         x = true
       }
     }

@@ -17,7 +17,7 @@
 
 package org.powertac.appliances
 
-import groovy.util.ConfigObject;
+import groovy.util.ConfigObject
 
 import java.util.HashMap
 import java.util.Random
@@ -53,6 +53,20 @@ class ICT extends NotShiftingAppliance{
     createWeeklyOperationVector(cycleDuration + applianceOf.members.size(), gen)
   }
 
+  @Override
+  def createDailyPossibilityOperationVector(int day) {
+
+    def possibilityDailyOperation = new Vector()
+
+    for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
+
+      if (applianceOf.isEmpty(day,j) == false) possibilityDailyOperation.add(true)
+      else possibilityDailyOperation.add(false)
+    }
+
+    return possibilityDailyOperation
+  }
+
   @ Override
   def fillDailyFunction(int weekday,Random gen) {
     // Initializing and Creating auxiliary variables
@@ -66,7 +80,7 @@ class ICT extends NotShiftingAppliance{
         boolean flag = true
         int counter = 0
         while ((flag) && (i < Constants.QUARTERS_OF_DAY) && (counter >= 0)) {
-          if (applianceOf.isEmpty(i+1) == false) {
+          if (applianceOf.isEmpty(weekday,i) == false) {
             loadVector.add(power)
             dailyOperation.add(true)
             counter--
@@ -91,6 +105,7 @@ class ICT extends NotShiftingAppliance{
   def refresh(Random gen) {
     createWeeklyOperationVector(times + applianceOf.members.size(), gen)
     fillWeeklyFunction(gen)
+    createWeeklyPossibilityOperationVector()
   }
 
   static constraints = {
