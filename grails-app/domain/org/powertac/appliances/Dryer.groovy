@@ -18,7 +18,7 @@
 package org.powertac.appliances
 
 
-import groovy.util.ConfigObject;
+import groovy.util.ConfigObject
 
 import java.util.HashMap
 import java.util.Random
@@ -69,7 +69,7 @@ class Dryer extends SemiShiftingAppliance {
     int start = washingEnds(weekday)
     if (start > 0) {
       for (int i = start;i < Constants.QUARTERS_OF_DAY - 1;i++) {
-        if (applianceOf.isEmpty(i+1) == false) {
+        if (applianceOf.isEmpty(weekday,i) == false) {
           operation.set(i, true)
           for (int j = i;j < i + Constants.DRYER_SECOND_PHASE;j++) {
             loadVector.set(j,power)
@@ -93,13 +93,26 @@ class Dryer extends SemiShiftingAppliance {
     }
   }
 
+  @Override
+  def createDailyPossibilityOperationVector(int day) {
+
+    def possibilityDailyOperation = new Vector()
+
+    for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
+
+      if (applianceOf.isEmpty(day,j) == false) possibilityDailyOperation.add(true)
+      else possibilityDailyOperation.add(false)
+    }
+
+    return possibilityDailyOperation
+  }
+
   /** This function is utilized in order to find when the washing machine ends its function
    * in order to put the dryer in use soon afterwards.
    * @param weekday
    * @return
    */
   def washingEnds(int weekday) {
-
 
     // Creating auxiliary variables
     Vector v = new Vector()
@@ -192,6 +205,7 @@ class Dryer extends SemiShiftingAppliance {
   def refresh(Random gen) {
     createWeeklyOperationVector((int)(times + applianceOf.members.size() / 2),gen)
     fillWeeklyFunction(gen)
+    createWeeklyPossibilityOperationVector()
   }
 
   static constraints = {

@@ -18,6 +18,7 @@
 package org.powertac.appliances
 
 import java.util.HashMap
+import java.util.Random
 
 import org.powertac.common.configurations.Constants
 
@@ -33,7 +34,7 @@ import org.powertac.common.configurations.Constants
 class CirculationPump extends NotShiftingAppliance {
 
   /** Variable that presents the mean possibility to utilize the appliance each hour of the day 
-   * that someone is present in the housesold.
+   * that someone is present in the household.
    */
   BigDecimal percentage
 
@@ -56,6 +57,21 @@ class CirculationPump extends NotShiftingAppliance {
 
   }
 
+  @Override
+  def createDailyPossibilityOperationVector(int day) {
+
+    def possibilityDailyOperation = new Vector()
+
+    for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
+
+      if (applianceOf.isEmpty(day,j) == false) possibilityDailyOperation.add(true)
+      else possibilityDailyOperation.add(false)
+    }
+
+    return possibilityDailyOperation
+  }
+
+
   @ Override
   def fillDailyFunction(int weekday, Random gen) {
 
@@ -66,7 +82,7 @@ class CirculationPump extends NotShiftingAppliance {
 
     // For each quarter of a day
     for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
-      if (applianceOf.isEmpty(i+1) == false && (gen.nextFloat() > percentage)) {
+      if (applianceOf.isEmpty(weekday,i) == false && (gen.nextFloat() > percentage)) {
         loadVector.add(power)
         dailyOperation.add(true)
         v.add(true)
@@ -84,6 +100,7 @@ class CirculationPump extends NotShiftingAppliance {
   @ Override
   def refresh(Random gen) {
     fillWeeklyFunction(gen)
+    createWeeklyPossibilityOperationVector()
   }
 
 

@@ -17,7 +17,7 @@
 
 package org.powertac.appliances
 
-import groovy.util.ConfigObject;
+import groovy.util.ConfigObject
 
 import java.util.HashMap
 import java.util.Random
@@ -57,6 +57,19 @@ class Freezer extends FullyShiftingAppliance{
     probabilityWeekday = fillDay(Constants.FREEZER_POSSIBILITY_DAY_1,Constants.FREEZER_POSSIBILITY_DAY_2,Constants.FREEZER_POSSIBILITY_DAY_3)
   }
 
+  @Override
+  def createDailyPossibilityOperationVector(int day) {
+
+    def possibilityDailyOperation = new Vector()
+
+    for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
+
+      possibilityDailyOperation.add(true)
+    }
+
+    return possibilityDailyOperation
+  }
+
   @ Override
   def fillDailyFunction(int weekday, Random gen) {
     // Initializing Variables
@@ -80,6 +93,7 @@ class Freezer extends FullyShiftingAppliance{
   @ Override
   def refresh(Random gen) {
     fillWeeklyFunction(gen)
+    createWeeklyPossibilityOperationVector()
   }
 
   static constraints = {
