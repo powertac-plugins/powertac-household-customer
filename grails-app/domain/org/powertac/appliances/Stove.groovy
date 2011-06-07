@@ -35,10 +35,10 @@ import org.powertac.common.configurations.Constants
 class Stove extends NotShiftingAppliance{
 
   @ Override
-  def initialize(ConfigObject conf, Random gen) {
+  def initialize(String household,ConfigObject conf, Random gen) {
 
     // Filling the base variables
-    name = "Stove"
+    name = household + " Stove"
     saturation = conf.household.appliances.stove.StoveSaturation
     consumptionShare = (float) (Constants.PERCENTAGE * (Constants.STOVE_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.STOVE_CONSUMPTION_SHARE_MEAN))
     baseLoadShare = Constants.PERCENTAGE * Constants.STOVE_BASE_LOAD_SHARE

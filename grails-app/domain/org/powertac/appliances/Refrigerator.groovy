@@ -34,10 +34,10 @@ import org.powertac.common.configurations.Constants
 class Refrigerator extends FullyShiftingAppliance {
 
   @ Override
-  def initialize(ConfigObject conf,Random gen) {
+  def initialize(String household, ConfigObject conf,Random gen) {
 
     // Filling the base variables
-    name = "Refrigerator"
+    name = household + " Refrigerator"
     saturation =  conf.household.appliances.refrigerator.RefrigeratorSaturation
     consumptionShare = (float) (Constants.PERCENTAGE * (Constants.REFRIDGERATOR_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.REFRIDGERATOR_CONSUMPTION_SHARE_MEAN))
     baseLoadShare = Constants.PERCENTAGE * Constants.REFRIDGERATOR_BASE_LOAD_SHARE

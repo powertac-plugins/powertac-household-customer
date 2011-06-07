@@ -136,7 +136,7 @@ class Appliance {
    * configuration file to create the appliance as it should for this type.
    * @return
    */
-  def initialize(Random gen) {
+  def initialize(String household, ConfigObject conf, Random gen) {
   }
 
   /** This is a complex function that changes the appliance's function
@@ -261,15 +261,19 @@ class Appliance {
    *  during the runtime.
    * @return
    */
-  def setVectors(int index) {
+  def setVectors() {
+
+    householdConsumersService.createAppliancesOperationsMap(this)
+    householdConsumersService.createAppliancesLoadsMap(this)
+    householdConsumersService.createAppliancesPossibilityOperationsMap(this)
 
     for (int i=0;i < weeklyOperation.size();i++){
 
       for (int j=0;j < 96;j++){
 
-        householdConsumersService.setApplianceOperation (applianceOf, index, i, j, weeklyOperation.get(i).get(j))
-        householdConsumersService.setApplianceLoad (applianceOf, index, i, j, weeklyLoadVector.get(i).get(j))
-        householdConsumersService.setAppliancePossibilityOperation (applianceOf, index, i, j, possibilityOperationVector.get(i).get(j))
+        householdConsumersService.setApplianceOperation (this, i, j, weeklyOperation.get(i).get(j))
+        householdConsumersService.setApplianceLoad (this, i, j, weeklyLoadVector.get(i).get(j))
+        householdConsumersService.setAppliancePossibilityOperation (this, i, j, possibilityOperationVector.get(i).get(j))
       }
 
     }

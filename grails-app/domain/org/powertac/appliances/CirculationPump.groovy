@@ -40,10 +40,10 @@ class CirculationPump extends NotShiftingAppliance {
 
 
   @ Override
-  def initialize(ConfigObject conf, Random gen) {
+  def initialize(String household, ConfigObject conf, Random gen) {
 
     // Filling the base variables
-    name = "CirculationPump"
+    name = household + " CirculationPump"
     saturation = conf.household.appliances.circulationPump.CirculationPumpSaturation
     percentage = conf.household.appliances.circulationPump.CirculationPumpPercentage
     consumptionShare = (float) (Constants.PERCENTAGE * (Constants.CIRCULATION_PUMP_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.CIRCULATION_PUMP_CONSUMPTION_SHARE_MEAN))
