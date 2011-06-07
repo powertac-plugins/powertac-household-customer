@@ -15,7 +15,6 @@
  */
 package org.powertac.consumers
 
-import java.util.HashMap
 import java.util.Random
 import java.util.Vector
 
@@ -38,7 +37,7 @@ import org.powertac.persons.*
 class Household {
 
   def householdConsumersService
-  
+
   /** the household name. It is different for each one to be able to tell them apart.*/
   String name
 
@@ -97,7 +96,7 @@ class Household {
     for (int week = 0;week < 8;week++){
       refresh(conf,gen)
     }
-    
+
     householdConsumersService.createPersonsMap(this,members.size())
     def index = 0
     this.members.each{ member ->
@@ -107,13 +106,12 @@ class Household {
 
     householdConsumersService.createAppliancesOperationsMap(this,appliances.size())
     householdConsumersService.createAppliancesLoadsMap(this,appliances.size())
-    
+
     index = 0
     this.appliances.each{ appliance ->
       appliance.setVectors(index)
       index = index+1
     }
-    
   }
 
   /** This function is creating a random number of person (given by the next

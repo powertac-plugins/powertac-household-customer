@@ -40,9 +40,8 @@ class Village extends AbstractCustomer{
   /** This is an agreggated vector containing each day's load of all the households in hours. **/
   Vector aggDailyLoadInHours = new Vector()
 
- 
   /** This hashmap variable is utilized to show which portion of the population is under which subscription **/
-  // HashMap subscriptionMap = new HashMap()
+  //static hasMany = [houses:Household]
 
   /** This is the initialization function. It uses the variable values for the
    * configuration file to create the village with its households and then fill
@@ -53,7 +52,7 @@ class Village extends AbstractCustomer{
 
   void initialize(ConfigObject conf, Random gen) {
     // Initializing variables
-    
+
     int nshouses = conf.household.houses.NotShiftingCustomers
     int rashouses = conf.household.houses.RandomlyShiftingCustomers
     int reshouses = conf.household.houses.RegularlyShiftingCustomers
@@ -73,6 +72,7 @@ class Village extends AbstractCustomer{
       def hh = new Household()
       hh.initialize(this.customerInfo.name+" NSHouse" + i,conf, publicVacationVector, gen)
       villageConsumersService.setHousehold(this, 0, i, hh)
+      //addToHouses(hh)
     }
 
     for (i in 0..rashouses-1) {
@@ -80,19 +80,22 @@ class Village extends AbstractCustomer{
       def hh = new Household()
       hh.initialize(this.customerInfo.name+" RaSHouse" + i,conf, publicVacationVector, gen)
       villageConsumersService.setHousehold(this, 1, i, hh)
+      //addToHouses(hh)
     }
-    
+
     for (i in 0..reshouses-1) {
       log.info "Initializing ${this.customerInfo.name} ReSHouse ${i} "
       def hh = new Household()
       hh.initialize(this.customerInfo.name+" ReSHouse" + i,conf, publicVacationVector, gen)
       villageConsumersService.setHousehold(this, 2, i, hh)
+      //addToHouses(hh)
     }
     for (i in 0..sshouses-1) {
       log.info "Initializing ${this.customerInfo.name} SSHouse ${i} "
       def hh = new Household()
       hh.initialize(this.customerInfo.name+" SSHouse" + i,conf, publicVacationVector, gen)
       villageConsumersService.setHousehold(this, 3, i, hh)
+      //addToHouses(hh)
     }
 
     fillAggWeeklyLoad("NotShifting")
@@ -145,11 +148,11 @@ class Village extends AbstractCustomer{
 
   @ Override
   double getConsumptionByTimeslot(int serial) {
-    
+
     int day = (int) (serial / Constants.HOURS_OF_DAY)
     int hour = (int) (serial % Constants.HOURS_OF_DAY)
     double ran = 0,summary = 0
-    
+
     log.info " Serial : ${serial} Day: ${day} Hour: ${hour} "
 
     for (int i=0;i < 4;i++){
@@ -157,7 +160,7 @@ class Village extends AbstractCustomer{
     }
     ran = ran / Constants.PERCENTAGE
     return ran
-   } 
+  }
 
   /** This function is used in order to fill the aggregated daily Load of the village
    * households for each quarter of the hour.
@@ -255,7 +258,7 @@ class Village extends AbstractCustomer{
     float finalCostSummary = 0
 
     def daysList = villageConsumersService.getDays(this)
-    
+
     daysList.each { day ->
       if (day < daylimit) day = (int) (day + (daylimit / Constants.RANDOM_DAYS_NUMBER))
       Instant now = base + day * TimeService.DAY
@@ -351,7 +354,7 @@ class Village extends AbstractCustomer{
   def createCostEstimationDaysList(int days, Random gen) {
 
     Vector daysList = new Vector()
-    
+
     for (int i = 0; i < days; i++) {
       int x = gen.nextInt(Constants.DAYS_OF_COMPETITION)
       ListIterator iter = daysList.listIterator();
@@ -365,7 +368,7 @@ class Village extends AbstractCustomer{
       daysList.add(x)
     }
     java.util.Collections.sort(daysList)
-    
+
     for (int i = 0;i < daysList.size();i++){
       villageConsumersService.setDays(this,i,daysList.get(i))
     }
