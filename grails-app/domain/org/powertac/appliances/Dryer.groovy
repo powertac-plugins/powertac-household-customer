@@ -38,11 +38,11 @@ import org.powertac.common.configurations.Constants
 class Dryer extends SemiShiftingAppliance {
 
   @ Override
-  def initialize(ConfigObject conf,Random gen) {
+  def initialize(String household,ConfigObject conf,Random gen) {
 
 
     // Filling the base variables
-    name = "Dryer"
+    name = household + " Dryer"
     saturation = conf.household.appliances.dryer.DryerSaturation
     consumptionShare = (float) (Constants.PERCENTAGE * (Constants.DRYER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.DRYER_CONSUMPTION_SHARE_MEAN))
     baseLoadShare = Constants.PERCENTAGE * Constants.DRYER_BASE_LOAD_SHARE

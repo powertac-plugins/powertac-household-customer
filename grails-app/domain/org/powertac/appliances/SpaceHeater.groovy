@@ -40,10 +40,10 @@ class SpaceHeater extends FullyShiftingAppliance{
   float percentage
 
   @ Override
-  def initialize(ConfigObject conf, Random gen) {
+  def initialize(String household,ConfigObject conf, Random gen) {
 
     // Filling the base variables
-    name = "SpaceHeater"
+    name = household + " SpaceHeater"
     saturation = conf.household.appliances.spaceHeater.SpaceHeaterSaturation
     float percentage = conf.household.appliances.spaceHeater.SpaceHeaterPercentage
     consumptionShare = (float) (Constants.PERCENTAGE * (Constants.SPACE_HEATER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.SPACE_HEATER_CONSUMPTION_SHARE_MEAN))

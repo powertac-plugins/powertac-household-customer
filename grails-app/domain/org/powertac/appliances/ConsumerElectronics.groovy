@@ -33,11 +33,11 @@ import org.powertac.common.configurations.Constants
 class ConsumerElectronics extends NotShiftingAppliance {
 
   @ Override
-  def initialize(ConfigObject conf, Random gen) {
+  def initialize(String household,ConfigObject conf, Random gen) {
 
 
     // Filling the base variables
-    name = "ConsumerElectronics"
+    name = household + " ConsumerElectronics"
     saturation = conf.household.appliances.consumerElectronics.ConsumerElectronicsSaturation
     consumptionShare = (float) (Constants.PERCENTAGE * (Constants.CONSUMER_ELECTRONICS_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.CONSUMER_ELECTRONICS_CONSUMPTION_SHARE_MEAN))
     baseLoadShare = Constants.PERCENTAGE * Constants.CONSUMER_ELECTRONICS_BASE_LOAD_SHARE

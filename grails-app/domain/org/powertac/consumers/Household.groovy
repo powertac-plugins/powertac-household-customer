@@ -117,21 +117,8 @@ class Household {
       refresh(conf,gen)
     }
 
-    householdConsumersService.createPersonsMap(this,members.size())
-    def index = 0
-    this.members.each{ member ->
-      member.setVectors(index)
-      index = index+1
-    }
-
-    householdConsumersService.createAppliancesOperationsMap(this,appliances.size())
-    householdConsumersService.createAppliancesLoadsMap(this,appliances.size())
-    householdConsumersService.createAppliancesPossibilityOperationsMap(this,appliances.size())
-
-    index = 0
     this.appliances.each{ appliance ->
-      appliance.setVectors(index)
-      index = index+1
+      appliance.setVectors()
     }
   }
 
@@ -233,72 +220,72 @@ class Household {
     // Refrigerator
     Refrigerator ref = new Refrigerator();
     this.addToAppliances(ref)
-    ref.initialize(conf,gen);
+    ref.initialize(this.name, conf,gen);
     ref.fillWeeklyFunction(gen)
     ref.createWeeklyPossibilityOperationVector()
     // Washing Machine
     WashingMachine wm = new WashingMachine();
     this.addToAppliances(wm)
-    wm.initialize(conf,gen);
+    wm.initialize(this.name,conf,gen);
     wm.fillWeeklyFunction(gen)
     wm.createWeeklyPossibilityOperationVector()
     // Consumer Electronics
     ConsumerElectronics ce = new ConsumerElectronics();
     this.addToAppliances(ce)
-    ce.initialize(conf,gen);
+    ce.initialize(this.name,conf,gen);
     ce.fillWeeklyFunction(gen)
     ce.createWeeklyPossibilityOperationVector()
     // ICT
     ICT ict = new ICT();
     this.addToAppliances(ict)
-    ict.initialize(conf,gen);
+    ict.initialize(this.name,conf,gen);
     ict.fillWeeklyFunction(gen)
     ict.createWeeklyPossibilityOperationVector()
     // Lights
     Lights lights = new Lights();
     this.addToAppliances(lights)
-    lights.initialize(conf,gen);
+    lights.initialize(this.name,conf,gen);
     lights.fillWeeklyFunction(gen)
     lights.createWeeklyPossibilityOperationVector()
     //Others
     Others others = new Others();
     this.addToAppliances(others)
-    others.initialize(conf,gen);
+    others.initialize(this.name,conf,gen);
     others.fillWeeklyFunction(gen)
     others.createWeeklyPossibilityOperationVector()
     // Freezer
     Freezer fr = new Freezer()
-    fr.initialize(conf,gen)
+    fr.initialize(this.name,conf,gen)
     checkProbability(fr,gen)
     // Dishwasher
     Dishwasher dw = new Dishwasher()
     this.addToAppliances(dw)
-    dw.initialize(conf,gen)
+    dw.initialize(this.name,conf,gen)
     checkProbability(dw,gen)
     //Stove
     Stove st = new Stove()
     this.addToAppliances(st)
-    st.initialize(conf,gen)
+    st.initialize(this.name,conf,gen)
     checkProbability(st,gen)
     //Dryer
     Dryer dr = new Dryer()
     this.addToAppliances(dr)
-    dr.initialize(conf,gen)
+    dr.initialize(this.name,conf,gen)
     checkProbability(dr,gen)
     //Water Heater
     WaterHeater wh = new WaterHeater()
     this.addToAppliances(wh)
-    wh.initialize(conf,gen)
+    wh.initialize(this.name,conf,gen)
     checkProbability(wh,gen)
     //Circulation Pump
     CirculationPump cp = new CirculationPump()
     this.addToAppliances(cp)
-    cp.initialize(conf,gen)
+    cp.initialize(this.name,conf,gen)
     checkProbability(cp,gen)
     //Space Heater
     SpaceHeater sh = new SpaceHeater()
     this.addToAppliances(sh)
-    sh.initialize(conf,gen)
+    sh.initialize(this.name,conf,gen)
     checkProbability(sh,gen)
   }
 

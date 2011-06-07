@@ -40,10 +40,10 @@ class Dishwasher extends SemiShiftingAppliance {
   Mode mode = Mode.One
 
   @ Override
-  def initialize(ConfigObject conf,Random gen) {
+  def initialize(String household,ConfigObject conf,Random gen) {
 
     // Filling the base variables
-    name = "Dishwasher"
+    name = household + " Dishwasher"
     saturation = conf.household.appliances.dishwasher.DishwasherSaturation
     consumptionShare = (float) (Constants.PERCENTAGE * (Constants.DISHWASHER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.DISHWASHER_CONSUMPTION_SHARE_MEAN))
     baseLoadShare = Constants.PERCENTAGE * Constants.DISHWASHER_BASE_LOAD_SHARE
