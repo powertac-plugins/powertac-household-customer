@@ -347,7 +347,7 @@ class CustomerServiceTests extends GroovyTestCase {
     timeService.currentTime = new Instant(timeService.currentTime.millis + TimeService.HOUR*22)
     timeService.currentTime = new Instant(timeService.currentTime.millis + TimeService.DAY*6)
     householdCustomerService.activate(timeService.currentTime, 1)
-    println(householdConsumersService.persons.toString())
+    println(householdConsumersService.appliancesPossibilityOperations.toString())
     println(householdConsumersService.appliancesOperations.toString())
     println(householdConsumersService.appliancesLoads.toString())
   }
