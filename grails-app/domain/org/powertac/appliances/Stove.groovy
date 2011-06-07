@@ -17,7 +17,7 @@
 
 package org.powertac.appliances
 
-import groovy.util.ConfigObject;
+import groovy.util.ConfigObject
 
 import java.util.HashMap
 
@@ -35,10 +35,10 @@ import org.powertac.common.configurations.Constants
 class Stove extends NotShiftingAppliance{
 
   @ Override
-  def initialize(ConfigObject conf, Random gen) {
+  def initialize(String household,ConfigObject conf, Random gen) {
 
     // Filling the base variables
-    name = "Stove"
+    name = household + " Stove"
     saturation = conf.household.appliances.stove.StoveSaturation
     consumptionShare = (float) (Constants.PERCENTAGE * (Constants.STOVE_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.STOVE_CONSUMPTION_SHARE_MEAN))
     baseLoadShare = Constants.PERCENTAGE * Constants.STOVE_BASE_LOAD_SHARE
@@ -83,7 +83,7 @@ class Stove extends NotShiftingAppliance{
         boolean flag = true
         int counter = 0
         while ((flag) && (i < Constants.QUARTERS_OF_DAY) && (counter >= 0)) {
-          if (applianceOf.isEmpty(i+1) == false && applianceOf.isEmpty(i+2) == false) {
+          if (applianceOf.isEmpty(weekday,i) == false && applianceOf.isEmpty(weekday,i+1) == false) {
             loadVector.add(power)
             dailyOperation.add(true)
             loadVector.add(power)
@@ -107,10 +107,25 @@ class Stove extends NotShiftingAppliance{
     weeklyOperation.add(dailyOperation)
   }
 
+  @Override
+  def createDailyPossibilityOperationVector(int day) {
+
+    def possibilityDailyOperation = new Vector()
+
+    for (int j = 0;j < Constants.QUARTERS_OF_DAY - 1;j++) {
+      if (applianceOf.isEmpty(day,j) == false && applianceOf.isEmpty(day,j+1) == false) possibilityDailyOperation.add(true)
+      else possibilityDailyOperation.add(false)
+    }
+    // For the last time, without check because it is the next day
+    possibilityDailyOperation.add(false)
+    return possibilityDailyOperation
+  }
+
   @ Override
   def refresh(Random gen) {
     createWeeklyOperationVector(times,gen)
     fillWeeklyFunction(gen)
+    createWeeklyPossibilityOperationVector()
   }
 
   static constraints = {

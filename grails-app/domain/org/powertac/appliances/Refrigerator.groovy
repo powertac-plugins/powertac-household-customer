@@ -34,10 +34,10 @@ import org.powertac.common.configurations.Constants
 class Refrigerator extends FullyShiftingAppliance {
 
   @ Override
-  def initialize(ConfigObject conf,Random gen) {
+  def initialize(String household, ConfigObject conf,Random gen) {
 
     // Filling the base variables
-    name = "Refrigerator"
+    name = household + " Refrigerator"
     saturation =  conf.household.appliances.refrigerator.RefrigeratorSaturation
     consumptionShare = (float) (Constants.PERCENTAGE * (Constants.REFRIDGERATOR_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.REFRIDGERATOR_CONSUMPTION_SHARE_MEAN))
     baseLoadShare = Constants.PERCENTAGE * Constants.REFRIDGERATOR_BASE_LOAD_SHARE
@@ -47,6 +47,19 @@ class Refrigerator extends FullyShiftingAppliance {
     inUse = false
     probabilitySeason = fillSeason(Constants.REFRIDGERATOR_POSSIBILITY_SEASON_1,Constants.REFRIDGERATOR_POSSIBILITY_SEASON_2,Constants.REFRIDGERATOR_POSSIBILITY_SEASON_3)
     probabilityWeekday = fillDay(Constants.REFRIDGERATOR_POSSIBILITY_DAY_1,Constants.REFRIDGERATOR_POSSIBILITY_DAY_2,Constants.REFRIDGERATOR_POSSIBILITY_DAY_3)
+  }
+
+  @Override
+  def createDailyPossibilityOperationVector(int day) {
+
+    def possibilityDailyOperation = new Vector()
+
+    for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
+
+      possibilityDailyOperation.add(true)
+    }
+
+    return possibilityDailyOperation
   }
 
   @ Override
@@ -72,6 +85,7 @@ class Refrigerator extends FullyShiftingAppliance {
   @ Override
   def refresh(Random gen) {
     fillWeeklyFunction(gen)
+    createWeeklyPossibilityOperationVector()
   }
 
   static constraints = {

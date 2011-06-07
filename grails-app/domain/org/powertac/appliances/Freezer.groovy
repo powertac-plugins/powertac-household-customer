@@ -17,7 +17,7 @@
 
 package org.powertac.appliances
 
-import groovy.util.ConfigObject;
+import groovy.util.ConfigObject
 
 import java.util.HashMap
 import java.util.Random
@@ -41,11 +41,11 @@ class Freezer extends FullyShiftingAppliance{
   }
 
   @ Override
-  def initialize(ConfigObject conf,Random gen) {
+  def initialize(String household,ConfigObject conf,Random gen) {
 
 
     // Filling the base variables
-    name = "Freezer"
+    name = household + " Freezer"
     saturation = conf.household.appliances.freezer.FreezerSaturation
     consumptionShare = (float) (Constants.PERCENTAGE * (Constants.FREEZER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.FREEZER_CONSUMPTION_SHARE_MEAN))
     baseLoadShare = Constants.PERCENTAGE * Constants.FREEZER_BASE_LOAD_SHARE
@@ -55,6 +55,19 @@ class Freezer extends FullyShiftingAppliance{
     inUse = false
     probabilitySeason = fillSeason(Constants.FREEZER_POSSIBILITY_SEASON_1,Constants.FREEZER_POSSIBILITY_SEASON_2,Constants.FREEZER_POSSIBILITY_SEASON_3)
     probabilityWeekday = fillDay(Constants.FREEZER_POSSIBILITY_DAY_1,Constants.FREEZER_POSSIBILITY_DAY_2,Constants.FREEZER_POSSIBILITY_DAY_3)
+  }
+
+  @Override
+  def createDailyPossibilityOperationVector(int day) {
+
+    def possibilityDailyOperation = new Vector()
+
+    for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
+
+      possibilityDailyOperation.add(true)
+    }
+
+    return possibilityDailyOperation
   }
 
   @ Override
@@ -80,6 +93,7 @@ class Freezer extends FullyShiftingAppliance{
   @ Override
   def refresh(Random gen) {
     fillWeeklyFunction(gen)
+    createWeeklyPossibilityOperationVector()
   }
 
   static constraints = {

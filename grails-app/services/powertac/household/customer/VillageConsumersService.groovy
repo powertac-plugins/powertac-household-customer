@@ -15,9 +15,9 @@
  */
 package powertac.household.customer
 
+import org.powertac.common.configurations.Constants
 import org.powertac.consumers.Household
 import org.powertac.consumers.Village
-import org.powertac.common.configurations.Constants
 
 /**
  * Stores Households in each category of consumers and consumption vectors on behalf of Household Customers, bypassing the database.
@@ -28,7 +28,8 @@ class VillageConsumersService {
   static transactional = true
 
   Map households = [:]
-  Map consumptions = [:]
+  Map baseConsumptions = [:]
+  Map controllableConsumptions = [:]
   Map days = [:]
 
   // manage rate maps
@@ -49,7 +50,7 @@ class VillageConsumersService {
     }
     return householdMap[type]
   }
- 
+
   void setHousehold(Village village, int type, int index, Household house)
   {
     def householdMap = households[village.customerInfo.name]
@@ -61,34 +62,55 @@ class VillageConsumersService {
   }
 
 
-  void createConsumptionsMap (Village village, int types)
+  void createBaseConsumptionsMap (Village village, int types)
   {
-    log.info "create consumption map for Household Customer ${village.customerInfo.name} [${types}]"
-    consumptions[village.customerInfo.name] = new BigDecimal[types][63][24]
+    log.info "create Base Consumption map for Household Customer ${village.customerInfo.name} [${types}]"
+    baseConsumptions[village.customerInfo.name] = new BigDecimal[types][63][24]
   }
 
-  def getConsumptions(Village village, int type)
+  def getBaseConsumptions(Village village, int type)
   {
-    return consumptions[village.customerInfo.name][type]
+    return baseConsumptions[village.customerInfo.name][type]
   }
 
-  void setConsumption(Village village, int type, int day, int hour, BigDecimal value)
+  void setBaseConsumption(Village village, int type, int day, int hour, BigDecimal value)
   {
-    def consumptionMap = consumptions[village.customerInfo.name]
-    if (consumptionMap == null) {
-      log.error "could not find Consumption map for village ${village.toString()}"
+    def baseConsumptionMap = baseConsumptions[village.customerInfo.name]
+    if (baseConsumptionMap == null) {
+      log.error "could not find Base Consumption map for village ${village.toString()}"
       return
     }
-    consumptionMap[type][day][hour] = value
+    baseConsumptionMap[type][day][hour] = value
   }
-  
+
+  void createControllableConsumptionsMap (Village village, int types)
+  {
+    log.info "create Controllable consumption map for Household Customer ${village.customerInfo.name} [${types}]"
+    controllableConsumptions[village.customerInfo.name] = new BigDecimal[types][63][24]
+  }
+
+  def getControllableConsumptions(Village village, int type)
+  {
+    return controllableConsumptions[village.customerInfo.name][type]
+  }
+
+  void setControllableConsumption(Village village, int type, int day, int hour, BigDecimal value)
+  {
+    def controllableConsumptionMap = controllableConsumptions[village.customerInfo.name]
+    if (controllableConsumptionMap == null) {
+      log.error "could not find Controllable Consumption map for village ${village.toString()}"
+      return
+    }
+    controllableConsumptionMap[type][day][hour] = value
+  }
+
   // manage rate maps
   void createDaysMap (Village village)
   {
     log.info "create Days List map for Household Customer ${village.toString()}"
     days[village.customerInfo.name] = new int[Constants.RANDOM_DAYS_NUMBER]
   }
-  
+
   // manage tier lists
   def getDays(Village village)
   {
@@ -100,7 +122,7 @@ class VillageConsumersService {
     }
     return dayMap
   }
-  
+
   void setDays(Village village, int index, int value)
   {
     def dayMap = days[village.customerInfo.name]

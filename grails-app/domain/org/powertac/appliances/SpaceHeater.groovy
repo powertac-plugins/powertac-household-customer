@@ -17,7 +17,7 @@
 
 package org.powertac.appliances
 
-import groovy.util.ConfigObject;
+import groovy.util.ConfigObject
 
 import java.util.HashMap
 
@@ -40,10 +40,10 @@ class SpaceHeater extends FullyShiftingAppliance{
   float percentage
 
   @ Override
-  def initialize(ConfigObject conf, Random gen) {
+  def initialize(String household,ConfigObject conf, Random gen) {
 
     // Filling the base variables
-    name = "SpaceHeater"
+    name = household + " SpaceHeater"
     saturation = conf.household.appliances.spaceHeater.SpaceHeaterSaturation
     float percentage = conf.household.appliances.spaceHeater.SpaceHeaterPercentage
     consumptionShare = (float) (Constants.PERCENTAGE * (Constants.SPACE_HEATER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.SPACE_HEATER_CONSUMPTION_SHARE_MEAN))
@@ -62,7 +62,7 @@ class SpaceHeater extends FullyShiftingAppliance{
     // Initializing Variables
     loadVector = new Vector()
     dailyOperation = new Vector()
-    if (applianceOf.isOnVacation(1) || gen.nextFloat() > percentage) {
+    if (applianceOf.isOnVacation(0) || gen.nextFloat() > percentage) {
       for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
         loadVector.add(0)
         dailyOperation.add(false)
@@ -86,9 +86,28 @@ class SpaceHeater extends FullyShiftingAppliance{
     }
   }
 
+  @Override
+  def createDailyPossibilityOperationVector(int day) {
+
+    def possibilityDailyOperation = new Vector()
+
+    if (applianceOf.isOnVacation(0)) {
+      for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
+        possibilityDailyOperation.add(false)
+      }
+    }
+    else {
+      for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
+        possibilityDailyOperation.add(true)
+      }
+    }
+    return possibilityDailyOperation
+  }
+
   @ Override
   def refresh(Random gen) {
     fillWeeklyFunction(gen)
+    createWeeklyPossibilityOperationVector()
   }
 
   static constraints = {

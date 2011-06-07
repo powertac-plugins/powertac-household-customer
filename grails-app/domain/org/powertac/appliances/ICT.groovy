@@ -17,7 +17,7 @@
 
 package org.powertac.appliances
 
-import groovy.util.ConfigObject;
+import groovy.util.ConfigObject
 
 import java.util.HashMap
 import java.util.Random
@@ -36,10 +36,10 @@ import org.powertac.common.configurations.Constants
 class ICT extends NotShiftingAppliance{
 
   @ Override
-  def initialize(ConfigObject conf, Random gen) {
+  def initialize(String household,ConfigObject conf, Random gen) {
 
     // Filling the base variables
-    name = "ICT"
+    name = household + " ICT"
     saturation = conf.household.appliances.ict.ICTSaturation
     consumptionShare = (float) (Constants.PERCENTAGE * (Constants.ICT_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.ICT_CONSUMPTION_SHARE_MEAN))
     baseLoadShare = Constants.PERCENTAGE * Constants.ICT_BASE_LOAD_SHARE
@@ -51,6 +51,20 @@ class ICT extends NotShiftingAppliance{
     probabilitySeason = fillSeason(Constants.ICT_POSSIBILITY_SEASON_1,Constants.ICT_POSSIBILITY_SEASON_2,Constants.ICT_POSSIBILITY_SEASON_3)
     probabilityWeekday = fillDay(Constants.ICT_POSSIBILITY_DAY_1,Constants.ICT_POSSIBILITY_DAY_2,Constants.ICT_POSSIBILITY_DAY_3)
     createWeeklyOperationVector(cycleDuration + applianceOf.members.size(), gen)
+  }
+
+  @Override
+  def createDailyPossibilityOperationVector(int day) {
+
+    def possibilityDailyOperation = new Vector()
+
+    for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
+
+      if (applianceOf.isEmpty(day,j) == false) possibilityDailyOperation.add(true)
+      else possibilityDailyOperation.add(false)
+    }
+
+    return possibilityDailyOperation
   }
 
   @ Override
@@ -66,7 +80,7 @@ class ICT extends NotShiftingAppliance{
         boolean flag = true
         int counter = 0
         while ((flag) && (i < Constants.QUARTERS_OF_DAY) && (counter >= 0)) {
-          if (applianceOf.isEmpty(i+1) == false) {
+          if (applianceOf.isEmpty(weekday,i) == false) {
             loadVector.add(power)
             dailyOperation.add(true)
             counter--
@@ -91,6 +105,7 @@ class ICT extends NotShiftingAppliance{
   def refresh(Random gen) {
     createWeeklyOperationVector(times + applianceOf.members.size(), gen)
     fillWeeklyFunction(gen)
+    createWeeklyPossibilityOperationVector()
   }
 
   static constraints = {

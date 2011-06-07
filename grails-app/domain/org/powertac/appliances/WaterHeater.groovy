@@ -17,7 +17,7 @@
 
 package org.powertac.appliances
 
-import groovy.util.ConfigObject;
+import groovy.util.ConfigObject
 
 import java.util.HashMap
 import java.util.Random
@@ -54,7 +54,7 @@ class WaterHeater extends FullyShiftingAppliance{
           boolean flag = true
           int counter = 0
           while ((flag) && (i < Constants.QUARTERS_OF_DAY) && (counter >= 0)) {
-            if (applianceOf.isEmpty(i+1) == false) {
+            if (applianceOf.isEmpty(weekday,i) == false) {
               loadVector.add(power)
               dailyOperation.add(true)
               counter--
@@ -97,6 +97,25 @@ class WaterHeater extends FullyShiftingAppliance{
       weeklyOperation.add(dailyOperation)
       operationVector.add(operation)
     }
+  }
+
+  @Override
+  def createDailyPossibilityOperationVector(int day) {
+
+    def possibilityDailyOperation = new Vector()
+
+    if (type == HeaterType.InstantHeater) {
+      for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
+        if (applianceOf.isEmpty(day,j) == false) possibilityDailyOperation.add(true)
+        else possibilityDailyOperation.add(false)
+      }
+    }
+    else {
+      for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
+        possibilityDailyOperation.add(true)
+      }
+    }
+    return possibilityDailyOperation
   }
 
   @ Override
@@ -151,12 +170,12 @@ class WaterHeater extends FullyShiftingAppliance{
   }
 
   @ Override
-  def initialize(ConfigObject conf, Random gen) {
+  def initialize(String household, ConfigObject conf, Random gen) {
     // Creating Auxiliary Variables
     int x = 1 + gen.nextInt(Constants.PERCENTAGE)
     int limit = conf.household.appliances.waterHeater.InstantHeater
     // Filling the base variables
-    name = "WaterHeater"
+    name = household + " WaterHeater"
     saturation = conf.household.appliances.waterHeater.WaterHeaterSaturation
     if ( x < limit) {
       consumptionShare = (float) (Constants.PERCENTAGE * (Constants.INSTANT_HEATER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.INSTANT_HEATER_CONSUMPTION_SHARE_MEAN))
@@ -186,13 +205,11 @@ class WaterHeater extends FullyShiftingAppliance{
   @ Override
   def refresh(Random gen) {
     // case the Water Heater is Instant
-    if (type == HeaterType.InstantHeater) {
-      createWeeklyOperationVector((int)(times + applianceOf.members.size()/2),gen)
-      fillWeeklyFunction(gen)
-    } else  {
-      fillWeeklyFunction(gen)
-    }
+    if (type == HeaterType.InstantHeater) createWeeklyOperationVector((int)(times + applianceOf.members.size()/2),gen)
+    fillWeeklyFunction(gen)
+    createWeeklyPossibilityOperationVector()
   }
+
 
   static constraints = {
   }

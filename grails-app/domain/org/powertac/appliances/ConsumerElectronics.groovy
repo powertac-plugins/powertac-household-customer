@@ -33,11 +33,11 @@ import org.powertac.common.configurations.Constants
 class ConsumerElectronics extends NotShiftingAppliance {
 
   @ Override
-  def initialize(ConfigObject conf, Random gen) {
+  def initialize(String household,ConfigObject conf, Random gen) {
 
 
     // Filling the base variables
-    name = "ConsumerElectronics"
+    name = household + " ConsumerElectronics"
     saturation = conf.household.appliances.consumerElectronics.ConsumerElectronicsSaturation
     consumptionShare = (float) (Constants.PERCENTAGE * (Constants.CONSUMER_ELECTRONICS_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.CONSUMER_ELECTRONICS_CONSUMPTION_SHARE_MEAN))
     baseLoadShare = Constants.PERCENTAGE * Constants.CONSUMER_ELECTRONICS_BASE_LOAD_SHARE
@@ -65,7 +65,7 @@ class ConsumerElectronics extends NotShiftingAppliance {
         boolean flag = true
         int counter = 0
         while ((flag) && (i < Constants.QUARTERS_OF_DAY) && (counter >= 0)) {
-          if (applianceOf.isEmpty(i+1) == false) {
+          if (applianceOf.isEmpty(weekday,i) == false) {
             loadVector.add(power)
             dailyOperation.add(true)
             counter--
@@ -90,8 +90,22 @@ class ConsumerElectronics extends NotShiftingAppliance {
   def refresh(Random gen) {
     createWeeklyOperationVector(times + applianceOf.members.size(), gen)
     fillWeeklyFunction(gen)
+    createWeeklyPossibilityOperationVector()
   }
 
+  @Override
+  def createDailyPossibilityOperationVector(int day) {
+
+    def possibilityDailyOperation = new Vector()
+
+    for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
+
+      if (applianceOf.isEmpty(day,j) == false) possibilityDailyOperation.add(true)
+      else possibilityDailyOperation.add(false)
+    }
+
+    return possibilityDailyOperation
+  }
 
   static constraints = {
   }

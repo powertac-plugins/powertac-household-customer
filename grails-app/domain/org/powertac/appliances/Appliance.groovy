@@ -35,7 +35,7 @@ import org.powertac.consumers.*
 class Appliance {
 
   def householdConsumersService
-  
+
   /** the appliance name. It depends on the type of appliance and the household that contains it.*/
   String name
 
@@ -72,6 +72,9 @@ class Appliance {
   /** This is a vector containing the quarters that the appliance should start functioning (before shifting) */
   Vector operationVector = new Vector()
 
+  /** This is a vector containing the quarters that the appliance could have started functioning (before shifting) */
+  Vector possibilityOperationVector = new Vector()
+
   /** This is a vector containing the load of consumption of the appliance during the day */
   Vector loadVector = new Vector()
 
@@ -94,8 +97,24 @@ class Appliance {
    * @param times
    * @return
    */
-
   def createOperationVector(int times, Random gen) {
+  }
+
+  /** This function is used to create the weekly operation vector of each appliance for the week
+   * taking into consideration the times that this appliance could be able to function.
+   * @param times
+   * @return
+   */
+  def createDailyPossibilityOperationVector(int day) {
+  }
+
+  /** This function is used to create the daily operation vector of each appliance for the week
+   * taking into consideration the times that this appliance could be able to function.
+   * @param times
+   * @return
+   */
+  def createWeeklyPossibilityOperationVector() {
+    for (int i = 0;i < Constants.DAYS_OF_WEEK; i++) possibilityOperationVector.add(createDailyPossibilityOperationVector(i))
   }
 
   /** This function takes into consideration the year season, the weekday and the
@@ -117,7 +136,7 @@ class Appliance {
    * configuration file to create the appliance as it should for this type.
    * @return
    */
-  def initialize(Random gen) {
+  def initialize(String household, ConfigObject conf, Random gen) {
   }
 
   /** This is a complex function that changes the appliance's function
@@ -242,18 +261,23 @@ class Appliance {
    *  during the runtime.
    * @return
    */
-  def setVectors(int index) {
-    
+  def setVectors() {
+
+    householdConsumersService.createAppliancesOperationsMap(this)
+    householdConsumersService.createAppliancesLoadsMap(this)
+    householdConsumersService.createAppliancesPossibilityOperationsMap(this)
+
     for (int i=0;i < weeklyOperation.size();i++){
-      
+
       for (int j=0;j < 96;j++){
-        
-        householdConsumersService.setApplianceOperation (applianceOf, index, i, j, weeklyOperation.get(i).get(j))
-        householdConsumersService.setApplianceLoad (applianceOf, index, i, j, weeklyLoadVector.get(i).get(j))
+
+        householdConsumersService.setApplianceOperation (this, i, j, weeklyOperation.get(i).get(j))
+        householdConsumersService.setApplianceLoad (this, i, j, weeklyLoadVector.get(i).get(j))
+        householdConsumersService.setAppliancePossibilityOperation (this, i, j, possibilityOperationVector.get(i).get(j))
       }
-      
+
     }
-    
+
   }
 
   static constraints = {

@@ -17,7 +17,7 @@
 
 package org.powertac.appliances
 
-import groovy.util.ConfigObject;
+import groovy.util.ConfigObject
 
 import java.util.HashMap
 
@@ -46,10 +46,10 @@ class WashingMachine extends SemiShiftingAppliance{
   Reaction reaction = Reaction.Strong
 
   @ Override
-  def initialize(ConfigObject conf, Random gen) {
+  def initialize(String household,ConfigObject conf, Random gen) {
 
     // Filling the base variables
-    name = "Washing Machine"
+    name = household + " Washing Machine"
     saturation = conf.household.appliances.washingMachine.WashingMachineSaturation
     consumptionShare = (float) (Constants.PERCENTAGE * (Constants.DISHWASHER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.DISHWASHER_CONSUMPTION_SHARE_MEAN))
     baseLoadShare = Constants.PERCENTAGE * Constants.DISHWASHER_BASE_LOAD_SHARE
@@ -77,7 +77,7 @@ class WashingMachine extends SemiShiftingAppliance{
       if (operation.get(i) == true) {
         boolean flag = true
         while (flag && i < Constants.QUARTERS_OF_DAY) {
-          boolean empty = checkHouse(i)
+          boolean empty = checkHouse(weekday,i)
           if (empty == false) {
             for (int k = i;k < i + Constants.WASHING_MACHINE_DURATION_CYCLE;k++) {
               loadVector.set(k,power)
@@ -96,24 +96,26 @@ class WashingMachine extends SemiShiftingAppliance{
     weeklyOperation.add(dailyOperation)
   }
 
-  /** This function checks for the household to see when it is empty or not empty for the duration of the operation
-   * 
+  @Override
+  def createDailyPossibilityOperationVector(int day) {
+
+    def possibilityDailyOperation = new Vector()
+
+    for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
+      if (checkHouse(day,j) == true) possibilityDailyOperation.add(false)
+      else possibilityDailyOperation.add(true)
+    }
+    return possibilityDailyOperation
+  }
+
+  /** This function checks for the household to see when it is empty or not empty
+   * for the duration of the operation  
    * @param hour
    * @return
    */
-  def checkHouse(int hour) {
-
-    // Creating auxiliary variable
-    boolean empty = true
-    int j = hour
-
-    // checking the house for the duration of appliance function
-    while ((j < hour + Constants.WASHING_MACHINE_DURATION_CYCLE - 1) && (empty == true) && (j < Constants.QUARTERS_OF_DAY)) {
-      empty = empty & applianceOf.isEmpty(j+1)
-      j++
-      if (j == Constants.QUARTERS_OF_DAY - 1) break
-    }
-    return empty
+  def checkHouse(int weekday,int quarter) {
+    if (quarter+Constants.WASHING_MACHINE_DURATION_CYCLE >= Constants.QUARTERS_OF_DAY) return true
+    else return applianceOf.isEmpty(weekday,quarter+Constants.WASHING_MACHINE_DURATION_CYCLE)
   }
 
   @ Override
@@ -176,6 +178,7 @@ class WashingMachine extends SemiShiftingAppliance{
   def refresh(Random gen) {
     createWeeklyOperationVector((int)(times + applianceOf.members.size() / 2),gen)
     fillWeeklyFunction(gen)
+    createWeeklyPossibilityOperationVector()
   }
 
 
