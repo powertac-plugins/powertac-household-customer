@@ -46,6 +46,7 @@ class Village extends AbstractCustomer{
   /** This is an agreggated vector containing each day's controllable load of all the households in hours. **/
   Vector aggDailyControllableLoadInHours = new Vector()
 
+  //static hasMany = [houses:Household]
 
   /** This hashmap variable is utilized to show which portion of the population is under which subscription **/
   // HashMap subscriptionMap = new HashMap()
@@ -80,6 +81,7 @@ class Village extends AbstractCustomer{
       def hh = new Household()
       hh.initialize(this.customerInfo.name+" NSHouse" + i,conf, publicVacationVector, gen)
       villageConsumersService.setHousehold(this, 0, i, hh)
+      //addToHouses(hh)
     }
 
     for (i in 0..rashouses-1) {
@@ -87,6 +89,7 @@ class Village extends AbstractCustomer{
       def hh = new Household()
       hh.initialize(this.customerInfo.name+" RaSHouse" + i,conf, publicVacationVector, gen)
       villageConsumersService.setHousehold(this, 1, i, hh)
+      //addToHouses(hh)
     }
 
     for (i in 0..reshouses-1) {
@@ -94,12 +97,14 @@ class Village extends AbstractCustomer{
       def hh = new Household()
       hh.initialize(this.customerInfo.name+" ReSHouse" + i,conf, publicVacationVector, gen)
       villageConsumersService.setHousehold(this, 2, i, hh)
+      //addToHouses(hh)
     }
     for (i in 0..sshouses-1) {
       log.info "Initializing ${this.customerInfo.name} SSHouse ${i} "
       def hh = new Household()
       hh.initialize(this.customerInfo.name+" SSHouse" + i,conf, publicVacationVector, gen)
       villageConsumersService.setHousehold(this, 3, i, hh)
+      //addToHouses(hh)
     }
 
     fillAggWeeklyLoad("NotShifting")
