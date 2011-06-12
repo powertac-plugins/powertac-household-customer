@@ -528,12 +528,13 @@ class Household {
 
     appliances.each { appliance ->
       if (!(appliance instanceof NotShiftingAppliance)) {
-        log.info"Appliance ${appliance.toString()}"
         def temp = appliance.dailyShifting(tariff,now,day)
+        //log.info"Appliance ${appliance.toString()}"
+        //log.info("Temp: " + temp.toString())
+        //log.info(newControllableLoad.toString())
         for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] += temp[j]
       }
     }
-
     return newControllableLoad
   }
 

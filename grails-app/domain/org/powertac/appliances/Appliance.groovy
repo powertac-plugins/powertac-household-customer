@@ -24,6 +24,7 @@ import java.util.Vector
 
 import org.joda.time.Instant
 import org.powertac.common.Tariff
+import org.powertac.common.configurations.Constants
 import org.powertac.consumers.*
 
 /**

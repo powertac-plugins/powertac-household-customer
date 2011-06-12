@@ -435,10 +435,10 @@ class Village extends AbstractCustomer{
       for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] += temp[j]
     }
 
-    println("New Controllable Load of Village ${this.toString()} for Tariff ${tariff.toString()}")
+    log.debug("New Controllable Load of Village ${this.toString()} for Tariff ${tariff.toString()}")
 
     for (int i=0;i < Constants.HOURS_OF_DAY;i++) {
-      println("Hour: ${i} Cost: ${tariff.getUsageCharge(now)} Load: ${newControllableLoad[i]}")
+      log.debug("Hour: ${i} Cost: ${tariff.getUsageCharge(now)} Load: ${newControllableLoad[i]}")
       now = now + TimeService.HOUR
     }
 
