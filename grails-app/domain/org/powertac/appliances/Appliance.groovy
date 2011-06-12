@@ -20,6 +20,8 @@ import java.util.HashMap
 import java.util.Random
 import java.util.Vector
 
+import org.joda.time.Instant
+import org.powertac.common.Tariff
 import org.powertac.common.configurations.Constants
 import org.powertac.consumers.*
 
@@ -145,7 +147,18 @@ class Appliance {
    * @param v
    * @return
    */
-  def shiftingOperation(Vector v) {
+  def dailyShifting(Tariff tariff,Instant now, int day){
+  }
+
+  def createShiftingOperationMatrix(int day) {
+
+    boolean[] shiftingOperationMatrix = new boolean[24]
+
+    for (int i=0;i < Constants.HOURS_OF_DAY;i++){
+      boolean function = householdConsumersService.getAppliancePossibilityOperations(this,day,i*4) || householdConsumersService.getAppliancePossibilityOperations(this,day,i*4+1)  || householdConsumersService.getAppliancePossibilityOperations(this,day,i*4+2) || householdConsumersService.getAppliancePossibilityOperations(this,day,i*4+3)
+      shiftingOperationMatrix[i] = function
+    }
+    return shiftingOperationMatrix
   }
 
 
@@ -263,19 +276,21 @@ class Appliance {
    */
   def setVectors() {
 
+
     householdConsumersService.createAppliancesOperationsMap(this)
     householdConsumersService.createAppliancesLoadsMap(this)
-    householdConsumersService.createAppliancesPossibilityOperationsMap(this)
+    if (!(this instanceof Dryer)) householdConsumersService.createAppliancesPossibilityOperationsMap(this)
+    householdConsumersService.createAppliancesOperationDaysMap(this)
 
     for (int i=0;i < weeklyOperation.size();i++){
-
+      boolean function = false
       for (int j=0;j < 96;j++){
-
         householdConsumersService.setApplianceOperation (this, i, j, weeklyOperation.get(i).get(j))
-        householdConsumersService.setApplianceLoad (this, i, j, weeklyLoadVector.get(i).get(j))
-        householdConsumersService.setAppliancePossibilityOperation (this, i, j, possibilityOperationVector.get(i).get(j))
+        householdConsumersService.setApplianceLoad(this, i, j, weeklyLoadVector.get(i).get(j))
+        if (!(this instanceof Dryer)) householdConsumersService.setAppliancePossibilityOperation (this, i, j, possibilityOperationVector.get(i).get(j))
+        function = function || weeklyOperation.get(i).get(j)
       }
-
+      householdConsumersService.setApplianceOperationDay(this, i,function)
     }
 
   }
@@ -293,6 +308,6 @@ class Appliance {
   static mapping = { sort "name" }
 
   String toString(){
-    "${name}, ${Household} (${inUse})"
+    "${name}"
   }
 }

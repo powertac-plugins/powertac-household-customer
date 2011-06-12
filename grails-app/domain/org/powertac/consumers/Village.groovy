@@ -15,6 +15,8 @@
  */
 package org.powertac.consumers
 
+import groovy.util.ConfigObject
+
 import java.util.Random
 
 import org.joda.time.Instant
@@ -46,7 +48,7 @@ class Village extends AbstractCustomer{
   /** This is an agreggated vector containing each day's controllable load of all the households in hours. **/
   Vector aggDailyControllableLoadInHours = new Vector()
 
-  //static hasMany = [houses:Household]
+  static hasMany = [houses:Household]
 
   /** This hashmap variable is utilized to show which portion of the population is under which subscription **/
   // HashMap subscriptionMap = new HashMap()
@@ -81,7 +83,7 @@ class Village extends AbstractCustomer{
       def hh = new Household()
       hh.initialize(this.customerInfo.name+" NSHouse" + i,conf, publicVacationVector, gen)
       villageConsumersService.setHousehold(this, 0, i, hh)
-      //addToHouses(hh)
+      addToHouses(hh)
     }
 
     for (i in 0..rashouses-1) {
@@ -89,7 +91,7 @@ class Village extends AbstractCustomer{
       def hh = new Household()
       hh.initialize(this.customerInfo.name+" RaSHouse" + i,conf, publicVacationVector, gen)
       villageConsumersService.setHousehold(this, 1, i, hh)
-      //addToHouses(hh)
+      addToHouses(hh)
     }
 
     for (i in 0..reshouses-1) {
@@ -97,14 +99,14 @@ class Village extends AbstractCustomer{
       def hh = new Household()
       hh.initialize(this.customerInfo.name+" ReSHouse" + i,conf, publicVacationVector, gen)
       villageConsumersService.setHousehold(this, 2, i, hh)
-      //addToHouses(hh)
+      addToHouses(hh)
     }
     for (i in 0..sshouses-1) {
       log.info "Initializing ${this.customerInfo.name} SSHouse ${i} "
       def hh = new Household()
       hh.initialize(this.customerInfo.name+" SSHouse" + i,conf, publicVacationVector, gen)
       villageConsumersService.setHousehold(this, 3, i, hh)
-      //addToHouses(hh)
+      addToHouses(hh)
     }
 
     fillAggWeeklyLoad("NotShifting")
@@ -330,8 +332,14 @@ class Village extends AbstractCustomer{
 
   }
 
-  double estimateVariableTariffPayment(Tariff tariff){
+  double costEstimation(Tariff tariff)
+  {
+    double costVariable = estimateShiftingVariableTariffPayment(tariff)
+    double costFixed = estimateFixedTariffPayments(tariff)
+    return (costVariable + costFixed)/Constants.MILLION
+  }
 
+  double estimateVariableTariffPayment(Tariff tariff){
 
     int serial = ((timeService.currentTime.millis - timeService.base) / TimeService.HOUR)
     Instant base = timeService.currentTime - serial*TimeService.HOUR
@@ -351,6 +359,7 @@ class Village extends AbstractCustomer{
         for (int j=0;j < 4;j++){
           summary = summary + (villageConsumersService.getBaseConsumptions(this,j)[day][hour] + villageConsumersService.getControllableConsumptions(this,j)[day][hour])
         }
+        log.info "Cost for hour ${hour}: ${tariff.getUsageCharge(now)}"
         summary = summary / Constants.PERCENTAGE
         cumulativeSummary += summary
         costSummary += tariff.getUsageCharge(now,summary,cumulativeSummary)
@@ -362,6 +371,58 @@ class Village extends AbstractCustomer{
     return finalCostSummary / Constants.RANDOM_DAYS_NUMBER
   }
 
+  double estimateShiftingVariableTariffPayment(Tariff tariff){
+
+    int serial = ((timeService.currentTime.millis - timeService.base) / TimeService.HOUR)
+    Instant base = timeService.currentTime - serial*TimeService.HOUR
+    int daylimit = (int) (serial / Constants.HOURS_OF_DAY) + 1 // this will be changed to one or more random numbers
+
+    float finalCostSummary = 0
+
+    def daysList = villageConsumersService.getDays(this)
+
+    daysList.each { day ->
+      if (day < daylimit) day = (int) (day + (daylimit / Constants.RANDOM_DAYS_NUMBER))
+      Instant now = base + day * TimeService.DAY
+      float costSummary = 0
+      float summary = 0, cumulativeSummary = 0
+
+      long[] newControllableLoad = dailyShifting(tariff,now,day)
+
+      for (int hour=0;hour < Constants.HOURS_OF_DAY;hour++){
+        for (int j=0;j < 4;j++){
+          summary = summary + (villageConsumersService.getBaseConsumptions(this,j)[day][hour] + newControllableLoad[hour])
+        }
+        summary = summary / Constants.PERCENTAGE
+        cumulativeSummary += summary
+        costSummary += tariff.getUsageCharge(now,summary,cumulativeSummary)
+        now = now + TimeService.HOUR
+      }
+      log.info "Variable Cost Summary: ${finalCostSummary}"
+      finalCostSummary += costSummary
+    }
+    return finalCostSummary / Constants.RANDOM_DAYS_NUMBER
+  }
+
+  def dailyShifting(Tariff tariff,Instant now, int day){
+
+    long[] newControllableLoad = new long[24]
+
+    villageConsumersService.getHouseholds(this).each { house ->
+      def temp = house.dailyShifting(tariff,now,day)
+      for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] += temp[j]
+    }
+
+    println("New Controllable Load of Village ${this.toString()} for Tariff ${tariff.toString()}")
+
+    for (int i=0;i < Constants.HOURS_OF_DAY;i++) {
+      println("Hour: ${i} Cost: ${tariff.getUsageCharge(now)} Load: ${newControllableLoad[i]}")
+      now = now + TimeService.HOUR
+    }
+
+    return newControllableLoad
+
+  }
 
   /** This function prints to the screen the daily load of the village's households for the
    * weekday at hand.

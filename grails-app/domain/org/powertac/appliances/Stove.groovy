@@ -21,6 +21,9 @@ import groovy.util.ConfigObject
 
 import java.util.HashMap
 
+import org.joda.time.Instant
+import org.powertac.common.Tariff
+import org.powertac.common.TimeService
 import org.powertac.common.configurations.Constants
 
 
@@ -32,7 +35,7 @@ import org.powertac.common.configurations.Constants
  * @author Antonios Chrysopoulos
  * @version 1, 13/02/2011
  */
-class Stove extends NotShiftingAppliance{
+class Stove extends SemiShiftingAppliance{
 
   @ Override
   def initialize(String household,ConfigObject conf, Random gen) {
@@ -51,7 +54,6 @@ class Stove extends NotShiftingAppliance{
     times = conf.household.appliances.stove.StoveDailyTimes
     createWeeklyOperationVector(times,gen)
   }
-
 
   @ Override
   def createDailyOperationVector(int times, Random gen) {
@@ -119,6 +121,30 @@ class Stove extends NotShiftingAppliance{
     // For the last time, without check because it is the next day
     possibilityDailyOperation.add(false)
     return possibilityDailyOperation
+  }
+
+  def dailyShifting(Tariff tariff,Instant now, int day){
+
+    long[] newControllableLoad = new long[24]
+
+    if (householdConsumersService.getApplianceOperationDays(this,day)) {
+      def minindex = 0
+      def minvalue = Double.POSITIVE_INFINITY
+      def functionMatrix = createShiftingOperationMatrix(day)
+      Instant hour1 = now
+
+      for (int i=0;i < Constants.HOURS_OF_DAY;i++){
+        if (functionMatrix[i]){
+          if (minvalue >= tariff.getUsageCharge(hour1)){
+            minvalue = tariff.getUsageCharge(hour1)
+            minindex = i
+          }
+        }
+        hour1 = hour1 + TimeService.HOUR
+      }
+      newControllableLoad[minindex] = 2*power
+    }
+    return newControllableLoad
   }
 
   @ Override

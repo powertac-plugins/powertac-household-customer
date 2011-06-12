@@ -23,6 +23,8 @@ import groovy.util.ConfigObject
 import java.util.HashMap
 import java.util.Random
 
+import org.joda.time.Instant
+import org.powertac.common.Tariff
 import org.powertac.common.configurations.Constants
 
 /**
@@ -53,6 +55,12 @@ class Dryer extends SemiShiftingAppliance {
     probabilitySeason = fillSeason(Constants.DRYER_POSSIBILITY_SEASON_1,Constants.DRYER_POSSIBILITY_SEASON_2,Constants.DRYER_POSSIBILITY_SEASON_3)
     probabilityWeekday = fillDay(Constants.DRYER_POSSIBILITY_DAY_1,Constants.DRYER_POSSIBILITY_DAY_2,Constants.DRYER_POSSIBILITY_DAY_3)
     times = conf.household.appliances.dryer.DryerWeeklyTimes
+
+    this.applianceOf.appliances.each {
+      Object o = (Object) it
+      if (o instanceof WashingMachine) o.dryerFlag = true
+    }
+
     createWeeklyOperationVector((int)(times + applianceOf.members.size() / 2),gen)
   }
 
@@ -199,6 +207,13 @@ class Dryer extends SemiShiftingAppliance {
         flag = false
       }
     }
+  }
+
+  def dailyShifting(Tariff tariff,Instant now, int day){
+
+    long[] newControllableLoad = new long[24]
+
+    return newControllableLoad
   }
 
   @ Override

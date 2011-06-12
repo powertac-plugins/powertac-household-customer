@@ -22,6 +22,9 @@ import groovy.util.ConfigObject
 import java.util.HashMap
 import java.util.Random
 
+import org.joda.time.Instant
+import org.powertac.common.Tariff
+import org.powertac.common.TimeService
 import org.powertac.common.configurations.Constants
 
 /**
@@ -88,6 +91,28 @@ class Freezer extends FullyShiftingAppliance{
     weeklyLoadVector.add(loadVector)
     weeklyOperation.add(dailyOperation)
     operationVector.add(dailyOperation)
+  }
+
+  def dailyShifting(Tariff tariff,Instant now, int day){
+
+    long[] newControllableLoad = new long[24]
+    Instant now2 = now
+
+    for (int i=0;i < Constants.FREEZER_SHIFTING_PERIODS;i++){
+      def minvalue = Double.POSITIVE_INFINITY
+      def minindex = 0;
+
+      for (int j =0;j < Constants.FREEZER_SHIFTING_INTERVAL;j++){
+        if (minvalue >= tariff.getUsageCharge(now2)) {
+          minvalue = tariff.getUsageCharge(now2)
+          minindex = j
+        }
+        now2 = now2 + TimeService.HOUR
+      }
+      newControllableLoad[Constants.FREEZER_SHIFTING_INTERVAL*i+minindex] = 8*power
+    }
+
+    return newControllableLoad
   }
 
   @ Override

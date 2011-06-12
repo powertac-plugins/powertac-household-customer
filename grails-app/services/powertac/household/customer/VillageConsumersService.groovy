@@ -19,6 +19,7 @@ import org.powertac.common.configurations.Constants
 import org.powertac.consumers.Household
 import org.powertac.consumers.Village
 
+
 /**
  * Stores Households in each category of consumers and consumption vectors on behalf of Household Customers, bypassing the database.
  * @author Antonios Chrysopoulos
@@ -37,6 +38,24 @@ class VillageConsumersService {
   {
     log.info "create household map for Household Customer ${village.toString()} [${types}]"
     households[village.customerInfo.name] = new Household[types][population]
+  }
+
+  // manage tier lists
+  def getHouseholds(Village village)
+  {
+    def householdMap = households[village.customerInfo.name]
+    def houses = new ArrayList()
+
+    if (householdMap == null) {
+      log.error "could not find household map for Village ${village.toString()}"
+      return
+    }
+
+    for (int i=0;i < 4;i++) {
+      houses.addAll(householdMap[i])
+    }
+
+    return houses
   }
 
   // manage tier lists

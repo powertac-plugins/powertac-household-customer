@@ -21,6 +21,8 @@ import groovy.util.ConfigObject
 
 import java.util.HashMap
 
+import org.joda.time.Instant
+import org.powertac.common.Tariff
 import org.powertac.common.configurations.Constants
 
 
@@ -103,6 +105,7 @@ class SpaceHeater extends FullyShiftingAppliance{
     }
     return possibilityDailyOperation
   }
+
 
   @ Override
   def refresh(Random gen) {

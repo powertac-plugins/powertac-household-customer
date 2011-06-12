@@ -20,6 +20,9 @@ package org.powertac.appliances
 import java.util.HashMap
 import java.util.Random
 
+import org.joda.time.Instant
+import org.powertac.common.Tariff
+import org.powertac.common.TimeService
 import org.powertac.common.configurations.Constants
 import org.powertac.common.enumerations.Mode
 
@@ -172,6 +175,34 @@ class Dishwasher extends SemiShiftingAppliance {
     if (quarter+Constants.DISHWASHER_DURATION_CYCLE >= Constants.QUARTERS_OF_DAY) return true
     else return applianceOf.isEmpty(weekday,quarter+Constants.DISHWASHER_DURATION_CYCLE)
 
+  }
+
+  def dailyShifting(Tariff tariff,Instant now, int day){
+
+    long[] newControllableLoad = new long[24]
+
+    if (householdConsumersService.getApplianceOperationDays(this,day)) {
+      def minindex = 0
+      def minvalue = Double.POSITIVE_INFINITY
+      def functionMatrix = createShiftingOperationMatrix(day)
+      Instant hour1 = now
+      Instant hour2 = now + TimeService.HOUR
+
+      for (int i=0;i < Constants.HOURS_OF_DAY;i++){
+        if (functionMatrix[i] && functionMatrix[i+1]){
+          if (minvalue >= tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour2)){
+            minvalue = tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour2)
+            minindex = i
+          }
+        }
+        hour1 = hour1 + TimeService.HOUR
+        hour2 = hour2 + TimeService.HOUR
+      }
+
+      newControllableLoad[minindex] = 4*power
+      newControllableLoad[minindex+1] = 4*power
+    }
+    return newControllableLoad
   }
 
   @ Override

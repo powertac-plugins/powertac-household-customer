@@ -22,6 +22,9 @@ import groovy.util.ConfigObject
 import java.util.HashMap
 import java.util.Random
 
+import org.joda.time.Instant
+import org.powertac.common.Tariff
+import org.powertac.common.TimeService
 import org.powertac.common.configurations.Constants
 import org.powertac.common.enumerations.HeaterType
 
@@ -42,11 +45,10 @@ class WaterHeater extends FullyShiftingAppliance{
   @ Override
   def fillDailyFunction(int weekday,Random gen) {
     // Initializing And Creating Auxiliary Variables
-    int start = 0
-    int temp = 0
     loadVector = new Vector()
     dailyOperation = new Vector()
     Vector operation = new Vector()
+
     if (type == HeaterType.InstantHeater) {
       operation = operationVector.get(weekday)
       for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
@@ -73,25 +75,33 @@ class WaterHeater extends FullyShiftingAppliance{
       }
       weeklyLoadVector.add(loadVector)
       weeklyOperation.add(dailyOperation)
+
     } else  {
+
+      int start = 0
+      int temp = 0
+
       for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
         operation.add(false)
         dailyOperation.add(false)
         loadVector.add(0)
       }
+
       if (gen.nextFloat() > Constants.STORAGE_HEATER_POSSIBILITY) start = (Constants.STORAGE_HEATER_START + 1) + gen.nextInt(Constants.STORAGE_HEATER_START - 1)
       else start = 1 + gen.nextInt(Constants.STORAGE_HEATER_START)
 
-      for (int i = start;i < start + 2 * Constants.STORAGE_HEATER_PHASES;i++) {
+      for (int i = start;i < start + Constants.STORAGE_HEATER_PHASE_LOAD;i++) {
         operation.set(i,true)
         dailyOperation.set(i,true)
         loadVector.set(i, power)
-        temp = i
       }
-      for (int j = 1;j < Constants.STORAGE_HEATER_PHASES; j++) {
-        operation.set((temp + Constants.STORAGE_HEATER_PHASE_LOAD*j),true)
-        dailyOperation.set((temp + Constants.STORAGE_HEATER_PHASE_LOAD*j),true)
-        loadVector.set((temp + Constants.STORAGE_HEATER_PHASE_LOAD*j), power)
+
+      temp = start + Constants.STORAGE_HEATER_PHASE_LOAD
+
+      for (int j = 0;j < Constants.STORAGE_HEATER_PHASES-1; j++) {
+        operation.set((temp + Constants.STORAGE_HEATER_PHASES*j),true)
+        dailyOperation.set((temp + Constants.STORAGE_HEATER_PHASES*j),true)
+        loadVector.set((temp + Constants.STORAGE_HEATER_PHASES*j), power)
       }
       weeklyLoadVector.add(loadVector)
       weeklyOperation.add(dailyOperation)
@@ -201,6 +211,60 @@ class WaterHeater extends FullyShiftingAppliance{
       setType(HeaterType.StorageHeater)
     }
   }
+
+  def dailyShifting(Tariff tariff,Instant now, int day){
+
+    long[] newControllableLoad = new long[24]
+
+    if (type == HeaterType.InstantHeater) {
+      if (householdConsumersService.getApplianceOperationDays(this,day)) {
+        def minindex = 0
+        def minvalue = Double.POSITIVE_INFINITY
+        def functionMatrix = createShiftingOperationMatrix(day)
+        Instant hour1 = now
+
+        for (int i=0;i < Constants.HOURS_OF_DAY;i++){
+          if (functionMatrix[i]){
+            if (minvalue >= tariff.getUsageCharge(hour1)){
+              minvalue = tariff.getUsageCharge(hour1)
+              minindex = i
+            }
+          }
+          hour1 = hour1 + TimeService.HOUR
+        }
+        newControllableLoad[minindex] = power
+      }
+    }
+    else {
+
+      if (householdConsumersService.getApplianceOperationDays(this,day)) {
+        def minindex = 0
+        def minvalue = Double.POSITIVE_INFINITY
+        def functionMatrix = createShiftingOperationMatrix(day)
+        Instant hour1 = now
+
+        for (int i=0;i < Constants.STORAGE_HEATER_SHIFTING_END;i++){
+          if (functionMatrix[i]){
+            if (minvalue >= tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour1 + TimeService.HOUR)+tariff.getUsageCharge(hour1+ 2*TimeService.HOUR)+tariff.getUsageCharge(hour1 + 3*TimeService.HOUR)+tariff.getUsageCharge(hour1 + 4*TimeService.HOUR)){
+              minvalue = tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour1 + TimeService.HOUR)+tariff.getUsageCharge(hour1+ 2*TimeService.HOUR)+tariff.getUsageCharge(hour1 + 3*TimeService.HOUR)+tariff.getUsageCharge(hour1 + 4*TimeService.HOUR)
+              minindex = i
+            }
+          }
+          hour1 = hour1 + TimeService.HOUR
+        }
+
+        for (int i=0; i <= Constants.STORAGE_HEATER_PHASES ;i++){
+          newControllableLoad[minindex+i] = 4*power
+        }
+
+        for (int i=1; i < Constants.STORAGE_HEATER_PHASES;i++){
+          newControllableLoad[Constants.STORAGE_HEATER_PHASES+minindex+i] = power
+        }
+      }
+    }
+    return newControllableLoad
+  }
+
 
   @ Override
   def refresh(Random gen) {

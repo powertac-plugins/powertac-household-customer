@@ -34,6 +34,10 @@ class HouseholdConsumersService {
   /** This variable contains the possible operation times of each appliance for the competition's duration. */
   Map appliancesPossibilityOperations = [:]
 
+  /** This variable contains the operation days of each appliance for the competition's duration. */
+  Map appliancesOperationDays = [:]
+
+
   void createAppliancesOperationsMap (Appliance appliance) {
     log.info "create appliance Operations map for Appliance ${appliance.toString()}"
     appliancesOperations[appliance.name] = new boolean[63][96]
@@ -41,12 +45,17 @@ class HouseholdConsumersService {
 
   void createAppliancesLoadsMap (Appliance appliance) {
     log.info "create appliance load map for Appliance ${appliance.toString()}"
-    appliancesLoads[appliance.name] = new int[63][96]
+    appliancesLoads[appliance.name] = new long[63][96]
   }
 
   void createAppliancesPossibilityOperationsMap (Appliance appliance) {
     log.info "create appliance Possibility Operations map for Appliance ${appliance.toString()}"
     appliancesPossibilityOperations[appliance.name] = new boolean[63][96]
+  }
+
+  void createAppliancesOperationDaysMap (Appliance appliance) {
+    log.info "create appliance operation days map for Appliance ${appliance.toString()}"
+    appliancesOperationDays[appliance.name] = new boolean[63]
   }
 
   void setApplianceOperation(Appliance appliance, int day, int quarter, Boolean function) {
@@ -58,7 +67,7 @@ class HouseholdConsumersService {
     applianceOperationMap[day][quarter] = function
   }
 
-  void setApplianceLoad(Appliance appliance, int day, int quarter, BigDecimal value) {
+  void setApplianceLoad(Appliance appliance, int day, int quarter, long value) {
     def applianceLoadMap = appliancesLoads[appliance.name]
     if (applianceLoadMap == null) {
       log.error "could not find Appliance Load map for Appliance ${appliance.toString()}"
@@ -74,6 +83,15 @@ class HouseholdConsumersService {
       return
     }
     appliancePossibilityOperationMap[day][quarter] = function
+  }
+
+  void setApplianceOperationDay(Appliance appliance, int day, Boolean function) {
+    def applianceOperationDaysMap = appliancesOperationDays[appliance.name]
+    if (applianceOperationDaysMap == null) {
+      log.error "could not find Appliance Operation Days map for Appliance ${appliance.toString()}"
+      return
+    }
+    applianceOperationDaysMap[day] = function
   }
 
   def getApplianceOperations(Appliance appliance) {
@@ -110,6 +128,13 @@ class HouseholdConsumersService {
 
   def getAppliancePossibilityOperations(Appliance appliance, int day, int quarter) {
     return appliancesPossibilityOperations[appliance.name][day][quarter]
+  }
+
+  def getApplianceOperationDays(Appliance appliance) {
+    return appliancesOperationDays[appliance.name]
+  }
+  def getApplianceOperationDays(Appliance appliance,int day) {
+    return appliancesOperationDays[appliance.name][day]
   }
 }
 
