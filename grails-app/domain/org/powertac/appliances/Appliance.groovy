@@ -16,13 +16,14 @@
 
 package org.powertac.appliances
 
+import groovy.util.ConfigObject
+
 import java.util.HashMap
 import java.util.Random
 import java.util.Vector
 
 import org.joda.time.Instant
 import org.powertac.common.Tariff
-import org.powertac.common.configurations.Constants
 import org.powertac.consumers.*
 
 /**
@@ -36,6 +37,7 @@ import org.powertac.consumers.*
 
 class Appliance {
 
+  /** The service that contains the Mappings useful for the functioning and load of the appliances.*/
   def householdConsumersService
 
   /** the appliance name. It depends on the type of appliance and the household that contains it.*/
@@ -97,22 +99,22 @@ class Appliance {
   /** This function is used to create the operation vector of the appliance for the week
    * taking into consideration the times that this appliance has to function.
    * @param times
+   * @param gen
    * @return
    */
   def createOperationVector(int times, Random gen) {
   }
 
-  /** This function is used to create the weekly operation vector of each appliance for the week
-   * taking into consideration the times that this appliance could be able to function.
-   * @param times
+  /** This function is used to create the daily possibility operation vector of each appliance for the week
+   * taking into consideration the day that this appliance could be able to function.
+   * @param day
    * @return
    */
   def createDailyPossibilityOperationVector(int day) {
   }
 
-  /** This function is used to create the daily operation vector of each appliance for the week
+  /** This function is used to create the weekly possibility operation vector of each appliance for the week
    * taking into consideration the times that this appliance could be able to function.
-   * @param times
    * @return
    */
   def createWeeklyPossibilityOperationVector() {
@@ -136,20 +138,29 @@ class Appliance {
 
   /** This is the initialization function. It uses the variable values for the
    * configuration file to create the appliance as it should for this type.
+   * @param household
+   * @param conf
+   * @param gen
    * @return
    */
   def initialize(String household, ConfigObject conf, Random gen) {
   }
 
-  /** This is a complex function that changes the appliance's function
-   * in order to save energy and money. There is no implementation ready
-   * for this yet.
-   * @param v
+  /** This is a complex function that changes the appliance's function in order to have the
+   * most cost effective operation load in a day schedule. 
+   * @param tariff
+   * @param now
+   * @param day
    * @return
    */
   def dailyShifting(Tariff tariff,Instant now, int day){
   }
 
+  /** This is a simple function utilized for the creation of the function Vector
+   * that will be used in the shifting procedure.
+   * @param day
+   * @return
+   */
   def createShiftingOperationMatrix(int day) {
 
     boolean[] shiftingOperationMatrix = new boolean[24]
@@ -265,6 +276,8 @@ class Appliance {
   /** At the end of each week the appliance models refresh their schedule. This way
    * we have a realistic and dynamic model, changing function hours, consuming power
    * and so on.
+   * @param conf
+   * @param gen
    * @return
    */
   def refresh(ConfigObject conf, Random gen) {
@@ -296,13 +309,11 @@ class Appliance {
   }
 
   static constraints = {
-
     name()
     applianceOf()
     power()
     cycleDuration()
     inUse()
-
   }
 
   static mapping = { sort "name" }

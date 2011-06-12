@@ -16,9 +16,9 @@
 
 package org.powertac.persons
 
-import java.util.HashMap;
-import java.util.Vector;
-import org.powertac.common.configurations.Constants;
+import java.util.Vector
+
+import org.powertac.common.configurations.Constants
 
 /**
  * This is the instance of the person type that works. In addition to the simple
@@ -51,10 +51,10 @@ class WorkingPerson extends Person{
    * by choosing randomly days of the week, while the amount of days is
    * different for each person type.
    * @param days
+   * @param gen
    * @return
    */
-  def createWorkingDaysVector(int days, Random gen) 
-  {
+  def createWorkingDaysVector(int days, Random gen) {
     // Creating an auxiliary variables
     Vector v = new Vector(days)
 
@@ -67,7 +67,7 @@ class WorkingPerson extends Person{
           if (x == temp) {
             x = x + 1
             iter = v.listIterator();
-          } 
+          }
         }
         v.add(x)
       }
@@ -102,6 +102,7 @@ class WorkingPerson extends Person{
    * He may choose to go on vacation for short periods, but the summary of the days
    * must be in bounds.
    * @param duration
+   * @param gen
    * @return
    */
   def createVacationVector(int duration, Random gen) {
@@ -128,10 +129,11 @@ class WorkingPerson extends Person{
   /** This function chooses randomly the number of the working days of a person
    * The percentages used where taken from a thesis on the subject, based on demographic
    * data.
-   * @param hm
+   * @param conf
+   * @param gen
    * @return
    */
-  def workingDaysRandomizer(ConfigObject conf, Random gen) 
+  def workingDaysRandomizer(ConfigObject conf, Random gen)
   {
     def returnValue
     int oneDay = conf.household.work.daysPerWeek.OneDay
@@ -173,7 +175,7 @@ class WorkingPerson extends Person{
   }
 
   @ Override
-  void showStatus() 
+  void showStatus()
   {
     // Printing the base variable
     log.info("Name = " + name)
@@ -185,7 +187,7 @@ class WorkingPerson extends Person{
 
     // Printing Leisure variables
     log.info("Leisure Days of Week = ");
-    iter = leisureVector.listIterator();	
+    iter = leisureVector.listIterator();
     while (iter.hasNext()) log.info(iter.next());
     log.info("Leisure Duration = " + leisureDuration);
 
@@ -221,7 +223,6 @@ class WorkingPerson extends Person{
    * activities taking in consideration the working habits, duration and shifts.
    * @return
    */
-
   def fillWork() {}
 
   static constraints = {

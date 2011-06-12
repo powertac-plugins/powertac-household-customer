@@ -31,6 +31,7 @@ import org.powertac.common.configurations.Constants
  * @version 1, 13/02/2011
  */
 class Lights extends NotShiftingAppliance{
+
   @ Override
   def initialize(String household,ConfigObject conf, Random gen) {
 
@@ -104,7 +105,6 @@ class Lights extends NotShiftingAppliance{
     fillWeeklyFunction(gen)
     createWeeklyPossibilityOperationVector()
   }
-
 
   static constraints = {
   }

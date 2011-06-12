@@ -212,6 +212,7 @@ class WaterHeater extends FullyShiftingAppliance{
     }
   }
 
+  @ Override
   def dailyShifting(Tariff tariff,Instant now, int day){
 
     long[] newControllableLoad = new long[24]

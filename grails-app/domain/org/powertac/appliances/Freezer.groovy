@@ -46,7 +46,6 @@ class Freezer extends FullyShiftingAppliance{
   @ Override
   def initialize(String household,ConfigObject conf,Random gen) {
 
-
     // Filling the base variables
     name = household + " Freezer"
     saturation = conf.household.appliances.freezer.FreezerSaturation
@@ -93,6 +92,7 @@ class Freezer extends FullyShiftingAppliance{
     operationVector.add(dailyOperation)
   }
 
+  @ Override
   def dailyShifting(Tariff tariff,Instant now, int day){
 
     long[] newControllableLoad = new long[24]

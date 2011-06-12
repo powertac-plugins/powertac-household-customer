@@ -194,6 +194,8 @@ class Dryer extends SemiShiftingAppliance {
 
   /** In this function we take the days of function of the washing machine in order
    * to make dryer work the same days.
+   * @param times
+   * @return
    */
   def fillDays(int times) {
     // Creating auxiliary variable
@@ -209,6 +211,7 @@ class Dryer extends SemiShiftingAppliance {
     }
   }
 
+  @ Override
   def dailyShifting(Tariff tariff,Instant now, int day){
 
     long[] newControllableLoad = new long[24]

@@ -33,7 +33,7 @@ import org.powertac.common.configurations.Constants
 
 class CirculationPump extends NotShiftingAppliance {
 
-  /** Variable that presents the mean possibility to utilize the appliance each hour of the day 
+  /** Variable that presents the mean possibility to utilize the appliance each quarter of the day 
    * that someone is present in the household.
    */
   BigDecimal percentage
@@ -105,7 +105,6 @@ class CirculationPump extends NotShiftingAppliance {
 
 
   static constraints = {
-
     name()
     saturation()
     cycleDuration()

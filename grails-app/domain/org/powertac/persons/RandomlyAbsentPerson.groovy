@@ -17,7 +17,6 @@
 
 package org.powertac.persons
 
-import java.util.HashMap
 import java.util.Vector
 
 import org.powertac.common.configurations.Constants
@@ -38,11 +37,11 @@ class RandomlyAbsentPerson extends WorkingPerson {
   /** This is the initialization function. It uses the variable values for the
    * configuration file to create the person as it should for this type.
    * @param AgentName
-   * @param hm
+   * @param conf
    * @param publicVacationVector
+   * @param gen
    * @return
    */
-
   def initialize(String AgentName, ConfigObject conf, Vector publicVacationVector, Random gen) {
     // Variables Taken from the configuration file
     float sicknessMean = conf.household.sickness.SicknessMean
@@ -78,6 +77,7 @@ class RandomlyAbsentPerson extends WorkingPerson {
 
   /** This function selects the shift of the worker. There three different shifts: 00:00 - 08:00
    * 08:00 - 16:00 and 16:00 - 24:00.
+   * @param gen
    * @return
    */
 
@@ -90,6 +90,7 @@ class RandomlyAbsentPerson extends WorkingPerson {
   /** This function fills out the leisure activities in the daily schedule
    * of the person in question.
    * @param weekday
+   * @param gen
    * @return
    */
   def addLeisureWorking(int weekday, Random gen) {

@@ -40,6 +40,7 @@ import org.powertac.persons.*
 
 class Household {
 
+  /** The service that contains the Mappings useful for the functioning and load of the appliances.*/
   def householdConsumersService
 
   /** the household name. It is different for each one to be able to tell them apart.*/
@@ -86,8 +87,9 @@ class Household {
    * configuration file to create the household and then fill it with persons and
    * appliances as it seems fit.
    * @param HouseName
-   * @param hm
+   * @param conf
    * @param publicVacationVector
+   * @param gen
    * @return
    */
   def initialize(String HouseName, ConfigObject conf, Vector publicVacationVector, Random gen) {
@@ -128,8 +130,9 @@ class Household {
   /** This function is creating a random number of person (given by the next
    * function) and add them to the current household, filling it up with life.
    * @param counter
-   * @param hm
+   * @param conf
    * @param publicVacationVector
+   * @param gen
    * @return
    */
   def addPerson(int counter, ConfigObject conf, Vector publicVacationVector, Random gen) {
@@ -158,7 +161,8 @@ class Household {
 
   /** This is the function that utilizes the possibilities of the number of persons
    * in a household and gives back a number randomly.
-   * @param hm
+   * @param conf
+   * @param gen
    * @return
    */
   def memberRandomizer(ConfigObject conf, Random gen) {
@@ -198,6 +202,7 @@ class Household {
   /** This function is using the appliance's saturation in order to make a possibility
    * check and install or not the appliance in the current household.
    * @param app
+   * @param gen
    * @return
    */
   def checkProbability(Appliance app, Random gen) {
@@ -215,7 +220,8 @@ class Household {
   /** This function is responsible for the filling of the household with the appliances
    * and their schedule for the first week using a statistic formula and the members 
    * of the household.
-   * @param hm
+   * @param conf
+   * @param gen
    * @return
    */
   def fillAppliances(ConfigObject conf, Random gen) {
@@ -305,7 +311,7 @@ class Household {
   }
 
   /** This function checks if all the inhabitants of the household are out of the household.
-   * 
+   * @param weekday
    * @param quarter
    * @return
    */
@@ -355,8 +361,8 @@ class Household {
     }
   }
 
-  /** This function is used in order to fill the daily Base Load of the household for each quarter of the hour
-   * 
+  /** This function is used in order to fill the daily 
+   * Base Load of the household for each quarter of the hour
    * @param weekday
    * @return
    */
@@ -374,8 +380,8 @@ class Household {
     return v
   }
 
-  /** This function is used in order to fill the daily Controllable Load of the household for each quarter of the hour
-   *
+  /** This function is used in order to fill the daily Controllable Load of the 
+   * household for each quarter of the hour.
    * @param weekday
    * @return
    */
@@ -393,8 +399,8 @@ class Household {
     return v
   }
 
-  /** This function checks if all the inhabitants of the household are away on vacation on a certain quarter
-   * 
+  /** This function checks if all the inhabitants of the household are away 
+   * on vacation on a certain quarter
    * @param quarter
    * @return
    */
@@ -408,9 +414,9 @@ class Household {
     return x
   }
 
-  /** This function represents the function that shows the conditions in an household each moment in time
-   * 
-   * @param weekday
+  /** This function represents the function that shows the conditions in an 
+   * household each moment in time.
+   * @param day
    * @param quarter
    * @return
    */
@@ -431,7 +437,8 @@ class Household {
     log.info "Current Load: ${currentLoad} "
   }
 
-  /** This function fills out the daily Base Load in hours vector taking in consideration the load per quarter of an hour
+  /** This function fills out the daily Base Load in hours vector taking 
+   * in consideration the load per quarter of an hour.
    * 
    * @return
    */
@@ -448,8 +455,8 @@ class Household {
     return v
   }
 
-  /** This function fills out the daily Controllable Load in hours vector taking in consideration the load per quarter of an hour
-   *
+  /** This function fills out the daily Controllable Load in hours vector 
+   * taking in consideration the load per quarter of an hour.
    * @return
    */
   def fillDailyControllableLoadInHours() {
@@ -467,8 +474,7 @@ class Household {
 
 
   /** This function set the current load in accordance with the time of the competition
-   * 
-   * @param weekday
+   * @param day
    * @param quarter
    * @return
    */
@@ -479,7 +485,8 @@ class Household {
   /** At the end of each week the household models refresh their schedule. This way
    * we have a realistic and dynamic model, changing function hours, consuming power
    * and so on.
-   * @param hm
+   * @param conf
+   * @param gen
    * @return
    */
   def refresh(ConfigObject conf, Random gen) {
@@ -508,6 +515,13 @@ class Household {
     this.save()
   }
 
+  /** This is the function that takes every appliance in the household and
+   * readies the shifted Controllable Consumption for the needs of the tariff evaluation.
+   * @param tariff
+   * @param now
+   * @param day
+   * @return
+   */
   def dailyShifting(Tariff tariff,Instant now, int day){
 
     long[] newControllableLoad = new long[24]

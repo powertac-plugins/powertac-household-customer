@@ -37,7 +37,6 @@ class Others extends NotShiftingAppliance{
   @ Override
   def initialize(String household,ConfigObject conf, Random gen) {
 
-
     // Filling the base variables
     name = household + " Others"
     saturation = 1

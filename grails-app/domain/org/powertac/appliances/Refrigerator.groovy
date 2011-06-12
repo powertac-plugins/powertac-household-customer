@@ -85,6 +85,7 @@ class Refrigerator extends FullyShiftingAppliance {
     operationVector.add(dailyOperation)
   }
 
+  @ Override
   def dailyShifting(Tariff tariff,Instant now, int day){
 
     long[] newControllableLoad = new long[24]
@@ -103,7 +104,6 @@ class Refrigerator extends FullyShiftingAppliance {
       }
       newControllableLoad[Constants.REFRIGERATOR_SHIFTING_INTERVAL*i+minindex] = 8*power
     }
-
     return newControllableLoad
   }
 

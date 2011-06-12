@@ -124,6 +124,7 @@ class WashingMachine extends SemiShiftingAppliance{
     else return applianceOf.isEmpty(weekday,quarter+Constants.WASHING_MACHINE_DURATION_CYCLE)
   }
 
+  @ Override
   def dailyShifting(Tariff tariff,Instant now, int day){
 
     long[] newControllableLoad = new long[24]
@@ -247,7 +248,6 @@ class WashingMachine extends SemiShiftingAppliance{
     fillWeeklyFunction(gen)
     createWeeklyPossibilityOperationVector()
   }
-
 
   static constraints = {
   }

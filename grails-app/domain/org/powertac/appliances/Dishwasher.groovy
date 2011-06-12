@@ -167,7 +167,8 @@ class Dishwasher extends SemiShiftingAppliance {
 
   /** This function checks for the household to see when it is empty or not empty
    * for the duration of the operation	
-   * @param hour
+   * @param weekday
+   * @param quarter
    * @return
    */
   def checkHouse(int weekday,int quarter) {
@@ -176,7 +177,7 @@ class Dishwasher extends SemiShiftingAppliance {
     else return applianceOf.isEmpty(weekday,quarter+Constants.DISHWASHER_DURATION_CYCLE)
 
   }
-
+  @ Override
   def dailyShifting(Tariff tariff,Instant now, int day){
 
     long[] newControllableLoad = new long[24]

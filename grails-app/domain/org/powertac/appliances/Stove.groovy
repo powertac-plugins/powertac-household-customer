@@ -123,6 +123,7 @@ class Stove extends SemiShiftingAppliance{
     return possibilityDailyOperation
   }
 
+  @ Override
   def dailyShifting(Tariff tariff,Instant now, int day){
 
     long[] newControllableLoad = new long[24]
