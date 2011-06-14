@@ -65,7 +65,6 @@ class Freezer extends FullyShiftingAppliance{
     def possibilityDailyOperation = new Vector()
 
     for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
-
       possibilityDailyOperation.add(true)
     }
 
@@ -95,7 +94,7 @@ class Freezer extends FullyShiftingAppliance{
   @ Override
   def dailyShifting(Tariff tariff,Instant now, int day){
 
-    long[] newControllableLoad = new long[24]
+    long[] newControllableLoad = new long[Constants.HOURS_OF_DAY]
     Instant now2 = now
 
     for (int i=0;i < Constants.FREEZER_SHIFTING_PERIODS;i++){
@@ -109,9 +108,8 @@ class Freezer extends FullyShiftingAppliance{
         }
         now2 = now2 + TimeService.HOUR
       }
-      newControllableLoad[Constants.FREEZER_SHIFTING_INTERVAL*i+minindex] = 8*power
+      newControllableLoad[Constants.FREEZER_SHIFTING_INTERVAL*i+minindex] = 2*Constants.QUARTER_OF_HOUR*power
     }
-
     return newControllableLoad
   }
 

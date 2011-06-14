@@ -109,7 +109,7 @@ class SpaceHeater extends FullyShiftingAppliance{
   @ Override
   def dailyShifting(Tariff tariff,Instant now, int day){
 
-    long[] newControllableLoad = new long[24]
+    long[] newControllableLoad = new long[Constants.HOURS_OF_DAY]
 
     return newControllableLoad
   }

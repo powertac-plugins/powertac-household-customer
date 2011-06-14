@@ -31,11 +31,25 @@ public class Constants {
 
   // TIME VARIABLES -----------------------------//
   public static final int DAYS_OF_COMPETITION = 63;
+  public static final int WEEKS_OF_COMPETITION = 9;
   public static final int DAYS_OF_WEEK = 7;
   public static final int WEEKDAYS = 5;
   public static final int QUARTERS_OF_HOUR = 4;
   public static final int QUARTERS_OF_DAY = 96;
   public static final int HOURS_OF_DAY = 24;
+
+  // VILLAGE TYPES VARIABLES ---------------------//
+  public static final int NOT_SHIFTING_TYPE = 0;
+  public static final int RANDOM_SHIFTING_TYPE = 1;
+  public static final int REGULAR_SHIFTING_TYPE = 2;
+  public static final int SMART_SHIFTING_TYPE = 3;
+
+  // PERSON VARIABLES ----------------------------//
+  public static final int ONE_PERSON = 1;
+  public static final int TWO_PERSONS = 2;
+  public static final int THREE_PERSONS = 3;
+  public static final int FOUR_PERSONS = 4;
+  public static final int FIVE_PERSONS = 5;
 
   // SLEEP VARIABLES -----------------------------//
   public static final int START_OF_SLEEPING_1 = 0;
@@ -46,6 +60,7 @@ public class Constants {
   // LEISURE VARIABLES -----------------------------//
   public static final int START_OF_LEISURE = 28;
   public static final int LEISURE_WINDOW = 46;
+  public static final int LEISURE_END_WINDOW = 75;
   public static final int LEISURE_WINDOW_SHIFT = 80;
 
   // WORK VARIABLES -----------------------------//
@@ -55,6 +70,21 @@ public class Constants {
   public static final int SHIFT_START_1 = 0;
   public static final int SHIFT_START_2 = 33;
   public static final int SHIFT_START_3 = 65;
+  public static final int MONDAY = 1;
+  public static final int TUESDAY = 2;
+  public static final int WEDNESDAY = 3;
+  public static final int THURSDAY = 4;
+  public static final int FRIDAY = 5;
+  public static final int SATURDAY = 6;
+  public static final int SUNDAY = 0;
+
+  public static final int ONE_WORKING_DAY = 1;
+  public static final int TWO_WORKING_DAYS = 2;
+  public static final int THREE_WORKING_DAYS = 3;
+  public static final int FOUR_WORKING_DAYS = 4;
+  public static final int FIVE_WORKING_DAYS = 5;
+  public static final int SIX_WORKING_DAYS = 6;
+  public static final int SEVEN_WORKING_DAYS = 7;
 
   //GENERAL APPLIANCES VARIABLES -----------------------------//
   public static final int END_OF_FUNCTION = 84;

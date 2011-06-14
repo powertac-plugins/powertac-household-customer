@@ -74,21 +74,21 @@ class WorkingPerson extends Person{
       java.util.Collections.sort(v);
       return v
     } else  {
-      v.add(1)
-      v.add(2)
-      v.add(3)
-      v.add(4)
-      v.add(5)
+      v.add(Constants.MONDAY)
+      v.add(Constants.TUESDAY)
+      v.add(Constants.WEDNESDAY)
+      v.add(Constants.THURSDAY)
+      v.add(Constants.FRIDAY)
       if (days == Constants.WEEKDAYS) {
       } else  {
         if (days == Constants.DAYS_OF_WEEK) {
-          v.add(6)
-          v.add(0)
+          v.add(Constants.SATURDAY)
+          v.add(Constants.SUNDAY)
         } else  {
           if (gen.nextFloat() > 0.5 ) {
-            v.add(6)
+            v.add(Constants.SATURDAY)
           } else  {
-            v.add(0)
+            v.add(Constants.SUNDAY)
           }
         }
       }
@@ -146,24 +146,24 @@ class WorkingPerson extends Person{
 
     int x = (int) gen.nextInt(Constants.PERCENTAGE)
     if (x < fiveDays) {
-      returnValue = 5
+      returnValue = Constants.FIVE_WORKING_DAYS
     } else  {
       if (x >= fiveDays & x < (fiveDays + sixDays)) {
-        returnValue = 6
+        returnValue = Constants.SIX_WORKING_DAYS
       } else  {
         if (x >= (fiveDays + sixDays) & x < (fiveDays + sixDays + fourDays)) {
-          returnValue = 4
+          returnValue = Constants.FOUR_WORKING_DAYS
         } else  {
           if (x >= (fiveDays + sixDays + fourDays) & x < (fiveDays + sixDays + fourDays + threeDays)) {
-            returnValue = 3
+            returnValue = Constants.THREE_WORKING_DAYS
           } else  {
             if (x >= (fiveDays + sixDays + fourDays + threeDays) & x < (fiveDays + sixDays + fourDays + threeDays+twoDays)) {
-              returnValue = 2
+              returnValue = Constants.TWO_WORKING_DAYS
             } else  {
               if (x >= (fiveDays + sixDays + fourDays + threeDays+twoDays) & x < (fiveDays + sixDays + fourDays + threeDays+twoDays+sevenDays)) {
-                returnValue  = 7
+                returnValue  = Constants.SEVEN_WORKING_DAYS
               } else  {
-                returnValue = 1
+                returnValue = Constants.ONE_WORKING_DAY
               }
             }
           }

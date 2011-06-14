@@ -164,10 +164,10 @@ class Appliance {
    */
   def createShiftingOperationMatrix(int day) {
 
-    boolean[] shiftingOperationMatrix = new boolean[24]
+    boolean[] shiftingOperationMatrix = new boolean[Constants.HOURS_OF_DAY]
 
     for (int i=0;i < Constants.HOURS_OF_DAY;i++){
-      boolean function = householdConsumersService.getAppliancePossibilityOperations(this,day,i*4) || householdConsumersService.getAppliancePossibilityOperations(this,day,i*4+1)  || householdConsumersService.getAppliancePossibilityOperations(this,day,i*4+2) || householdConsumersService.getAppliancePossibilityOperations(this,day,i*4+3)
+      boolean function = householdConsumersService.getAppliancePossibilityOperations(this,day,i*Constants.QUARTERS_OF_HOUR) || householdConsumersService.getAppliancePossibilityOperations(this,day,i*Constants.QUARTERS_OF_HOUR+1)  || householdConsumersService.getAppliancePossibilityOperations(this,day,i*Constants.QUARTERS_OF_HOUR+2) || householdConsumersService.getAppliancePossibilityOperations(this,day,i*Constants.QUARTERS_OF_HOUR+3)
       shiftingOperationMatrix[i] = function
     }
     return shiftingOperationMatrix
@@ -298,7 +298,7 @@ class Appliance {
 
     for (int i=0;i < weeklyOperation.size();i++){
       boolean function = false
-      for (int j=0;j < 96;j++){
+      for (int j=0;j < Constants.QUARTERS_OF_DAY;j++){
         householdConsumersService.setApplianceOperation (this, i, j, weeklyOperation.get(i).get(j))
         householdConsumersService.setApplianceLoad(this, i, j, weeklyLoadVector.get(i).get(j))
         if (!(this instanceof Dryer)) householdConsumersService.setAppliancePossibilityOperation (this, i, j, possibilityOperationVector.get(i).get(j))

@@ -43,12 +43,12 @@ class ConsumerElectronics extends NotShiftingAppliance {
     baseLoadShare = Constants.PERCENTAGE * Constants.CONSUMER_ELECTRONICS_BASE_LOAD_SHARE
     power = (int) (Constants.CONSUMER_ELECTRONICS_POWER_VARIANCE * gen.nextGaussian() + Constants.CONSUMER_ELECTRONICS_POWER_MEAN)
     cycleDuration = Constants.CONSUMER_ELECTRONICS_DURATION_CYCLE
-    times = conf.household.appliances.consumerElectronics.ConsumerElectronicsDailyTimes
+    times = conf.household.appliances.consumerElectronics.ConsumerElectronicsDailyTimes + applianceOf.members.size()
     od = false
     inUse = false
     probabilitySeason = fillSeason(Constants.CONSUMER_ELECTRONICS_POSSIBILITY_SEASON_1,Constants.CONSUMER_ELECTRONICS_POSSIBILITY_SEASON_2,Constants.CONSUMER_ELECTRONICS_POSSIBILITY_SEASON_3)
     probabilityWeekday = fillDay(Constants.CONSUMER_ELECTRONICS_POSSIBILITY_DAY_1,Constants.CONSUMER_ELECTRONICS_POSSIBILITY_DAY_2,Constants.CONSUMER_ELECTRONICS_POSSIBILITY_DAY_3)
-    createWeeklyOperationVector(times + applianceOf.members.size(),gen)
+    createWeeklyOperationVector(times,gen)
   }
 
   @ Override
@@ -88,7 +88,7 @@ class ConsumerElectronics extends NotShiftingAppliance {
 
   @ Override
   def refresh(Random gen) {
-    createWeeklyOperationVector(times + applianceOf.members.size(), gen)
+    createWeeklyOperationVector(times, gen)
     fillWeeklyFunction(gen)
     createWeeklyPossibilityOperationVector()
   }

@@ -440,6 +440,4 @@ class CustomerServiceTests extends GroovyTestCase {
     }
   }
 
-
-
 }

@@ -118,7 +118,7 @@ class Household {
       weeklyControllableLoadInHours.add(dailyControllableLoadInHours)
     }
 
-    for (week;week < 8;week++){
+    for (week;week < Constants.WEEKS_OF_COMPETITION-1;week++){
       refresh(conf,gen)
     }
 
@@ -176,22 +176,22 @@ class Household {
     int x = gen.nextInt(Constants.PERCENTAGE);
     if (x < one) {
       setYearConsumption((int) conf.household.person.consumption.OnePersonConsumption)
-      returnValue = 1
+      returnValue = Constants.ONE_PERSON
     } else  {
       if (x >= one &  x < (one + two)) {
         setYearConsumption((int) conf.household.person.consumption.TwoPersonsConsumption)
-        returnValue = 2
+        returnValue = Constants.TWO_PERSONS
       } else  {
         if (x >= (one + two) & x < (one + two + three)) {
           setYearConsumption((int) conf.household.person.consumption.ThreePersonsConsumption)
-          returnValue = 3
+          returnValue = Constants.THREE_PERSONS
         } else  {
           if (x >= (one + two + three) & x < (one + two + three + four)) {
             setYearConsumption((int) conf.household.person.consumption.FourPersonsConsumption)
-            returnValue = 4
+            returnValue = Constants.FOUR_PERSONS
           } else  {
             setYearConsumption((int) conf.household.person.consumption.FivePersonsConsumption)
-            returnValue = 5
+            returnValue = Constants.FIVE_PERSONS
           }
         }
       }
@@ -524,7 +524,7 @@ class Household {
    */
   def dailyShifting(Tariff tariff,Instant now, int day){
 
-    long[] newControllableLoad = new long[24]
+    long[] newControllableLoad = new long[Constants.HOURS_OF_DAY]
 
     appliances.each { appliance ->
       if (!(appliance instanceof NotShiftingAppliance)) {

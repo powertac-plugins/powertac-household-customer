@@ -197,8 +197,8 @@ class WaterHeater extends FullyShiftingAppliance{
       probabilitySeason = fillSeason(Constants.INSTANT_HEATER_POSSIBILITY_SEASON_1,Constants.INSTANT_HEATER_POSSIBILITY_SEASON_2,Constants.INSTANT_HEATER_POSSIBILITY_SEASON_3)
       probabilityWeekday = fillDay(Constants.INSTANT_HEATER_POSSIBILITY_DAY_1,Constants.INSTANT_HEATER_POSSIBILITY_DAY_2,Constants.INSTANT_HEATER_POSSIBILITY_DAY_3)
       setType(HeaterType.InstantHeater)
-      times = conf.household.appliances.waterHeater.InstantHeaterDailyTimes
-      createWeeklyOperationVector((int)(times + applianceOf.members.size()/2), gen)
+      times = conf.household.appliances.waterHeater.InstantHeaterDailyTimes + (int)(applianceOf.members.size()/2)
+      createWeeklyOperationVector(times, gen)
     } else  {
       consumptionShare = (float) (Constants.PERCENTAGE * (Constants.STORAGE_HEATER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.STORAGE_HEATER_CONSUMPTION_SHARE_MEAN))
       baseLoadShare = Constants.PERCENTAGE * Constants.STORAGE_HEATER_BASE_LOAD_SHARE
@@ -215,7 +215,7 @@ class WaterHeater extends FullyShiftingAppliance{
   @ Override
   def dailyShifting(Tariff tariff,Instant now, int day){
 
-    long[] newControllableLoad = new long[24]
+    long[] newControllableLoad = new long[Constants.HOURS_OF_DAY]
 
     if (type == HeaterType.InstantHeater) {
       if (householdConsumersService.getApplianceOperationDays(this,day)) {
@@ -255,7 +255,7 @@ class WaterHeater extends FullyShiftingAppliance{
         }
 
         for (int i=0; i <= Constants.STORAGE_HEATER_PHASES ;i++){
-          newControllableLoad[minindex+i] = 4*power
+          newControllableLoad[minindex+i] = Constants.QUARTERS_OF_HOUR*power
         }
 
         for (int i=1; i < Constants.STORAGE_HEATER_PHASES;i++){
@@ -270,7 +270,7 @@ class WaterHeater extends FullyShiftingAppliance{
   @ Override
   def refresh(Random gen) {
     // case the Water Heater is Instant
-    if (type == HeaterType.InstantHeater) createWeeklyOperationVector((int)(times + applianceOf.members.size()/2),gen)
+    if (type == HeaterType.InstantHeater) createWeeklyOperationVector(times,gen)
     fillWeeklyFunction(gen)
     createWeeklyPossibilityOperationVector()
   }

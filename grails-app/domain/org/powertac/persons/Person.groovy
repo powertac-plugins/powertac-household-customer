@@ -116,7 +116,6 @@ class Person {
    * @param gen
    * @return
    */
-
   def createLeisureVector(int counter, Random gen) {
     // Create auxiliary variable
     Vector v = new Vector()
@@ -307,6 +306,6 @@ class Person {
   static mapping = { sort "name" }
 
   String toString(){
-    "${name}, ${Household} (${status})"
+    "${name}"
   }
 }

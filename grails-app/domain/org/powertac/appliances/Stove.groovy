@@ -65,7 +65,7 @@ class Stove extends SemiShiftingAppliance{
     // First initialize all to false
     for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) v.add(false)
     for (int i = 0;i < times;i++) {
-      int quarter = gen.nextInt(Constants.QUARTERS_OF_DAY - 2)
+      int quarter = gen.nextInt(Constants.QUARTERS_OF_DAY - cycleDuration)
       v.set(quarter,true)
     }
     return v
@@ -126,7 +126,7 @@ class Stove extends SemiShiftingAppliance{
   @ Override
   def dailyShifting(Tariff tariff,Instant now, int day){
 
-    long[] newControllableLoad = new long[24]
+    long[] newControllableLoad = new long[Constants.HOURS_OF_DAY]
 
     if (householdConsumersService.getApplianceOperationDays(this,day)) {
       def minindex = 0
@@ -143,7 +143,7 @@ class Stove extends SemiShiftingAppliance{
         }
         hour1 = hour1 + TimeService.HOUR
       }
-      newControllableLoad[minindex] = 2*power
+      newControllableLoad[minindex] = cycleDuration*power
     }
     return newControllableLoad
   }

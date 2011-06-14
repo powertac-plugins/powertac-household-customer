@@ -90,7 +90,7 @@ class PeriodicPresentPerson extends WorkingPerson {
     while (iter.hasNext()) {
       if (iter.next() == weekday) {
         int start = workingStartHour + workingDuration
-        int startq = gen.nextInt(Math.max(1 ,75 - start)) + start
+        int startq = gen.nextInt(Math.max(1 ,Constants.LEISURE_END_WINDOW - start)) + start
         for (int i = startq;i < startq +leisureDuration;i++) {
           st = Status.Leisure
           dailyRoutine.set(i,st)

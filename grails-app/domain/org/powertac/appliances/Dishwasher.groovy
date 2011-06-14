@@ -56,8 +56,8 @@ class Dishwasher extends SemiShiftingAppliance {
     inUse = false
     probabilitySeason = fillSeason(Constants.DISHWASHER_POSSIBILITY_SEASON_1,Constants.DISHWASHER_POSSIBILITY_SEASON_2,Constants.DISHWASHER_POSSIBILITY_SEASON_3)
     probabilityWeekday = fillDay(Constants.DISHWASHER_POSSIBILITY_DAY_1,Constants.DISHWASHER_POSSIBILITY_DAY_2,Constants.DISHWASHER_POSSIBILITY_DAY_3)
-    times = conf.household.appliances.dishwasher.DishwasherWeeklyTimes
-    createWeeklyOperationVector((int)(times + applianceOf.members.size()),gen)
+    times = conf.household.appliances.dishwasher.DishwasherWeeklyTimes + applianceOf.members.size()
+    createWeeklyOperationVector(times,gen)
   }
 
   @ Override
@@ -180,7 +180,7 @@ class Dishwasher extends SemiShiftingAppliance {
   @ Override
   def dailyShifting(Tariff tariff,Instant now, int day){
 
-    long[] newControllableLoad = new long[24]
+    long[] newControllableLoad = new long[Constants.HOURS_OF_DAY]
 
     if (householdConsumersService.getApplianceOperationDays(this,day)) {
       def minindex = 0
@@ -200,15 +200,15 @@ class Dishwasher extends SemiShiftingAppliance {
         hour2 = hour2 + TimeService.HOUR
       }
 
-      newControllableLoad[minindex] = 4*power
-      newControllableLoad[minindex+1] = 4*power
+      newControllableLoad[minindex] = Constants.QUARTERS_OF_HOUR*power
+      newControllableLoad[minindex+1] = Constants.QUARTERS_OF_HOUR*power
     }
     return newControllableLoad
   }
 
   @ Override
   def refresh(Random gen) {
-    createWeeklyOperationVector((int)(times + applianceOf.members.size()), gen)
+    createWeeklyOperationVector(times, gen)
     fillWeeklyFunction(gen)
     createWeeklyPossibilityOperationVector()
   }

@@ -63,7 +63,6 @@ class CirculationPump extends NotShiftingAppliance {
     def possibilityDailyOperation = new Vector()
 
     for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
-
       if (applianceOf.isEmpty(day,j) == false) possibilityDailyOperation.add(true)
       else possibilityDailyOperation.add(false)
     }
