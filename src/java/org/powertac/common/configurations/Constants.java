@@ -280,7 +280,7 @@ public class Constants {
   public static final double REFRIGERATOR_BASE_LOAD_SHARE = 0;
   public static final int REFRIGERATOR_POWER_MEAN = 140;
   public static final int REFRIGERATOR_POWER_VARIANCE = 23;
-  public static final int REFRIGERATOR_DURATION_CYCLE = 1;
+  public static final int REFRIGERATOR_DURATION_CYCLE = 2;
   public static final int REFRIGERATOR_POSSIBILITY_SEASON_1 = 35;
   public static final int REFRIGERATOR_POSSIBILITY_SEASON_2 = 30;
   public static final int REFRIGERATOR_POSSIBILITY_SEASON_3 = 35;
@@ -296,7 +296,7 @@ public class Constants {
   public static final double FREEZER_BASE_LOAD_SHARE = 0;
   public static final int FREEZER_POWER_MEAN = 106;
   public static final int FREEZER_POWER_VARIANCE = 18;
-  public static final int FREEZER_DURATION_CYCLE = 1;
+  public static final int FREEZER_DURATION_CYCLE = 2;
   public static final int FREEZER_POSSIBILITY_SEASON_1 = 35;
   public static final int FREEZER_POSSIBILITY_SEASON_2 = 30;
   public static final int FREEZER_POSSIBILITY_SEASON_3 = 35;

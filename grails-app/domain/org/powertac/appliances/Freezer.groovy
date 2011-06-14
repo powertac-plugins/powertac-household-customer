@@ -78,7 +78,7 @@ class Freezer extends FullyShiftingAppliance{
     dailyOperation = new Vector()
 
     for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
-      if (i % 2 == 0) {
+      if (i % cycleDuration == 0) {
         loadVector.add(power)
         dailyOperation.add(true)
       } else  {
@@ -108,7 +108,7 @@ class Freezer extends FullyShiftingAppliance{
         }
         now2 = now2 + TimeService.HOUR
       }
-      newControllableLoad[Constants.FREEZER_SHIFTING_INTERVAL*i+minindex] = 2*Constants.QUARTER_OF_HOUR*power
+      newControllableLoad[Constants.FREEZER_SHIFTING_INTERVAL*i+minindex] = cycleDuration*Constants.QUARTER_OF_HOUR*power
     }
     return newControllableLoad
   }

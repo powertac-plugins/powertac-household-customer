@@ -65,7 +65,7 @@ class WashingMachine extends SemiShiftingAppliance{
     inUse = false
     probabilitySeason = fillSeason(Constants.DISHWASHER_POSSIBILITY_SEASON_1,Constants.DISHWASHER_POSSIBILITY_SEASON_2,Constants.DISHWASHER_POSSIBILITY_SEASON_3)
     probabilityWeekday = fillDay(Constants.DISHWASHER_POSSIBILITY_DAY_1,Constants.DISHWASHER_POSSIBILITY_DAY_2,Constants.DISHWASHER_POSSIBILITY_DAY_3)
-    times = conf.household.appliances.washingMachine.WashingMachineWeeklyTimes (int)(applianceOf.members.size() / 2)
+    times = conf.household.appliances.washingMachine.WashingMachineWeeklyTimes + (int)(applianceOf.members.size() / 2)
     createWeeklyOperationVector(times,gen)
   }
 
