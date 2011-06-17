@@ -1,16 +1,11 @@
 /*
- * Copyright 2009-2010 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an
- * "AS IS" BASIS,  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific language
+ * Copyright 2009-2010 the original author or authors. Licensed under the Apache
+ * License, Version 2.0 (the "License"); you may not use this file except in
+ * compliance with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law
+ * or agreed to in writing, software distributed under the License is
+ * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
 
@@ -27,6 +22,8 @@ public class Constants {
 
   // GENERAL VARIABLES -----------------------------//
   public static final int PERCENTAGE = 100;
+  public static final int KWH = 1000;
+  public static final int MWH = 1000000;
   public static final int MILLION = 1000000;
 
   // TIME VARIABLES -----------------------------//
@@ -86,7 +83,7 @@ public class Constants {
   public static final int SIX_WORKING_DAYS = 6;
   public static final int SEVEN_WORKING_DAYS = 7;
 
-  //GENERAL APPLIANCES VARIABLES -----------------------------//
+  // GENERAL APPLIANCES VARIABLES -----------------------------//
   public static final int END_OF_FUNCTION = 84;
   public static final int END_OF_FUNCTION_HOUR = 21;
 
@@ -118,7 +115,7 @@ public class Constants {
   public static final int CONSUMER_ELECTRONICS_POSSIBILITY_DAY_2 = 14;
   public static final int CONSUMER_ELECTRONICS_POSSIBILITY_DAY_3 = 16;
 
-  //ICT VARIABLES -----------------------------//
+  // ICT VARIABLES -----------------------------//
   public static final double ICT_CONSUMPTION_SHARE_VARIANCE = 0.0008;
   public static final double ICT_CONSUMPTION_SHARE_MEAN = 0.005;
   public static final double ICT_BASE_LOAD_SHARE = 0.6;
@@ -132,7 +129,7 @@ public class Constants {
   public static final int ICT_POSSIBILITY_DAY_2 = 14;
   public static final int ICT_POSSIBILITY_DAY_3 = 16;
 
-  //LIGHTS VARIABLES -----------------------------//
+  // LIGHTS VARIABLES -----------------------------//
   public static final double LIGHTS_CONSUMPTION_SHARE_VARIANCE = 0.0013;
   public static final double LIGHTS_CONSUMPTION_SHARE_MEAN = 0.008;
   public static final double LIGHTS_BASE_LOAD_SHARE = 0;
@@ -146,7 +143,7 @@ public class Constants {
   public static final int LIGHTS_POSSIBILITY_DAY_2 = 15;
   public static final int LIGHTS_POSSIBILITY_DAY_3 = 13;
 
-  //OTHERS VARIABLES -----------------------------//
+  // OTHERS VARIABLES -----------------------------//
   public static final double OTHERS_CONSUMPTION_SHARE_VARIANCE = 0.0007;
   public static final double OTHERS_CONSUMPTION_SHARE_MEAN = 0.0041;
   public static final double OTHERS_BASE_LOAD_SHARE = 0.02;
@@ -160,7 +157,7 @@ public class Constants {
   public static final int OTHERS_POSSIBILITY_DAY_2 = 14;
   public static final int OTHERS_POSSIBILITY_DAY_3 = 16;
 
-  //DISHWASHER VARIABLES -----------------------------//
+  // DISHWASHER VARIABLES -----------------------------//
   public static final double DISHWASHER_CONSUMPTION_SHARE_VARIANCE = 0.0006;
   public static final double DISHWASHER_CONSUMPTION_SHARE_MEAN = 0.0037;
   public static final double DISHWASHER_BASE_LOAD_SHARE = 0;
@@ -174,7 +171,7 @@ public class Constants {
   public static final int DISHWASHER_POSSIBILITY_DAY_2 = 14;
   public static final int DISHWASHER_POSSIBILITY_DAY_3 = 15;
 
-  //DRYER VARIABLES -----------------------------//
+  // DRYER VARIABLES -----------------------------//
   public static final double DRYER_CONSUMPTION_SHARE_VARIANCE = 0.0004;
   public static final double DRYER_CONSUMPTION_SHARE_MEAN = 0.00215;
   public static final double DRYER_BASE_LOAD_SHARE = 0.015;
@@ -212,7 +209,7 @@ public class Constants {
   public static final int STORAGE_HEATER_SHIFTING_END = 17;
   public static final double STORAGE_HEATER_POSSIBILITY = 0.8;
 
-  //	INSTANT WATER HEATER VARIABLES -----------------------------//
+  // INSTANT WATER HEATER VARIABLES -----------------------------//
   public static final double INSTANT_HEATER_CONSUMPTION_SHARE_VARIANCE = 0.0022;
   public static final double INSTANT_HEATER_CONSUMPTION_SHARE_MEAN = 0.013;
   public static final double INSTANT_HEATER_BASE_LOAD_SHARE = 0;
@@ -226,7 +223,7 @@ public class Constants {
   public static final int INSTANT_HEATER_POSSIBILITY_DAY_2 = 14;
   public static final int INSTANT_HEATER_POSSIBILITY_DAY_3 = 14;
 
-  //WASHING MACHINE VARIABLES -----------------------------//
+  // WASHING MACHINE VARIABLES -----------------------------//
   public static final double WASHING_MACHINE_CONSUMPTION_SHARE_VARIANCE = 0.0006;
   public static final double WASHING_MACHINE_CONSUMPTION_SHARE_MEAN = 0.0035;
   public static final double WASHING_MACHINE_BASE_LOAD_SHARE = 0.002;
@@ -240,7 +237,7 @@ public class Constants {
   public static final int WASHING_MACHINE_POSSIBILITY_DAY_2 = 14;
   public static final int WASHING_MACHINE_POSSIBILITY_DAY_3 = 16;
 
-  //STOVE VARIABLES -----------------------------//
+  // STOVE VARIABLES -----------------------------//
   public static final double STOVE_CONSUMPTION_SHARE_VARIANCE = 0.0014;
   public static final double STOVE_CONSUMPTION_SHARE_MEAN = 0.0081;
   public static final double STOVE_BASE_LOAD_SHARE = 0;
@@ -254,7 +251,7 @@ public class Constants {
   public static final int STOVE_POSSIBILITY_DAY_2 = 13;
   public static final int STOVE_POSSIBILITY_DAY_3 = 18;
 
-  //SPACE HEATER VARIABLES -----------------------------//
+  // SPACE HEATER VARIABLES -----------------------------//
   public static final double SPACE_HEATER_CONSUMPTION_SHARE_VARIANCE = 0.0028;
   public static final double SPACE_HEATER_CONSUMPTION_SHARE_MEAN = 0.017;
   public static final double SPACE_HEATER_BASE_LOAD_SHARE = 0;
@@ -274,7 +271,7 @@ public class Constants {
   public static final int SPACE_HEATER_PHASE_4 = 90;
   public static final int SPACE_HEATER_PHASE_LOAD = 750;
 
-  //REFRIGERATOR VARIABLES -----------------------------//
+  // REFRIGERATOR VARIABLES -----------------------------//
   public static final double REFRIGERATOR_CONSUMPTION_SHARE_VARIANCE = 0.00015;
   public static final double REFRIGERATOR_CONSUMPTION_SHARE_MEAN = 0.009;
   public static final double REFRIGERATOR_BASE_LOAD_SHARE = 0;
@@ -290,7 +287,7 @@ public class Constants {
   public static final int REFRIGERATOR_SHIFTING_INTERVAL = 2;
   public static final int REFRIGERATOR_SHIFTING_PERIODS = 12;
 
-  //FREEZER VARIABLES -----------------------------//
+  // FREEZER VARIABLES -----------------------------//
   public static final double FREEZER_CONSUMPTION_SHARE_VARIANCE = 0.00012;
   public static final double FREEZER_CONSUMPTION_SHARE_MEAN = 0.0071;
   public static final double FREEZER_BASE_LOAD_SHARE = 0;

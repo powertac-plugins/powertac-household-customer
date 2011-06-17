@@ -51,7 +51,7 @@ class Stove extends SemiShiftingAppliance{
     inUse = false
     probabilitySeason = fillSeason(Constants.STOVE_POSSIBILITY_SEASON_1,Constants.STOVE_POSSIBILITY_SEASON_2,Constants.STOVE_POSSIBILITY_SEASON_3)
     probabilityWeekday = fillDay(Constants.STOVE_POSSIBILITY_DAY_1,Constants.STOVE_POSSIBILITY_DAY_2,Constants.STOVE_POSSIBILITY_DAY_3)
-    times = conf.household.appliances.stove.StoveDailyTimes
+    times = conf.household.appliances.stove.StoveDailyTimes + 
     createWeeklyOperationVector(times,gen)
   }
 

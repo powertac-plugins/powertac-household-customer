@@ -80,7 +80,6 @@ class VillageConsumersService {
     householdMap[type][index] = house
   }
 
-
   void createBaseConsumptionsMap (Village village, int types)
   {
     log.info "create Base Consumption map for Household Customer ${village.customerInfo.name} [${types}]"
@@ -108,6 +107,16 @@ class VillageConsumersService {
     controllableConsumptions[village.customerInfo.name] = new BigDecimal[types][63][24]
   }
 
+  def getControllableConsumptions(Village village, int type, int day)
+  {
+    def sumControllableLoad = new long[Constants.HOURS_OF_DAY]
+
+    for (int j=0;j < Constants.HOURS_OF_DAY;j++){
+      sumControllableLoad[j] += controllableConsumptions[village.customerInfo.name][type][day][j]
+    }
+    return sumControllableLoad
+  }
+
   def getControllableConsumptions(Village village, int type)
   {
     return controllableConsumptions[village.customerInfo.name][type]
@@ -122,6 +131,19 @@ class VillageConsumersService {
     }
     controllableConsumptionMap[type][day][hour] = value
   }
+
+  void setControllableConsumption(Village village, int type, int day, long[] value)
+  {
+    def controllableConsumptionMap = controllableConsumptions[village.customerInfo.name]
+    if (controllableConsumptionMap == null) {
+      log.error "could not find Controllable Consumption map for village ${village.toString()}"
+      return
+    }
+    for (int i=0;i < Constants.HOURS_OF_DAY;i++){
+      controllableConsumptionMap[type][day][i] = value[i]
+    }
+  }
+
 
   // manage rate maps
   void createDaysMap (Village village)

@@ -449,6 +449,30 @@ class Village extends AbstractCustomer{
 
   }
 
+  /** This is the function that takes every household in the village and
+   * readies the shifted Controllable Consumption for the needs of the tariff evaluation.
+   * @param tariff
+   * @param now
+   * @param day
+   * @return
+   */
+  def dailyShifting(Tariff tariff,Instant now, int type, int day){
+
+    long[] newControllableLoad = new long[Constants.HOURS_OF_DAY]
+
+    villageConsumersService.getHouseholds(this,type).each { house ->
+      def temp = house.dailyShifting(tariff,now,day)
+      for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] += temp[j]
+    }
+    log.debug("New Controllable Load of Village ${this.toString()} for Tariff ${tariff.toString()}")
+
+    for (int i=0;i < Constants.HOURS_OF_DAY;i++) {
+      log.debug("Hour: ${i} Cost: ${tariff.getUsageCharge(now)} Load: ${newControllableLoad[i]}")
+      now = now + TimeService.HOUR
+    }
+    return newControllableLoad
+  }
+
   /** This function prints to the screen the daily load of the village's households for the
    * weekday at hand.
    * @param day
@@ -546,6 +570,28 @@ class Village extends AbstractCustomer{
 
     for (int i = 0;i < daysList.size();i++){
       villageConsumersService.setDays(this,i,daysList.get(i))
+    }
+  }
+
+  @ Override
+  void step(){
+    super.step();
+    if (timeService.getHourOfDay() == 23) rescheduleNextDay()
+  }
+
+  void rescheduleNextDay(){
+
+    int serial = ((timeService.currentTime.millis - timeService.base) / TimeService.HOUR)
+    int day = (int) (serial / Constants.HOURS_OF_DAY) + 1
+    Instant now = timeService.currentTime + TimeService.HOUR
+
+    subscriptions.each { sub ->
+      for (int i=0;i < types;i++){
+        log.info "Old Consumption for day ${day}: ${villageConsumersService.getControllableConsumptions(this,i,day)}"
+        long[] newControllableLoad = dailyShifting(sub.tariff,now,i,day)
+        villageConsumersService.setControllableConsumption(this, i, day,newControllableLoad)
+        log.info "New Consumption for day ${day}: ${villageConsumersService.getControllableConsumptions(this,i,day)}"
+      }
     }
   }
 

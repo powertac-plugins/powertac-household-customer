@@ -23,7 +23,6 @@ import org.powertac.common.CustomerInfo
 import org.powertac.common.PluginConfig
 import org.powertac.common.enumerations.CustomerType
 import org.powertac.common.enumerations.PowerType
-import org.powertac.common.interfaces.NewTariffListener
 import org.powertac.common.interfaces.TimeslotPhaseProcessor
 import org.powertac.consumers.Village
 
@@ -56,10 +55,10 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
   void init(PluginConfig config) {
 
     configuration = config
-    
+
     //Reading the config file
     ConfigObject conf = new ConfigSlurper().parse(new File(getConfigFile()).toURL())
-       
+
     Random gen = ensureRandomSeed()
 
     def number = (int)conf.household.general.NumberOfVillages
