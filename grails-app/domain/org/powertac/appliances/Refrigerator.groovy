@@ -101,7 +101,7 @@ class Refrigerator extends FullyShiftingAppliance {
         }
         now2 = now2 + TimeService.HOUR
       }
-      newControllableLoad[Constants.REFRIGERATOR_SHIFTING_INTERVAL*i+minindex] = cycleDuration*Constants.QUARTERS_OF_HOUR*power
+      newControllableLoad[Constants.REFRIGERATOR_SHIFTING_INTERVAL*i+minindex] = Constants.QUARTERS_OF_HOUR*power
     }
     return newControllableLoad
   }

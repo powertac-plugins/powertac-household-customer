@@ -233,7 +233,7 @@ class WaterHeater extends FullyShiftingAppliance{
           }
           hour1 = hour1 + TimeService.HOUR
         }
-        newControllableLoad[minindex] = power
+        newControllableLoad[minindex] = times*power
       }
     }
     else {

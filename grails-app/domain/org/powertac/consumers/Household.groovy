@@ -24,7 +24,6 @@ import org.joda.time.Instant
 import org.powertac.appliances.*
 import org.powertac.common.Tariff
 import org.powertac.common.configurations.Constants
-import org.powertac.common.enumerations.Status
 import org.powertac.persons.*
 
 /**
@@ -232,77 +231,66 @@ class Household {
     ref.initialize(this.name, conf,gen);
     ref.fillWeeklyFunction(gen)
     ref.createWeeklyPossibilityOperationVector()
-
     // Consumer Electronics
     ConsumerElectronics ce = new ConsumerElectronics();
     this.addToAppliances(ce)
     ce.initialize(this.name,conf,gen);
     ce.fillWeeklyFunction(gen)
     ce.createWeeklyPossibilityOperationVector()
-
     // ICT
     ICT ict = new ICT();
     this.addToAppliances(ict)
     ict.initialize(this.name,conf,gen);
     ict.fillWeeklyFunction(gen)
     ict.createWeeklyPossibilityOperationVector()
-
     // Lights
     Lights lights = new Lights();
     this.addToAppliances(lights)
     lights.initialize(this.name,conf,gen);
     lights.fillWeeklyFunction(gen)
     lights.createWeeklyPossibilityOperationVector()
-
     //Others
     Others others = new Others();
     this.addToAppliances(others)
     others.initialize(this.name,conf,gen);
     others.fillWeeklyFunction(gen)
     others.createWeeklyPossibilityOperationVector()
-
     // Washing Machine
     WashingMachine wm = new WashingMachine();
     this.addToAppliances(wm)
     wm.initialize(this.name,conf,gen);
     wm.fillWeeklyFunction(gen)
     wm.createWeeklyPossibilityOperationVector()
-
     //Space Heater
     SpaceHeater sh = new SpaceHeater()
     this.addToAppliances(sh)
     sh.initialize(this.name,conf,gen)
     checkProbability(sh,gen)
-
     //Water Heater
     WaterHeater wh = new WaterHeater()
     this.addToAppliances(wh)
     wh.initialize(this.name,conf,gen)
     checkProbability(wh,gen)
-
     // Freezer
     Freezer fr = new Freezer()
+    this.addToAppliances(fr)
     fr.initialize(this.name,conf,gen)
     checkProbability(fr,gen)
-
     // Dishwasher
     Dishwasher dw = new Dishwasher()
     this.addToAppliances(dw)
     dw.initialize(this.name,conf,gen)
     checkProbability(dw,gen)
-
     //Stove
     Stove st = new Stove()
     this.addToAppliances(st)
     st.initialize(this.name,conf,gen)
     checkProbability(st,gen)
-
     //Circulation Pump
     CirculationPump cp = new CirculationPump()
     this.addToAppliances(cp)
     cp.initialize(this.name,conf,gen)
     checkProbability(cp,gen)
-
     //Dryer
     Dryer dr = new Dryer()
     this.addToAppliances(dr)

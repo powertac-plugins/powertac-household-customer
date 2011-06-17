@@ -108,7 +108,7 @@ class Freezer extends FullyShiftingAppliance{
         }
         now2 = now2 + TimeService.HOUR
       }
-      newControllableLoad[Constants.FREEZER_SHIFTING_INTERVAL*i+minindex] = cycleDuration*Constants.QUARTER_OF_HOUR*power
+      newControllableLoad[Constants.FREEZER_SHIFTING_INTERVAL*i+minindex] = Constants.QUARTER_OF_HOUR*power
     }
     return newControllableLoad
   }
