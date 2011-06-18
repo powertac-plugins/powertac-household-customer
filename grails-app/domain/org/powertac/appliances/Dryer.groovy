@@ -23,6 +23,8 @@ import groovy.util.ConfigObject
 import java.util.HashMap
 import java.util.Random
 
+import org.joda.time.Instant
+import org.powertac.common.Tariff
 import org.powertac.common.configurations.Constants
 
 /**
@@ -52,8 +54,18 @@ class Dryer extends SemiShiftingAppliance {
     inUse = false
     probabilitySeason = fillSeason(Constants.DRYER_POSSIBILITY_SEASON_1,Constants.DRYER_POSSIBILITY_SEASON_2,Constants.DRYER_POSSIBILITY_SEASON_3)
     probabilityWeekday = fillDay(Constants.DRYER_POSSIBILITY_DAY_1,Constants.DRYER_POSSIBILITY_DAY_2,Constants.DRYER_POSSIBILITY_DAY_3)
-    times = conf.household.appliances.dryer.DryerWeeklyTimes
-    createWeeklyOperationVector((int)(times + applianceOf.members.size() / 2),gen)
+    times = conf.household.appliances.dryer.DryerWeeklyTimes + (int)(applianceOf.members.size() / 2)
+
+    this.applianceOf.appliances.each {
+      Object o = (Object) it
+      if (o instanceof WashingMachine) {
+        o.dryerFlag = true
+        o.dryerPower = power
+      }
+    }
+
+
+    createWeeklyOperationVector(times,gen)
   }
 
   @ Override
@@ -186,6 +198,8 @@ class Dryer extends SemiShiftingAppliance {
 
   /** In this function we take the days of function of the washing machine in order
    * to make dryer work the same days.
+   * @param times
+   * @return
    */
   def fillDays(int times) {
     // Creating auxiliary variable
@@ -202,8 +216,16 @@ class Dryer extends SemiShiftingAppliance {
   }
 
   @ Override
+  def dailyShifting(Tariff tariff,Instant now, int day){
+
+    long[] newControllableLoad = new long[Constants.HOURS_OF_DAY]
+
+    return newControllableLoad
+  }
+
+  @ Override
   def refresh(Random gen) {
-    createWeeklyOperationVector((int)(times + applianceOf.members.size() / 2),gen)
+    createWeeklyOperationVector(times,gen)
     fillWeeklyFunction(gen)
     createWeeklyPossibilityOperationVector()
   }

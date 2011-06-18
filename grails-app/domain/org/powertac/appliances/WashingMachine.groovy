@@ -21,6 +21,9 @@ import groovy.util.ConfigObject
 
 import java.util.HashMap
 
+import org.joda.time.Instant
+import org.powertac.common.Tariff
+import org.powertac.common.TimeService
 import org.powertac.common.configurations.Constants
 import org.powertac.common.enumerations.Mode
 import org.powertac.common.enumerations.Reaction
@@ -38,6 +41,10 @@ import org.powertac.common.enumerations.Reaction
  */
 
 class WashingMachine extends SemiShiftingAppliance{
+
+  /** This variable is utilized to show if there's a dryer in the household or not.*/
+  boolean dryerFlag = false
+  int dryerPower = 0;
 
   /** The function mode of the washing machine. For more info, read the details in the enumerations.Mode java file **/
   Mode mode = Mode.One
@@ -59,8 +66,8 @@ class WashingMachine extends SemiShiftingAppliance{
     inUse = false
     probabilitySeason = fillSeason(Constants.DISHWASHER_POSSIBILITY_SEASON_1,Constants.DISHWASHER_POSSIBILITY_SEASON_2,Constants.DISHWASHER_POSSIBILITY_SEASON_3)
     probabilityWeekday = fillDay(Constants.DISHWASHER_POSSIBILITY_DAY_1,Constants.DISHWASHER_POSSIBILITY_DAY_2,Constants.DISHWASHER_POSSIBILITY_DAY_3)
-    times = conf.household.appliances.washingMachine.WashingMachineWeeklyTimes
-    createWeeklyOperationVector((int)(times + applianceOf.members.size() / 2),gen)
+    times = conf.household.appliances.washingMachine.WashingMachineWeeklyTimes + (int)(applianceOf.members.size() / 2)
+    createWeeklyOperationVector(times,gen)
   }
 
   @ Override
@@ -116,6 +123,64 @@ class WashingMachine extends SemiShiftingAppliance{
   def checkHouse(int weekday,int quarter) {
     if (quarter+Constants.WASHING_MACHINE_DURATION_CYCLE >= Constants.QUARTERS_OF_DAY) return true
     else return applianceOf.isEmpty(weekday,quarter+Constants.WASHING_MACHINE_DURATION_CYCLE)
+  }
+
+  @ Override
+  def dailyShifting(Tariff tariff,Instant now, int day){
+
+    BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
+    for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
+
+    if (dryerFlag){
+
+      if (householdConsumersService.getApplianceOperationDays(this,day)) {
+        def minindex = 0
+        def minvalue = Double.POSITIVE_INFINITY
+        def functionMatrix = createShiftingOperationMatrix(day)
+        Instant hour1 = now
+
+        for (int i=0;i < Constants.END_OF_FUNCTION_HOUR;i++){
+          if (functionMatrix[i]){
+            if (minvalue >= tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour1+TimeService.HOUR)+tariff.getUsageCharge(hour1+2*TimeService.HOUR)+tariff.getUsageCharge(hour1+3*TimeService.HOUR)){
+              minvalue = tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour1+TimeService.HOUR)+tariff.getUsageCharge(hour1+2*TimeService.HOUR)+tariff.getUsageCharge(hour1+3*TimeService.HOUR)
+              minindex = i
+            }
+          }
+          hour1 = hour1 + TimeService.HOUR
+        }
+        newControllableLoad[minindex] = Constants.QUARTERS_OF_HOUR*power
+        newControllableLoad[minindex+1] = Constants.QUARTERS_OF_HOUR*power
+
+        log.info "Dryer power: ${dryerPower}"
+        newControllableLoad[minindex+2] = Constants.QUARTERS_OF_HOUR*dryerPower - Constants.DRYER_THIRD_PHASE_LOAD
+        newControllableLoad[minindex+3] = (Constants.QUARTERS_OF_HOUR/2)*dryerPower - ((2*Constants.QUARTERS_OF_HOUR)+1)*Constants.DRYER_THIRD_PHASE_LOAD
+      }
+
+    }
+    else {
+      if (householdConsumersService.getApplianceOperationDays(this,day)) {
+        def minindex = 0
+        def minvalue = Double.POSITIVE_INFINITY
+        def functionMatrix = createShiftingOperationMatrix(day)
+        Instant hour1 = now
+        Instant hour2 = now + TimeService.HOUR
+
+        for (int i=0;i < Constants.HOURS_OF_DAY;i++){
+          if (functionMatrix[i] && functionMatrix[i+1]){
+            if (minvalue >= tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour2)){
+              minvalue = tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour2)
+              minindex = i
+            }
+          }
+          hour1 = hour1 + TimeService.HOUR
+          hour2 = hour2 + TimeService.HOUR
+        }
+
+        newControllableLoad[minindex] = Constants.QUARTERS_OF_HOUR*power
+        newControllableLoad[minindex+1] = Constants.QUARTERS_OF_HOUR*power
+      }
+    }
+    return newControllableLoad
   }
 
   @ Override
@@ -176,11 +241,10 @@ class WashingMachine extends SemiShiftingAppliance{
 
   @ Override
   def refresh(Random gen) {
-    createWeeklyOperationVector((int)(times + applianceOf.members.size() / 2),gen)
+    createWeeklyOperationVector(times,gen)
     fillWeeklyFunction(gen)
     createWeeklyPossibilityOperationVector()
   }
-
 
   static constraints = {
   }

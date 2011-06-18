@@ -17,8 +17,9 @@
 
 package org.powertac.appliances
 
-import java.util.Random;
-import java.util.Vector;
+import java.util.Random
+import java.util.Vector
+
 import org.powertac.common.configurations.Constants
 
 /**
@@ -37,12 +38,11 @@ class SemiShiftingAppliance extends Appliance {
   Vector days = new Vector()
 
   /** This function creates the daily operation vector after the shifting.
-   * 
    * @param weekday
+   * @param gen
    * @return
    */
-  def createDailyOperationVector(int weekday, Random gen) 
-  {
+  def createDailyOperationVector(int weekday, Random gen) {
 
     // Creating Auxiliary Variables
     Vector v = new Vector(Constants.QUARTERS_OF_DAY)
@@ -52,16 +52,16 @@ class SemiShiftingAppliance extends Appliance {
     if (days.contains(weekday) && ((this instanceof Dryer) == false)) {
       int quarter = gen.nextInt(Constants.END_OF_FUNCTION)
       v.set(quarter,true)
-    } 
+    }
     return v
-  }	
+  }
 
   /** This function creates the weekly operation vector after the shifting for each day of the week.
-   * 
    * @param times
+   * @param gen
    * @return
    */
-  def createWeeklyOperationVector(int times, Random gen) 
+  def createWeeklyOperationVector(int times, Random gen)
   {
     fillDays(times, gen)
     for (int i=0;i < Constants.DAYS_OF_WEEK;i++) operationVector.add(createDailyOperationVector(i,gen))
@@ -71,7 +71,7 @@ class SemiShiftingAppliance extends Appliance {
    * 
    * @return
    */
-  def fillWeeklyFunction(Random gen) 
+  def fillWeeklyFunction(Random gen)
   {
     for (int i = 0;i < Constants.DAYS_OF_WEEK; i++) fillDailyFunction(i,gen)
   }
@@ -81,7 +81,7 @@ class SemiShiftingAppliance extends Appliance {
    * @param times
    * @return
    */
-  def fillDays(int times, Random gen) 
+  def fillDays(int times, Random gen)
   {
     for (int i=0; i < times; i++) {
       int day = gen.nextInt(Constants.DAYS_OF_WEEK - 1)
@@ -91,7 +91,7 @@ class SemiShiftingAppliance extends Appliance {
         if (day == temp) {
           day = day + 1
           iter = days.listIterator();
-        } 
+        }
       }
       days.add(day)
       java.util.Collections.sort(days);
@@ -99,7 +99,6 @@ class SemiShiftingAppliance extends Appliance {
     java.util.Collections.sort(days);
     ListIterator iter = days.listIterator();
   }
-
 
   static constraints = {
   }

@@ -17,7 +17,6 @@
 
 package org.powertac.persons
 
-import java.util.HashMap
 import java.util.Vector
 
 import org.powertac.common.configurations.Constants
@@ -37,8 +36,9 @@ class PeriodicPresentPerson extends WorkingPerson {
   /** This is the initialization function. It uses the variable values for the
    * configuration file to create the person as it should for this type.
    * @param AgentName
-   * @param hm
+   * @param conf
    * @param publicVacationVector
+   * @param gen
    * @return
    */
   def initialize(String AgentName,ConfigObject conf, Vector publicVacationVector, Random gen) {
@@ -47,7 +47,7 @@ class PeriodicPresentPerson extends WorkingPerson {
     float sicknessDev = conf.household.sickness.SicknessDev
     float leisureDurationMean = conf.household.leisure.duration.LeisureDurationMean
     float leisureDurationDev = conf.household.leisure.duration.LeisureDurationDev
-    float PPLeisure = conf.household.leisure.numberByType.PPLeisure   
+    float PPLeisure = conf.household.leisure.numberByType.PPLeisure
     int workingDurationMean = conf.household.work.duration.WorkingDurationMean
     int workingDurationDev = conf.household.work.duration.WorkingDurationDev
     int vacationDurationMean = conf.household.vacation.VacationDurationMean
@@ -77,6 +77,7 @@ class PeriodicPresentPerson extends WorkingPerson {
   /** This function fills out the leisure activities in the daily schedule
    * of the person in question.
    * @param weekday
+   * @param gen
    * @return
    */
   def addLeisureWorking(int weekday, Random gen) {
@@ -89,7 +90,7 @@ class PeriodicPresentPerson extends WorkingPerson {
     while (iter.hasNext()) {
       if (iter.next() == weekday) {
         int start = workingStartHour + workingDuration
-        int startq = gen.nextInt(Math.max(1 ,75 - start)) + start
+        int startq = gen.nextInt(Math.max(1 ,Constants.LEISURE_END_WINDOW - start)) + start
         for (int i = startq;i < startq +leisureDuration;i++) {
           st = Status.Leisure
           dailyRoutine.set(i,st)

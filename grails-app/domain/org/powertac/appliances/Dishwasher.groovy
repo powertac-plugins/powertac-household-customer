@@ -20,6 +20,9 @@ package org.powertac.appliances
 import java.util.HashMap
 import java.util.Random
 
+import org.joda.time.Instant
+import org.powertac.common.Tariff
+import org.powertac.common.TimeService
 import org.powertac.common.configurations.Constants
 import org.powertac.common.enumerations.Mode
 
@@ -53,8 +56,8 @@ class Dishwasher extends SemiShiftingAppliance {
     inUse = false
     probabilitySeason = fillSeason(Constants.DISHWASHER_POSSIBILITY_SEASON_1,Constants.DISHWASHER_POSSIBILITY_SEASON_2,Constants.DISHWASHER_POSSIBILITY_SEASON_3)
     probabilityWeekday = fillDay(Constants.DISHWASHER_POSSIBILITY_DAY_1,Constants.DISHWASHER_POSSIBILITY_DAY_2,Constants.DISHWASHER_POSSIBILITY_DAY_3)
-    times = conf.household.appliances.dishwasher.DishwasherWeeklyTimes
-    createWeeklyOperationVector((int)(times + applianceOf.members.size()),gen)
+    times = conf.household.appliances.dishwasher.DishwasherWeeklyTimes + applianceOf.members.size()
+    createWeeklyOperationVector(times,gen)
   }
 
   @ Override
@@ -164,7 +167,8 @@ class Dishwasher extends SemiShiftingAppliance {
 
   /** This function checks for the household to see when it is empty or not empty
    * for the duration of the operation	
-   * @param hour
+   * @param weekday
+   * @param quarter
    * @return
    */
   def checkHouse(int weekday,int quarter) {
@@ -173,10 +177,39 @@ class Dishwasher extends SemiShiftingAppliance {
     else return applianceOf.isEmpty(weekday,quarter+Constants.DISHWASHER_DURATION_CYCLE)
 
   }
+  @ Override
+  def dailyShifting(Tariff tariff,Instant now, int day){
+
+    BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
+    for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
+
+    if (householdConsumersService.getApplianceOperationDays(this,day)) {
+      def minindex = 0
+      def minvalue = Double.POSITIVE_INFINITY
+      def functionMatrix = createShiftingOperationMatrix(day)
+      Instant hour1 = now
+      Instant hour2 = now + TimeService.HOUR
+
+      for (int i=0;i < Constants.HOURS_OF_DAY;i++){
+        if (functionMatrix[i] && functionMatrix[i+1]){
+          if (minvalue >= tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour2)){
+            minvalue = tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour2)
+            minindex = i
+          }
+        }
+        hour1 = hour1 + TimeService.HOUR
+        hour2 = hour2 + TimeService.HOUR
+      }
+
+      newControllableLoad[minindex] = Constants.QUARTERS_OF_HOUR*power
+      newControllableLoad[minindex+1] = Constants.QUARTERS_OF_HOUR*power
+    }
+    return newControllableLoad
+  }
 
   @ Override
   def refresh(Random gen) {
-    createWeeklyOperationVector((int)(times + applianceOf.members.size()), gen)
+    createWeeklyOperationVector(times, gen)
     fillWeeklyFunction(gen)
     createWeeklyPossibilityOperationVector()
   }

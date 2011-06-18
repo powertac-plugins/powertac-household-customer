@@ -22,6 +22,9 @@ import groovy.util.ConfigObject
 import java.util.HashMap
 import java.util.Random
 
+import org.joda.time.Instant
+import org.powertac.common.Tariff
+import org.powertac.common.TimeService
 import org.powertac.common.configurations.Constants
 
 /**
@@ -43,7 +46,6 @@ class Freezer extends FullyShiftingAppliance{
   @ Override
   def initialize(String household,ConfigObject conf,Random gen) {
 
-
     // Filling the base variables
     name = household + " Freezer"
     saturation = conf.household.appliances.freezer.FreezerSaturation
@@ -63,7 +65,6 @@ class Freezer extends FullyShiftingAppliance{
     def possibilityDailyOperation = new Vector()
 
     for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
-
       possibilityDailyOperation.add(true)
     }
 
@@ -77,7 +78,7 @@ class Freezer extends FullyShiftingAppliance{
     dailyOperation = new Vector()
 
     for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
-      if (i % 2 == 0) {
+      if (i % cycleDuration == 0) {
         loadVector.add(power)
         dailyOperation.add(true)
       } else  {
@@ -88,6 +89,29 @@ class Freezer extends FullyShiftingAppliance{
     weeklyLoadVector.add(loadVector)
     weeklyOperation.add(dailyOperation)
     operationVector.add(dailyOperation)
+  }
+
+  @ Override
+  def dailyShifting(Tariff tariff,Instant now, int day){
+
+    BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
+    for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
+    Instant now2 = now
+
+    for (int i=0;i < Constants.FREEZER_SHIFTING_PERIODS;i++){
+      def minvalue = Double.POSITIVE_INFINITY
+      def minindex = 0;
+
+      for (int j =0;j < Constants.FREEZER_SHIFTING_INTERVAL;j++){
+        if (minvalue >= tariff.getUsageCharge(now2)) {
+          minvalue = tariff.getUsageCharge(now2)
+          minindex = j
+        }
+        now2 = now2 + TimeService.HOUR
+      }
+      newControllableLoad[Constants.FREEZER_SHIFTING_INTERVAL*i+minindex] = Constants.QUARTERS_OF_HOUR*power
+    }
+    return newControllableLoad
   }
 
   @ Override

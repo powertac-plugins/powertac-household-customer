@@ -9,11 +9,11 @@ class Consumption {
   int hour
   int day
   int weekday
-  int value
+  long value
   Household household
   Village village
 
-  def initialize(Village v,Household house,int d, int wd,int h, int val){
+  def initialize(Village v,Household house,int d, int wd,int h, long val){
 
     village = v
     household = house
