@@ -45,7 +45,7 @@ class HouseholdConsumersService {
 
   void createAppliancesLoadsMap (Appliance appliance) {
     log.info "create appliance load map for Appliance ${appliance.toString()}"
-    appliancesLoads[appliance.name] = new long[63][96]
+    appliancesLoads[appliance.name] = new BigInteger[63][96]
   }
 
   void createAppliancesPossibilityOperationsMap (Appliance appliance) {
@@ -67,7 +67,7 @@ class HouseholdConsumersService {
     applianceOperationMap[day][quarter] = function
   }
 
-  void setApplianceLoad(Appliance appliance, int day, int quarter, long value) {
+  void setApplianceLoad(Appliance appliance, int day, int quarter, BigInteger value) {
     def applianceLoadMap = appliancesLoads[appliance.name]
     if (applianceLoadMap == null) {
       log.error "could not find Appliance Load map for Appliance ${appliance.toString()}"

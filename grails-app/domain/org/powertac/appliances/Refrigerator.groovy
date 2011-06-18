@@ -87,7 +87,8 @@ class Refrigerator extends FullyShiftingAppliance {
   @ Override
   def dailyShifting(Tariff tariff,Instant now, int day){
 
-    long[] newControllableLoad = new long[Constants.HOURS_OF_DAY]
+    BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
+    for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
     Instant now2 = now
 
     for (int i=0;i < Constants.REFRIGERATOR_SHIFTING_PERIODS;i++){

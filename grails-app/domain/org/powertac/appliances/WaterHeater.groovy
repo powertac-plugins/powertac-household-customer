@@ -215,7 +215,8 @@ class WaterHeater extends FullyShiftingAppliance{
   @ Override
   def dailyShifting(Tariff tariff,Instant now, int day){
 
-    long[] newControllableLoad = new long[Constants.HOURS_OF_DAY]
+    BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
+    for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
 
     if (type == HeaterType.InstantHeater) {
       if (householdConsumersService.getApplianceOperationDays(this,day)) {

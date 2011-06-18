@@ -58,8 +58,12 @@ class Dryer extends SemiShiftingAppliance {
 
     this.applianceOf.appliances.each {
       Object o = (Object) it
-      if (o instanceof WashingMachine) o.dryerFlag = true
+      if (o instanceof WashingMachine) {
+        o.dryerFlag = true
+        o.dryerPower = power
+      }
     }
+
 
     createWeeklyOperationVector(times,gen)
   }

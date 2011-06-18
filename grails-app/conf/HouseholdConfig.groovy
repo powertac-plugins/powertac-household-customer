@@ -79,18 +79,16 @@ household {
 
     refrigerator { RefrigeratorSaturation = 0.99 }
 
-    //freezer { FreezerSaturation = 0.54 }
-    freezer { FreezerSaturation = 1 }
+    freezer { FreezerSaturation = 0.54 }
+
 
     dishwasher {
-      //DishwasherSaturation = 0.66
-      DishwasherSaturation = 1
+      DishwasherSaturation = 0.66
       DishwasherWeeklyTimes = 1
     }
 
     stove {
-      //StoveSaturation = 0.85
-      StoveSaturation = 1
+      StoveSaturation = 0.85
       StoveDailyTimes = 2
     }
 
@@ -100,8 +98,7 @@ household {
     }
 
     dryer {
-      //DryerSaturation = 0.42
-      DryerSaturation = 1
+      DryerSaturation = 0.42
       DryerWeeklyTimes = 1
     }
 
@@ -116,10 +113,9 @@ household {
     }
 
     waterHeater {
-      //WaterHeaterSaturation = 0.2
-      WaterHeaterSaturation = 1
-      InstantHeater = 0
-      StorageHeater = 100
+      WaterHeaterSaturation = 0.2
+      InstantHeater = 60
+      StorageHeater = 40
       InstantHeaterDailyTimes = 0
     }
 
@@ -129,8 +125,7 @@ household {
     }
 
     spaceHeater {
-      SpaceHeaterSaturation = 1
-      //SpaceHeaterSaturation = 0.04
+      SpaceHeaterSaturation = 0.04
       SpaceHeaterPercentage = 0.2
     }
 
@@ -140,10 +135,10 @@ household {
   }
 
   houses {
-    NotShiftingCustomers = 1
-    RandomlyShiftingCustomers = 1
-    RegularlyShiftingCustomers = 1
-    SmartShiftingCustomers = 1
+    NotShiftingCustomers = 2
+    RandomlyShiftingCustomers = 2
+    RegularlyShiftingCustomers = 2
+    SmartShiftingCustomers = 2
   }
 }
 environments {

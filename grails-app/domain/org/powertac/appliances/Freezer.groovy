@@ -94,7 +94,8 @@ class Freezer extends FullyShiftingAppliance{
   @ Override
   def dailyShifting(Tariff tariff,Instant now, int day){
 
-    long[] newControllableLoad = new long[Constants.HOURS_OF_DAY]
+    BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
+    for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
     Instant now2 = now
 
     for (int i=0;i < Constants.FREEZER_SHIFTING_PERIODS;i++){
@@ -108,7 +109,7 @@ class Freezer extends FullyShiftingAppliance{
         }
         now2 = now2 + TimeService.HOUR
       }
-      newControllableLoad[Constants.FREEZER_SHIFTING_INTERVAL*i+minindex] = Constants.QUARTER_OF_HOUR*power
+      newControllableLoad[Constants.FREEZER_SHIFTING_INTERVAL*i+minindex] = Constants.QUARTERS_OF_HOUR*power
     }
     return newControllableLoad
   }

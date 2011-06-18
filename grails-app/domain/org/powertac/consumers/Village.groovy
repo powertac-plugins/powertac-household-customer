@@ -405,7 +405,7 @@ class Village extends AbstractCustomer{
       float costSummary = 0
       float summary = 0, cumulativeSummary = 0
 
-      long[] newControllableLoad = dailyShifting(tariff,now,day)
+      BigInteger[] newControllableLoad = dailyShifting(tariff,now,day)
 
       for (int hour=0;hour < Constants.HOURS_OF_DAY;hour++){
         for (int j=0;j < types;j++){
@@ -431,7 +431,8 @@ class Village extends AbstractCustomer{
    */
   def dailyShifting(Tariff tariff,Instant now, int day){
 
-    long[] newControllableLoad = new long[Constants.HOURS_OF_DAY]
+    BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
+    for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
 
     villageConsumersService.getHouseholds(this).each { house ->
       def temp = house.dailyShifting(tariff,now,day)
@@ -458,7 +459,8 @@ class Village extends AbstractCustomer{
    */
   def dailyShifting(Tariff tariff,Instant now, int type, int day){
 
-    long[] newControllableLoad = new long[Constants.HOURS_OF_DAY]
+    BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
+    for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
 
     villageConsumersService.getHouseholds(this,type).each { house ->
       def temp = house.dailyShifting(tariff,now,day)
@@ -587,10 +589,10 @@ class Village extends AbstractCustomer{
 
     subscriptions.each { sub ->
       for (int i=0;i < types;i++){
-        log.info "Old Consumption for day ${day}: ${villageConsumersService.getControllableConsumptions(this,i,day)}"
-        long[] newControllableLoad = dailyShifting(sub.tariff,now,i,day)
+        log.info "Old Consumption for day ${day} and Type ${i}: ${villageConsumersService.getControllableConsumptions(this,i,day)}"
+        BigInteger[] newControllableLoad = dailyShifting(sub.tariff,now,i,day)
         villageConsumersService.setControllableConsumption(this, i, day,newControllableLoad)
-        log.info "New Consumption for day ${day}: ${villageConsumersService.getControllableConsumptions(this,i,day)}"
+        log.info "New Consumption for day ${day} and Type ${i}: ${villageConsumersService.getControllableConsumptions(this,i,day)}"
       }
     }
   }

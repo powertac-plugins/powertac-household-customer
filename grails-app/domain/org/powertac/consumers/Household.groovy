@@ -17,6 +17,7 @@ package org.powertac.consumers
 
 import groovy.util.ConfigObject
 
+import java.math.BigInteger
 import java.util.Random
 import java.util.Vector
 
@@ -24,6 +25,7 @@ import org.joda.time.Instant
 import org.powertac.appliances.*
 import org.powertac.common.Tariff
 import org.powertac.common.configurations.Constants
+import org.powertac.common.enumerations.Status
 import org.powertac.persons.*
 
 /**
@@ -255,12 +257,6 @@ class Household {
     others.initialize(this.name,conf,gen);
     others.fillWeeklyFunction(gen)
     others.createWeeklyPossibilityOperationVector()
-    // Washing Machine
-    WashingMachine wm = new WashingMachine();
-    this.addToAppliances(wm)
-    wm.initialize(this.name,conf,gen);
-    wm.fillWeeklyFunction(gen)
-    wm.createWeeklyPossibilityOperationVector()
     //Space Heater
     SpaceHeater sh = new SpaceHeater()
     this.addToAppliances(sh)
@@ -291,6 +287,12 @@ class Household {
     this.addToAppliances(cp)
     cp.initialize(this.name,conf,gen)
     checkProbability(cp,gen)
+    // Washing Machine
+    WashingMachine wm = new WashingMachine();
+    this.addToAppliances(wm)
+    wm.initialize(this.name,conf,gen);
+    wm.fillWeeklyFunction(gen)
+    wm.createWeeklyPossibilityOperationVector()
     //Dryer
     Dryer dr = new Dryer()
     this.addToAppliances(dr)
@@ -512,7 +514,8 @@ class Household {
    */
   def dailyShifting(Tariff tariff,Instant now, int day){
 
-    long[] newControllableLoad = new long[Constants.HOURS_OF_DAY]
+    BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
+    for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
 
     appliances.each { appliance ->
       if (!(appliance instanceof NotShiftingAppliance)) {

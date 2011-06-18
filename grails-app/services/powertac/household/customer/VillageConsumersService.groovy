@@ -83,7 +83,7 @@ class VillageConsumersService {
   void createBaseConsumptionsMap (Village village, int types)
   {
     log.info "create Base Consumption map for Household Customer ${village.customerInfo.name} [${types}]"
-    baseConsumptions[village.customerInfo.name] = new BigDecimal[types][63][24]
+    baseConsumptions[village.customerInfo.name] = new BigInteger[types][63][24]
   }
 
   def getBaseConsumptions(Village village, int type)
@@ -104,7 +104,7 @@ class VillageConsumersService {
   void createControllableConsumptionsMap (Village village, int types)
   {
     log.info "create Controllable consumption map for Household Customer ${village.customerInfo.name} [${types}]"
-    controllableConsumptions[village.customerInfo.name] = new BigDecimal[types][63][24]
+    controllableConsumptions[village.customerInfo.name] = new BigInteger[types][63][24]
   }
 
   def getControllableConsumptions(Village village, int type, int day)
@@ -122,7 +122,7 @@ class VillageConsumersService {
     return controllableConsumptions[village.customerInfo.name][type]
   }
 
-  void setControllableConsumption(Village village, int type, int day, int hour, BigDecimal value)
+  void setControllableConsumption(Village village, int type, int day, int hour, BigInteger value)
   {
     def controllableConsumptionMap = controllableConsumptions[village.customerInfo.name]
     if (controllableConsumptionMap == null) {
@@ -132,7 +132,7 @@ class VillageConsumersService {
     controllableConsumptionMap[type][day][hour] = value
   }
 
-  void setControllableConsumption(Village village, int type, int day, long[] value)
+  void setControllableConsumption(Village village, int type, int day, BigInteger[] value)
   {
     def controllableConsumptionMap = controllableConsumptions[village.customerInfo.name]
     if (controllableConsumptionMap == null) {

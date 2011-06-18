@@ -44,6 +44,7 @@ class WashingMachine extends SemiShiftingAppliance{
 
   /** This variable is utilized to show if there's a dryer in the household or not.*/
   boolean dryerFlag = false
+  int dryerPower = 0;
 
   /** The function mode of the washing machine. For more info, read the details in the enumerations.Mode java file **/
   Mode mode = Mode.One
@@ -127,7 +128,8 @@ class WashingMachine extends SemiShiftingAppliance{
   @ Override
   def dailyShifting(Tariff tariff,Instant now, int day){
 
-    long[] newControllableLoad = new long[Constants.HOURS_OF_DAY]
+    BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
+    for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
 
     if (dryerFlag){
 
@@ -149,12 +151,7 @@ class WashingMachine extends SemiShiftingAppliance{
         newControllableLoad[minindex] = Constants.QUARTERS_OF_HOUR*power
         newControllableLoad[minindex+1] = Constants.QUARTERS_OF_HOUR*power
 
-        def dryerPower = 0
-
-        this.applianceOf.appliances.each {
-          Object o = (Object) it
-          if (o instanceof Dryer) dryerPower = o.power
-        }
+        log.info "Dryer power: ${dryerPower}"
         newControllableLoad[minindex+2] = Constants.QUARTERS_OF_HOUR*dryerPower - Constants.DRYER_THIRD_PHASE_LOAD
         newControllableLoad[minindex+3] = (Constants.QUARTERS_OF_HOUR/2)*dryerPower - ((2*Constants.QUARTERS_OF_HOUR)+1)*Constants.DRYER_THIRD_PHASE_LOAD
       }
