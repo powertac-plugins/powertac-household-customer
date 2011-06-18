@@ -16,9 +16,9 @@
 
 package org.powertac.persons
 
-import java.util.HashMap;
-import java.util.Vector;
-import org.powertac.common.configurations.Constants;
+import java.util.Vector
+
+import org.powertac.common.configurations.Constants
 
 /**
  * This is the instance of the person type that works. In addition to the simple
@@ -51,10 +51,10 @@ class WorkingPerson extends Person{
    * by choosing randomly days of the week, while the amount of days is
    * different for each person type.
    * @param days
+   * @param gen
    * @return
    */
-  def createWorkingDaysVector(int days, Random gen) 
-  {
+  def createWorkingDaysVector(int days, Random gen) {
     // Creating an auxiliary variables
     Vector v = new Vector(days)
 
@@ -67,28 +67,28 @@ class WorkingPerson extends Person{
           if (x == temp) {
             x = x + 1
             iter = v.listIterator();
-          } 
+          }
         }
         v.add(x)
       }
       java.util.Collections.sort(v);
       return v
     } else  {
-      v.add(1)
-      v.add(2)
-      v.add(3)
-      v.add(4)
-      v.add(5)
+      v.add(Constants.MONDAY)
+      v.add(Constants.TUESDAY)
+      v.add(Constants.WEDNESDAY)
+      v.add(Constants.THURSDAY)
+      v.add(Constants.FRIDAY)
       if (days == Constants.WEEKDAYS) {
       } else  {
         if (days == Constants.DAYS_OF_WEEK) {
-          v.add(6)
-          v.add(0)
+          v.add(Constants.SATURDAY)
+          v.add(Constants.SUNDAY)
         } else  {
           if (gen.nextFloat() > 0.5 ) {
-            v.add(6)
+            v.add(Constants.SATURDAY)
           } else  {
-            v.add(0)
+            v.add(Constants.SUNDAY)
           }
         }
       }
@@ -102,6 +102,7 @@ class WorkingPerson extends Person{
    * He may choose to go on vacation for short periods, but the summary of the days
    * must be in bounds.
    * @param duration
+   * @param gen
    * @return
    */
   def createVacationVector(int duration, Random gen) {
@@ -128,10 +129,11 @@ class WorkingPerson extends Person{
   /** This function chooses randomly the number of the working days of a person
    * The percentages used where taken from a thesis on the subject, based on demographic
    * data.
-   * @param hm
+   * @param conf
+   * @param gen
    * @return
    */
-  def workingDaysRandomizer(ConfigObject conf, Random gen) 
+  def workingDaysRandomizer(ConfigObject conf, Random gen)
   {
     def returnValue
     int oneDay = conf.household.work.daysPerWeek.OneDay
@@ -144,24 +146,24 @@ class WorkingPerson extends Person{
 
     int x = (int) gen.nextInt(Constants.PERCENTAGE)
     if (x < fiveDays) {
-      returnValue = 5
+      returnValue = Constants.FIVE_WORKING_DAYS
     } else  {
       if (x >= fiveDays & x < (fiveDays + sixDays)) {
-        returnValue = 6
+        returnValue = Constants.SIX_WORKING_DAYS
       } else  {
         if (x >= (fiveDays + sixDays) & x < (fiveDays + sixDays + fourDays)) {
-          returnValue = 4
+          returnValue = Constants.FOUR_WORKING_DAYS
         } else  {
           if (x >= (fiveDays + sixDays + fourDays) & x < (fiveDays + sixDays + fourDays + threeDays)) {
-            returnValue = 3
+            returnValue = Constants.THREE_WORKING_DAYS
           } else  {
             if (x >= (fiveDays + sixDays + fourDays + threeDays) & x < (fiveDays + sixDays + fourDays + threeDays+twoDays)) {
-              returnValue = 2
+              returnValue = Constants.TWO_WORKING_DAYS
             } else  {
               if (x >= (fiveDays + sixDays + fourDays + threeDays+twoDays) & x < (fiveDays + sixDays + fourDays + threeDays+twoDays+sevenDays)) {
-                returnValue  = 7
+                returnValue  = Constants.SEVEN_WORKING_DAYS
               } else  {
-                returnValue = 1
+                returnValue = Constants.ONE_WORKING_DAY
               }
             }
           }
@@ -173,7 +175,7 @@ class WorkingPerson extends Person{
   }
 
   @ Override
-  void showStatus() 
+  void showStatus()
   {
     // Printing the base variable
     log.info("Name = " + name)
@@ -185,7 +187,7 @@ class WorkingPerson extends Person{
 
     // Printing Leisure variables
     log.info("Leisure Days of Week = ");
-    iter = leisureVector.listIterator();	
+    iter = leisureVector.listIterator();
     while (iter.hasNext()) log.info(iter.next());
     log.info("Leisure Duration = " + leisureDuration);
 
@@ -221,7 +223,6 @@ class WorkingPerson extends Person{
    * activities taking in consideration the working habits, duration and shifts.
    * @return
    */
-
   def fillWork() {}
 
   static constraints = {
