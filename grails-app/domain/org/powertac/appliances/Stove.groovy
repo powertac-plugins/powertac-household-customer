@@ -20,6 +20,7 @@ package org.powertac.appliances
 import groovy.util.ConfigObject
 
 import java.util.HashMap
+import java.util.Random
 
 import org.joda.time.Instant
 import org.powertac.common.Tariff
@@ -66,9 +67,16 @@ class Stove extends SemiShiftingAppliance{
     for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) v.add(false)
     for (int i = 0;i < times;i++) {
       int quarter = gen.nextInt(Constants.QUARTERS_OF_DAY - cycleDuration)
-      v.set(quarter,true)
+      if (v.get(quarter)== false) v.set(quarter,true)
+      else v.set(quarter+2,true)
     }
     return v
+  }
+
+  @ Override
+  def createWeeklyOperationVector(int times, Random gen)
+  {
+    for (int i=0;i < Constants.DAYS_OF_WEEK;i++) operationVector.add(createDailyOperationVector(times,gen))
   }
 
   @ Override
@@ -129,23 +137,27 @@ class Stove extends SemiShiftingAppliance{
     BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
     for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
 
-    if (householdConsumersService.getApplianceOperationDays(this,day)) {
-      def minindex = 0
-      def minvalue = Double.POSITIVE_INFINITY
-      def functionMatrix = createShiftingOperationMatrix(day)
-      Instant hour1 = now
+    def minindex = 0
+    def minvalue = Double.POSITIVE_INFINITY
+    def functionMatrix = createShiftingOperationMatrix(day)
+    Instant hour1 = now
+    BigInteger sumPower = 0
 
-      for (int i=0;i < Constants.HOURS_OF_DAY;i++){
-        if (functionMatrix[i]){
-          if (minvalue >= tariff.getUsageCharge(hour1)){
-            minvalue = tariff.getUsageCharge(hour1)
-            minindex = i
-          }
+    for (int i=0;i< Constants.QUARTERS_OF_DAY;i++) sumPower += householdConsumersService.getApplianceLoads(this,day,i)
+
+    for (int i=0;i < Constants.HOURS_OF_DAY;i++){
+      if (functionMatrix[i]){
+        if (minvalue >= tariff.getUsageCharge(hour1)){
+          minvalue = tariff.getUsageCharge(hour1)
+          minindex = i
         }
-        hour1 = hour1 + TimeService.HOUR
       }
-      newControllableLoad[minindex] = cycleDuration*power
+      hour1 = hour1 + TimeService.HOUR
+
     }
+
+    newControllableLoad[minindex] = sumPower
+
     return newControllableLoad
   }
 

@@ -137,7 +137,7 @@ household {
   houses {
     NotShiftingCustomers = 2
     RandomlyShiftingCustomers = 2
-    RegularlyShiftingCustomers = 2
+    RegularlyShiftingCustomers =2
     SmartShiftingCustomers = 2
   }
 }
@@ -145,10 +145,10 @@ environments {
   Phoenix {
     household {
       houses {
-        NotShiftingCustomers = 1
-        RandomlyShiftingCustomers = 1
-        RegularlyShiftingCustomers = 1
-        SmartShiftingCustomers = 1
+        NotShiftingCustomers = 2
+        RandomlyShiftingCustomers = 2
+        RegularlyShiftingCustomers = 2
+        SmartShiftingCustomers = 2
       }
     }
   }
