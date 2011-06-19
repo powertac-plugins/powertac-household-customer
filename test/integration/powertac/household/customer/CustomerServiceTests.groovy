@@ -429,10 +429,10 @@ class CustomerServiceTests extends GroovyTestCase {
     Village.list().each{ customer ->
       customer.possibilityEvaluationNewTariffs(Tariff.list())
     }
-
     timeService.base = now.toInstant().millis
     timeService.currentTime = new Instant(timeService.currentTime.millis + TimeService.HOUR*11)
     householdCustomerService.activate(timeService.currentTime, 1)
+
   }
 
 }

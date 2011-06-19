@@ -272,11 +272,6 @@ class Household {
     this.addToAppliances(dw)
     dw.initialize(this.name,conf,gen)
     checkProbability(dw,gen)
-    //Stove
-    Stove st = new Stove()
-    this.addToAppliances(st)
-    st.initialize(this.name,conf,gen)
-    checkProbability(st,gen)
     //Circulation Pump
     CirculationPump cp = new CirculationPump()
     this.addToAppliances(cp)
@@ -293,12 +288,17 @@ class Household {
     this.addToAppliances(dr)
     dr.initialize(this.name,conf,gen)
     checkProbability(dr,gen)
-
     //Space Heater
     SpaceHeater sh = new SpaceHeater()
     this.addToAppliances(sh)
     sh.initialize(this.name,conf,gen)
     checkProbability(sh,gen)
+    //Stove
+    Stove st = new Stove()
+    this.addToAppliances(st)
+    st.initialize(this.name,conf,gen)
+    checkProbability(st,gen)
+
 
   }
 
@@ -523,6 +523,7 @@ class Household {
       if (!(appliance instanceof NotShiftingAppliance)) {
         def temp = appliance.dailyShifting(tariff,now,day)
         //log.info"Appliance ${appliance.toString()}"
+        //log.info"Load: ${householdConsumersService.getApplianceLoads(appliance,day).toString()}"
         //log.info("Temp: " + temp.toString())
         //log.info(newControllableLoad.toString())
         for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] += temp[j]
