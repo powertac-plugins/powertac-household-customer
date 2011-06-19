@@ -257,11 +257,6 @@ class Household {
     others.initialize(this.name,conf,gen);
     others.fillWeeklyFunction(gen)
     others.createWeeklyPossibilityOperationVector()
-    //Space Heater
-    SpaceHeater sh = new SpaceHeater()
-    this.addToAppliances(sh)
-    sh.initialize(this.name,conf,gen)
-    checkProbability(sh,gen)
     //Water Heater
     WaterHeater wh = new WaterHeater()
     this.addToAppliances(wh)
@@ -298,6 +293,13 @@ class Household {
     this.addToAppliances(dr)
     dr.initialize(this.name,conf,gen)
     checkProbability(dr,gen)
+
+    //Space Heater
+    SpaceHeater sh = new SpaceHeater()
+    this.addToAppliances(sh)
+    sh.initialize(this.name,conf,gen)
+    checkProbability(sh,gen)
+
   }
 
   /** This function checks if all the inhabitants of the household are out of the household.
@@ -394,10 +396,10 @@ class Household {
    * @param quarter
    * @return
    */
-  def isOnVacation(int quarter) {
+  def isOnVacation(int weekday,int quarter) {
     boolean x = false
     this.members.each {
-      if (it.getDailyRoutine().get(quarter) == Status.Vacation) {
+      if (it.weeklyRoutine.get(week*Constants.DAYS_OF_WEEK+weekday).get(quarter) == Status.Vacation) {
         x = true
       }
     }

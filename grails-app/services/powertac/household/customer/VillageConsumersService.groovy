@@ -112,7 +112,7 @@ class VillageConsumersService {
     def sumControllableLoad = new long[Constants.HOURS_OF_DAY]
 
     for (int j=0;j < Constants.HOURS_OF_DAY;j++){
-      sumControllableLoad[j] += controllableConsumptions[village.customerInfo.name][type][day][j]
+      sumControllableLoad[j] = controllableConsumptions[village.customerInfo.name][type][day][j]
     }
     return sumControllableLoad
   }
