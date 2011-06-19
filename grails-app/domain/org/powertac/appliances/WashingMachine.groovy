@@ -151,7 +151,6 @@ class WashingMachine extends SemiShiftingAppliance{
         newControllableLoad[minindex] = Constants.QUARTERS_OF_HOUR*power
         newControllableLoad[minindex+1] = Constants.QUARTERS_OF_HOUR*power
 
-        log.info "Dryer power: ${dryerPower}"
         newControllableLoad[minindex+2] = Constants.QUARTERS_OF_HOUR*dryerPower - Constants.DRYER_THIRD_PHASE_LOAD
         newControllableLoad[minindex+3] = (Constants.QUARTERS_OF_HOUR/2)*dryerPower - ((2*Constants.QUARTERS_OF_HOUR)+1)*Constants.DRYER_THIRD_PHASE_LOAD
       }
