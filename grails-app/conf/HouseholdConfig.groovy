@@ -137,7 +137,7 @@ household {
   houses {
     NotShiftingCustomers = 2
     RandomlyShiftingCustomers = 2
-    RegularlyShiftingCustomers =2
+    RegularlyShiftingCustomers = 2
     SmartShiftingCustomers = 2
   }
 }

@@ -109,8 +109,8 @@ class Household {
     fillAppliances(conf, gen)
 
     for (int i =0;i < Constants.DAYS_OF_WEEK;i++) {
-      setDailyBaseLoad(fillDailyBaseLoad(i))
-      setDailyControllableLoad(fillDailyControllableLoad(i))
+      setDailyBaseLoad(fillDailyBaseLoad(week*Constants.DAYS_OF_WEEK+i))
+      setDailyControllableLoad(fillDailyControllableLoad(week*Constants.DAYS_OF_WEEK+i))
       weeklyBaseLoad.add(dailyBaseLoad)
       weeklyControllableLoad.add(dailyControllableLoad)
       setDailyBaseLoadInHours(fillDailyBaseLoadInHours())
@@ -118,8 +118,34 @@ class Household {
       weeklyBaseLoadInHours.add(dailyBaseLoadInHours)
       weeklyControllableLoadInHours.add(dailyControllableLoadInHours)
     }
+    week = 1
+    refresh(conf,gen)
 
-    for (week;week < Constants.WEEKS_OF_COMPETITION-1;week++){
+    this.appliances.each{ appliance ->
+      appliance.setVectors()
+    }
+  }
+
+
+  def createActualData(ConfigObject conf, Random gen) {
+
+    weeklyBaseLoad = new Vector()
+    weeklyControllableLoad = new Vector()
+    weeklyBaseLoadInHours = new Vector()
+    weeklyControllableLoadInHours = new Vector()
+
+    appliances.each { appliance ->
+      householdConsumersService.appliancesOperations.remove(appliance.name)
+      householdConsumersService.appliancesLoads.remove(appliance.name)
+      householdConsumersService.appliancesPossibilityOperations.remove(appliance.name)
+      householdConsumersService.appliancesOperationDays.remove(appliance.name)
+      appliance.operationVector = new Vector()
+      appliance.possibilityOperationVector = new Vector()
+      appliance.weeklyOperation = new Vector()
+      appliance.weeklyLoadVector = new Vector()
+    }
+
+    for (week = 0;week < Constants.WEEKS_OF_COMPETITION;week++){
       refresh(conf,gen)
     }
 
@@ -227,78 +253,93 @@ class Household {
    */
   def fillAppliances(ConfigObject conf, Random gen) {
 
-    // Refrigerator
-    Refrigerator ref = new Refrigerator();
-    this.addToAppliances(ref)
-    ref.initialize(this.name, conf,gen);
-    ref.fillWeeklyFunction(gen)
-    ref.createWeeklyPossibilityOperationVector()
+    // NOT SHIFTING ================================
+
     // Consumer Electronics
     ConsumerElectronics ce = new ConsumerElectronics();
     this.addToAppliances(ce)
     ce.initialize(this.name,conf,gen);
     ce.fillWeeklyFunction(gen)
     ce.createWeeklyPossibilityOperationVector()
+
     // ICT
     ICT ict = new ICT();
     this.addToAppliances(ict)
     ict.initialize(this.name,conf,gen);
     ict.fillWeeklyFunction(gen)
     ict.createWeeklyPossibilityOperationVector()
+
     // Lights
     Lights lights = new Lights();
     this.addToAppliances(lights)
     lights.initialize(this.name,conf,gen);
     lights.fillWeeklyFunction(gen)
     lights.createWeeklyPossibilityOperationVector()
+
     //Others
     Others others = new Others();
     this.addToAppliances(others)
     others.initialize(this.name,conf,gen);
     others.fillWeeklyFunction(gen)
     others.createWeeklyPossibilityOperationVector()
-    //Water Heater
-    WaterHeater wh = new WaterHeater()
-    this.addToAppliances(wh)
-    wh.initialize(this.name,conf,gen)
-    checkProbability(wh,gen)
-    // Freezer
-    Freezer fr = new Freezer()
-    this.addToAppliances(fr)
-    fr.initialize(this.name,conf,gen)
-    checkProbability(fr,gen)
-    // Dishwasher
-    Dishwasher dw = new Dishwasher()
-    this.addToAppliances(dw)
-    dw.initialize(this.name,conf,gen)
-    checkProbability(dw,gen)
+
     //Circulation Pump
     CirculationPump cp = new CirculationPump()
     this.addToAppliances(cp)
     cp.initialize(this.name,conf,gen)
     checkProbability(cp,gen)
-    // Washing Machine
-    WashingMachine wm = new WashingMachine();
-    this.addToAppliances(wm)
-    wm.initialize(this.name,conf,gen);
-    wm.fillWeeklyFunction(gen)
-    wm.createWeeklyPossibilityOperationVector()
-    //Dryer
-    Dryer dr = new Dryer()
-    this.addToAppliances(dr)
-    dr.initialize(this.name,conf,gen)
-    checkProbability(dr,gen)
+    // FULLY SHIFTING ================================
+
+    // Refrigerator
+    Refrigerator ref = new Refrigerator();
+    this.addToAppliances(ref)
+    ref.initialize(this.name, conf,gen);
+    ref.fillWeeklyFunction(gen)
+    ref.createWeeklyPossibilityOperationVector()
+
+    // Freezer
+    Freezer fr = new Freezer()
+    this.addToAppliances(fr)
+    fr.initialize(this.name,conf,gen)
+    checkProbability(fr,gen)
+
+    //Water Heater
+    WaterHeater wh = new WaterHeater()
+    this.addToAppliances(wh)
+    wh.initialize(this.name,conf,gen)
+    checkProbability(wh,gen)
+
     //Space Heater
     SpaceHeater sh = new SpaceHeater()
     this.addToAppliances(sh)
     sh.initialize(this.name,conf,gen)
     checkProbability(sh,gen)
+    // SEMI SHIFTING ================================
+
+    // Dishwasher
+    Dishwasher dw = new Dishwasher()
+    this.addToAppliances(dw)
+    dw.initialize(this.name,conf,gen)
+    checkProbability(dw,gen)
+
     //Stove
     Stove st = new Stove()
     this.addToAppliances(st)
     st.initialize(this.name,conf,gen)
     checkProbability(st,gen)
 
+    // Washing Machine
+    WashingMachine wm = new WashingMachine()
+    this.addToAppliances(wm)
+    wm.initialize(this.name,conf,gen);
+    wm.fillWeeklyFunction(gen)
+    wm.createWeeklyPossibilityOperationVector()
+
+    //Dryer
+    Dryer dr = new Dryer()
+    this.addToAppliances(dr)
+    dr.initialize(this.name,conf,gen)
+    checkProbability(dr,gen)
 
   }
 
@@ -358,14 +399,14 @@ class Household {
    * @param weekday
    * @return
    */
-  def fillDailyBaseLoad(int weekday) {
+  def fillDailyBaseLoad(int day) {
     // Creating auxiliary variables
     Vector v = new Vector(Constants.QUARTERS_OF_DAY)
     int sum = 0
     for (int i = 0;i < Constants.QUARTERS_OF_DAY; i++) {
       sum = 0
       this.appliances.each {
-        if (it instanceof NotShiftingAppliance) sum = sum + it.weeklyLoadVector.get(weekday).get(i)
+        if (it instanceof NotShiftingAppliance) sum = sum + it.weeklyLoadVector.get(day).get(i)
       }
       v.add(sum)
     }
@@ -377,14 +418,14 @@ class Household {
    * @param weekday
    * @return
    */
-  def fillDailyControllableLoad(int weekday) {
+  def fillDailyControllableLoad(int day) {
     // Creating auxiliary variables
     Vector v = new Vector(Constants.QUARTERS_OF_DAY)
     int sum = 0
     for (int i = 0;i < Constants.QUARTERS_OF_DAY; i++) {
       sum = 0
       this.appliances.each {
-        if (!(it instanceof NotShiftingAppliance)) sum = sum + it.weeklyLoadVector.get(weekday).get(i)
+        if (!(it instanceof NotShiftingAppliance)) sum = sum + it.weeklyLoadVector.get(day).get(i)
       }
       v.add(sum)
     }
@@ -490,12 +531,14 @@ class Household {
 
     // For each appliance of the household
     this.appliances.each { appliance ->
-      appliance.refresh(gen)
+      appliance.operationVector = new Vector()
+      if (!(appliance instanceof Dryer)) appliance.refresh(gen)
+
     }
 
     for (int i =0;i < Constants.DAYS_OF_WEEK;i++) {
-      setDailyBaseLoad(fillDailyBaseLoad(i))
-      setDailyControllableLoad(fillDailyControllableLoad(i))
+      setDailyBaseLoad(fillDailyBaseLoad(week*Constants.DAYS_OF_WEEK+i))
+      setDailyControllableLoad(fillDailyControllableLoad(week*Constants.DAYS_OF_WEEK+i))
       weeklyBaseLoad.add(dailyBaseLoad)
       weeklyControllableLoad.add(dailyControllableLoad)
       setDailyBaseLoadInHours(fillDailyBaseLoadInHours())
@@ -514,14 +557,14 @@ class Household {
    * @param day
    * @return
    */
-  def dailyShifting(Tariff tariff,Instant now, int day){
+  def dailyShifting(Random gen, Tariff tariff, Instant now, int day){
 
     BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
     for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
 
     appliances.each { appliance ->
       if (!(appliance instanceof NotShiftingAppliance)) {
-        def temp = appliance.dailyShifting(tariff,now,day)
+        def temp = appliance.dailyShifting(gen,tariff,now,day)
         //log.info"Appliance ${appliance.toString()}"
         //log.info"Load: ${householdConsumersService.getApplianceLoads(appliance,day).toString()}"
         //log.info("Temp: " + temp.toString())

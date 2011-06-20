@@ -69,6 +69,8 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
       village.initialize(conf,gen)
       village.init()
       village.subscribeDefault()
+      village.createBootstrapData()
+      village.createActualData(conf)
       assert(village.save())
     }
   }
@@ -80,7 +82,7 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
 
     Random gen = ensureRandomSeed()
 
-    if (phase == 1) villageList*.step()
+    if (phase == 1) villageList*.step(gen)
     else villageList*.toString()
   }
 

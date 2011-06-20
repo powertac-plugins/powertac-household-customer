@@ -54,6 +54,7 @@ class Stove extends SemiShiftingAppliance{
     probabilityWeekday = fillDay(Constants.STOVE_POSSIBILITY_DAY_1,Constants.STOVE_POSSIBILITY_DAY_2,Constants.STOVE_POSSIBILITY_DAY_3)
     times = conf.household.appliances.stove.StoveDailyTimes
     createWeeklyOperationVector(times,gen)
+
   }
 
   @ Override
@@ -132,7 +133,7 @@ class Stove extends SemiShiftingAppliance{
   }
 
   @ Override
-  def dailyShifting(Tariff tariff,Instant now, int day){
+  def dailyShifting(Random gen,Tariff tariff,Instant now, int day){
 
     BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
     for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
@@ -145,15 +146,24 @@ class Stove extends SemiShiftingAppliance{
 
     for (int i=0;i< Constants.QUARTERS_OF_DAY;i++) sumPower += householdConsumersService.getApplianceLoads(this,day,i)
 
-    for (int i=0;i < Constants.HOURS_OF_DAY;i++){
-      if (functionMatrix[i]){
-        if (minvalue >= tariff.getUsageCharge(hour1)){
-          minvalue = tariff.getUsageCharge(hour1)
-          minindex = i
-        }
-      }
-      hour1 = hour1 + TimeService.HOUR
+    if ((tariff.tariffSpec.rates.size() == 1) && (tariff.tariffSpec.rates.getAt(0).isFixed)) {
+      def possibleHours = new Vector()
 
+      for (int i=0;i < Constants.HOURS_OF_DAY;i++){
+        if (functionMatrix[i]) possibleHours.add(i)
+      }
+      minindex = possibleHours.get(gen.nextInt(possibleHours.size()))
+    }
+    else {
+      for (int i=0;i < Constants.HOURS_OF_DAY;i++){
+        if (functionMatrix[i]){
+          if (minvalue >= tariff.getUsageCharge(hour1)){
+            minvalue = tariff.getUsageCharge(hour1)
+            minindex = i
+          }
+        }
+        hour1 = hour1 + TimeService.HOUR
+      }
     }
 
     newControllableLoad[minindex] = sumPower
