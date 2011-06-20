@@ -92,7 +92,7 @@ class Freezer extends FullyShiftingAppliance{
   }
 
   @ Override
-  def dailyShifting(Tariff tariff,Instant now, int day){
+  def dailyShifting(Random gen,Tariff tariff,Instant now, int day){
 
     BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
     for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
@@ -103,7 +103,7 @@ class Freezer extends FullyShiftingAppliance{
       def minindex = 0;
 
       for (int j =0;j < Constants.FREEZER_SHIFTING_INTERVAL;j++){
-        if (minvalue >= tariff.getUsageCharge(now2)) {
+        if ((minvalue > tariff.getUsageCharge(now2)) || (minvalue == tariff.getUsageCharge(now2) && gen.nextFloat() > Constants.HALF)) {
           minvalue = tariff.getUsageCharge(now2)
           minindex = j
         }
