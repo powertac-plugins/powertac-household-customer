@@ -185,24 +185,39 @@ class Dishwasher extends SemiShiftingAppliance {
 
     if (householdConsumersService.getApplianceOperationDays(this,day)) {
       def minindex = 0
-      def minvalue = Double.POSITIVE_INFINITY
       def functionMatrix = createShiftingOperationMatrix(day)
-      Instant hour1 = now
-      Instant hour2 = now + TimeService.HOUR
 
-      for (int i=0;i < Constants.HOURS_OF_DAY;i++){
-        if (functionMatrix[i] && functionMatrix[i+1]){
-          if (minvalue >= tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour2)){
-            minvalue = tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour2)
-            minindex = i
+      if ((tariff.tariffSpec.rates.size() == 1) && (tariff.tariffSpec.rates.getAt(0).isFixed)) {
+        def possibleHours = new Vector()
+
+        for (int i=0;i < Constants.HOURS_OF_DAY;i++){
+          if (functionMatrix[i] && functionMatrix[i+1]){
+            possibleHours.add(i)
           }
         }
-        hour1 = hour1 + TimeService.HOUR
-        hour2 = hour2 + TimeService.HOUR
+        minindex = possibleHours.get(gen.nextInt(possibleHours.size()))
+      }
+      else {
+
+        def minvalue = Double.POSITIVE_INFINITY
+        Instant hour1 = now
+        Instant hour2 = now + TimeService.HOUR
+
+        for (int i=0;i < Constants.HOURS_OF_DAY;i++){
+          if (functionMatrix[i] && functionMatrix[i+1]){
+            if (minvalue >= tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour2)){
+              minvalue = tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour2)
+              minindex = i
+            }
+          }
+          hour1 = hour1 + TimeService.HOUR
+          hour2 = hour2 + TimeService.HOUR
+        }
       }
 
       newControllableLoad[minindex] = Constants.QUARTERS_OF_HOUR*power
       newControllableLoad[minindex+1] = Constants.QUARTERS_OF_HOUR*power
+
     }
     return newControllableLoad
   }

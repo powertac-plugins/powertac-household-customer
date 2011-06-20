@@ -70,7 +70,7 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
       village.init()
       village.subscribeDefault()
       village.createBootstrapData()
-      village.createActualData(conf,gen)
+      village.createActualData(conf)
       assert(village.save())
     }
   }

@@ -154,7 +154,7 @@ class Appliance {
    * @param day
    * @return
    */
-  def dailyShifting(Tariff tariff,Instant now, int day){
+  def dailyShifting(Random gen,Tariff tariff,Instant now, int day){
   }
 
   /** This is a simple function utilized for the creation of the function Vector

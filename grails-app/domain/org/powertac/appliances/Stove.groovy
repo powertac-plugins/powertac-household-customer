@@ -146,15 +146,24 @@ class Stove extends SemiShiftingAppliance{
 
     for (int i=0;i< Constants.QUARTERS_OF_DAY;i++) sumPower += householdConsumersService.getApplianceLoads(this,day,i)
 
-    for (int i=0;i < Constants.HOURS_OF_DAY;i++){
-      if (functionMatrix[i]){
-        if (minvalue >= tariff.getUsageCharge(hour1)){
-          minvalue = tariff.getUsageCharge(hour1)
-          minindex = i
-        }
-      }
-      hour1 = hour1 + TimeService.HOUR
+    if ((tariff.tariffSpec.rates.size() == 1) && (tariff.tariffSpec.rates.getAt(0).isFixed)) {
+      def possibleHours = new Vector()
 
+      for (int i=0;i < Constants.HOURS_OF_DAY;i++){
+        if (functionMatrix[i]) possibleHours.add(i)
+      }
+      minindex = possibleHours.get(gen.nextInt(possibleHours.size()))
+    }
+    else {
+      for (int i=0;i < Constants.HOURS_OF_DAY;i++){
+        if (functionMatrix[i]){
+          if (minvalue >= tariff.getUsageCharge(hour1)){
+            minvalue = tariff.getUsageCharge(hour1)
+            minindex = i
+          }
+        }
+        hour1 = hour1 + TimeService.HOUR
+      }
     }
 
     newControllableLoad[minindex] = sumPower

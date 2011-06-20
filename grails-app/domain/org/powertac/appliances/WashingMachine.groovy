@@ -17,17 +17,11 @@
 
 package org.powertac.appliances
 
-import groovy.util.ConfigObject
-
-import java.util.HashMap
-import java.util.Random
-
 import org.joda.time.Instant
 import org.powertac.common.Tariff
 import org.powertac.common.TimeService
 import org.powertac.common.configurations.Constants
-import org.powertac.common.enumerations.Mode
-import org.powertac.common.enumerations.Reaction
+
 
 
 /**
@@ -48,10 +42,10 @@ class WashingMachine extends SemiShiftingAppliance{
   int dryerPower = 0;
 
   /** The function mode of the washing machine. For more info, read the details in the enumerations.Mode java file **/
-  Mode mode = Mode.One
+  //Mode mode = Mode.One
 
   /** The function reaction of the washing machine. For more info, read the details in the enumerations.Reaction java file **/
-  Reaction reaction = Reaction.Strong
+  //Reaction reaction = Reaction.Strong
 
   @ Override
   def initialize(String household,ConfigObject conf, Random gen) {
@@ -132,52 +126,66 @@ class WashingMachine extends SemiShiftingAppliance{
     BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
     for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
 
-    if (dryerFlag){
+    if (householdConsumersService.getApplianceOperationDays(this,day)) {
 
-      if (householdConsumersService.getApplianceOperationDays(this,day)) {
-        def minindex = 0
-        def minvalue = Double.POSITIVE_INFINITY
-        def functionMatrix = createShiftingOperationMatrix(day)
-        Instant hour1 = now
+      def minindex = 0
+      def functionMatrix = createShiftingOperationMatrix(day)
+
+      if ((tariff.tariffSpec.rates.size() == 1) && (tariff.tariffSpec.rates.getAt(0).isFixed)) {
+        def possibleHours = new Vector()
 
         for (int i=0;i < Constants.END_OF_FUNCTION_HOUR;i++){
-          if (functionMatrix[i]){
-            if (minvalue >= tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour1+TimeService.HOUR)+tariff.getUsageCharge(hour1+2*TimeService.HOUR)+tariff.getUsageCharge(hour1+3*TimeService.HOUR)){
-              minvalue = tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour1+TimeService.HOUR)+tariff.getUsageCharge(hour1+2*TimeService.HOUR)+tariff.getUsageCharge(hour1+3*TimeService.HOUR)
-              minindex = i
-            }
-          }
-          hour1 = hour1 + TimeService.HOUR
+          if (functionMatrix[i]) possibleHours.add(i)
         }
+        minindex = possibleHours.get(gen.nextInt(possibleHours.size()))
+
         newControllableLoad[minindex] = Constants.QUARTERS_OF_HOUR*power
         newControllableLoad[minindex+1] = Constants.QUARTERS_OF_HOUR*power
 
-        newControllableLoad[minindex+2] = Constants.QUARTERS_OF_HOUR*dryerPower - Constants.DRYER_THIRD_PHASE_LOAD
-        newControllableLoad[minindex+3] = (Constants.QUARTERS_OF_HOUR/2)*dryerPower - ((2*Constants.QUARTERS_OF_HOUR)+1)*Constants.DRYER_THIRD_PHASE_LOAD
+        if (dryerFlag){
+          newControllableLoad[minindex+2] = Constants.QUARTERS_OF_HOUR*dryerPower - Constants.DRYER_THIRD_PHASE_LOAD
+          newControllableLoad[minindex+3] = (Constants.QUARTERS_OF_HOUR/2)*dryerPower - (Constants.QUARTERS_OF_HOUR+1)*Constants.DRYER_THIRD_PHASE_LOAD
+        }
       }
+      else {
 
-    }
-    else {
-      if (householdConsumersService.getApplianceOperationDays(this,day)) {
-        def minindex = 0
+
+
         def minvalue = Double.POSITIVE_INFINITY
-        def functionMatrix = createShiftingOperationMatrix(day)
         Instant hour1 = now
-        Instant hour2 = now + TimeService.HOUR
 
-        for (int i=0;i < Constants.HOURS_OF_DAY;i++){
-          if (functionMatrix[i] && functionMatrix[i+1]){
-            if (minvalue >= tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour2)){
-              minvalue = tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour2)
-              minindex = i
+        if (dryerFlag){
+
+          for (int i=0;i < Constants.END_OF_FUNCTION_HOUR;i++){
+            if (functionMatrix[i]){
+              if (minvalue >= tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour1+TimeService.HOUR)+tariff.getUsageCharge(hour1+2*TimeService.HOUR)+tariff.getUsageCharge(hour1+3*TimeService.HOUR)){
+                minvalue = tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour1+TimeService.HOUR)+tariff.getUsageCharge(hour1+2*TimeService.HOUR)+tariff.getUsageCharge(hour1+3*TimeService.HOUR)
+                minindex = i
+              }
             }
+            hour1 = hour1 + TimeService.HOUR
           }
-          hour1 = hour1 + TimeService.HOUR
-          hour2 = hour2 + TimeService.HOUR
+          newControllableLoad[minindex] = Constants.QUARTERS_OF_HOUR*power
+          newControllableLoad[minindex+1] = Constants.QUARTERS_OF_HOUR*power
+          newControllableLoad[minindex+2] = Constants.QUARTERS_OF_HOUR*dryerPower - Constants.DRYER_THIRD_PHASE_LOAD
+          newControllableLoad[minindex+3] = (Constants.QUARTERS_OF_HOUR/2)*dryerPower - (Constants.QUARTERS_OF_HOUR+1)*Constants.DRYER_THIRD_PHASE_LOAD
         }
+        else {
 
-        newControllableLoad[minindex] = Constants.QUARTERS_OF_HOUR*power
-        newControllableLoad[minindex+1] = Constants.QUARTERS_OF_HOUR*power
+          if (householdConsumersService.getApplianceOperationDays(this,day)) {
+            for (int i=0;i < Constants.HOURS_OF_DAY;i++){
+              if (functionMatrix[i]){
+                if (minvalue >= tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour1+TimeService.HOUR)){
+                  minvalue = tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour1+TimeService.HOUR)
+                  minindex = i
+                }
+              }
+              hour1 = hour1 + TimeService.HOUR
+            }
+            newControllableLoad[minindex] = Constants.QUARTERS_OF_HOUR*power
+            newControllableLoad[minindex+1] = Constants.QUARTERS_OF_HOUR*power
+          }
+        }
       }
     }
     return newControllableLoad

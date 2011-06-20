@@ -25,6 +25,7 @@ public class Constants {
   public static final int KWH = 1000;
   public static final int MWH = 1000000;
   public static final int MILLION = 1000000;
+  public static final double HALF = 0.5;
 
   // TIME VARIABLES -----------------------------//
   public static final int DAYS_OF_COMPETITION = 63;

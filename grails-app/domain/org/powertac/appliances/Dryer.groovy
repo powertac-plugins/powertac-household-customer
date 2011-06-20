@@ -88,7 +88,7 @@ class Dryer extends SemiShiftingAppliance {
             dailyOperation.set(j,true)
           }
           for (int k = i+Constants.DRYER_SECOND_PHASE;k < i+Constants.DRYER_THIRD_PHASE;k++) {
-            loadVector.set(k,power - Constants.DRYER_THIRD_PHASE_LOAD *(k - (i + Constants.DRYER_SECOND_PHASE - 1)))
+            loadVector.set(k,loadVector.get(k-1)-Constants.DRYER_THIRD_PHASE_LOAD)
             dailyOperation.set(k,true)
             if (k == Constants.QUARTERS_OF_DAY-1) break
           }
@@ -216,9 +216,10 @@ class Dryer extends SemiShiftingAppliance {
   }
 
   @ Override
-  def dailyShifting(Tariff tariff,Instant now, int day){
+  def dailyShifting(Random gen,Tariff tariff,Instant now, int day){
 
-    long[] newControllableLoad = new long[Constants.HOURS_OF_DAY]
+    BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
+    for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
 
     return newControllableLoad
   }

@@ -97,7 +97,7 @@ class Refrigerator extends FullyShiftingAppliance {
       def minindex = 0;
 
       for (int j =0;j < Constants.REFRIGERATOR_SHIFTING_INTERVAL;j++){
-        if (minvalue >= tariff.getUsageCharge(now2)) {
+        if ((minvalue > tariff.getUsageCharge(now2)) || (minvalue == tariff.getUsageCharge(now2) && gen.nextFloat() > Constants.HALF)) {
           minvalue = tariff.getUsageCharge(now2)
           minindex = j
         }

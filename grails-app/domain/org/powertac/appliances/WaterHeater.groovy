@@ -219,20 +219,36 @@ class WaterHeater extends FullyShiftingAppliance{
     for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
 
     if (type == HeaterType.InstantHeater) {
-      if (householdConsumersService.getApplianceOperationDays(this,day)) {
-        def minindex = 0
-        def minvalue = Double.POSITIVE_INFINITY
-        def functionMatrix = createShiftingOperationMatrix(day)
-        Instant hour1 = now
 
-        for (int i=0;i < Constants.HOURS_OF_DAY;i++){
-          if (functionMatrix[i]){
-            if (minvalue >= tariff.getUsageCharge(hour1)){
-              minvalue = tariff.getUsageCharge(hour1)
-              minindex = i
+      if (householdConsumersService.getApplianceOperationDays(this,day)) {
+
+        def minindex = 0
+        def functionMatrix = createShiftingOperationMatrix(day)
+
+        if ((tariff.tariffSpec.rates.size() == 1) && (tariff.tariffSpec.rates.getAt(0).isFixed)) {
+          def possibleHours = new Vector()
+
+          for (int i=0;i < Constants.HOURS_OF_DAY;i++){
+            if (functionMatrix[i]){
+              possibleHours.add(i)
             }
           }
-          hour1 = hour1 + TimeService.HOUR
+          minindex = possibleHours.get(gen.nextInt(possibleHours.size()))
+        }
+        else {
+
+          def minvalue = Double.POSITIVE_INFINITY
+          Instant hour1 = now
+
+          for (int i=0;i < Constants.HOURS_OF_DAY;i++){
+            if (functionMatrix[i]){
+              if (minvalue >= tariff.getUsageCharge(hour1)){
+                minvalue = tariff.getUsageCharge(hour1)
+                minindex = i
+              }
+            }
+            hour1 = hour1 + TimeService.HOUR
+          }
         }
         newControllableLoad[minindex] = times*power
       }
@@ -241,20 +257,33 @@ class WaterHeater extends FullyShiftingAppliance{
 
       if (householdConsumersService.getApplianceOperationDays(this,day)) {
         def minindex = 0
-        def minvalue = Double.POSITIVE_INFINITY
         def functionMatrix = createShiftingOperationMatrix(day)
-        Instant hour1 = now
 
-        for (int i=0;i < Constants.STORAGE_HEATER_SHIFTING_END;i++){
-          if (functionMatrix[i]){
-            if (minvalue >= tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour1 + TimeService.HOUR)+tariff.getUsageCharge(hour1+ 2*TimeService.HOUR)+tariff.getUsageCharge(hour1 + 3*TimeService.HOUR)+tariff.getUsageCharge(hour1 + 4*TimeService.HOUR)){
-              minvalue = tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour1 + TimeService.HOUR)+tariff.getUsageCharge(hour1+ 2*TimeService.HOUR)+tariff.getUsageCharge(hour1 + 3*TimeService.HOUR)+tariff.getUsageCharge(hour1 + 4*TimeService.HOUR)
-              minindex = i
+        if ((tariff.tariffSpec.rates.size() == 1) && (tariff.tariffSpec.rates.getAt(0).isFixed)) {
+          def possibleHours = new Vector()
+
+          for (int i=0;i < Constants.STORAGE_HEATER_SHIFTING_END;i++){
+            if (functionMatrix[i]){
+              possibleHours.add(i)
             }
           }
-          hour1 = hour1 + TimeService.HOUR
+          minindex = possibleHours.get(gen.nextInt(possibleHours.size()))
         }
+        else {
 
+          def minvalue = Double.POSITIVE_INFINITY
+          Instant hour1 = now
+
+          for (int i=0;i < Constants.STORAGE_HEATER_SHIFTING_END;i++){
+            if (functionMatrix[i]){
+              if (minvalue >= tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour1 + TimeService.HOUR)+tariff.getUsageCharge(hour1+ 2*TimeService.HOUR)+tariff.getUsageCharge(hour1 + 3*TimeService.HOUR)+tariff.getUsageCharge(hour1 + 4*TimeService.HOUR)){
+                minvalue = tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour1 + TimeService.HOUR)+tariff.getUsageCharge(hour1+ 2*TimeService.HOUR)+tariff.getUsageCharge(hour1 + 3*TimeService.HOUR)+tariff.getUsageCharge(hour1 + 4*TimeService.HOUR)
+                minindex = i
+              }
+            }
+            hour1 = hour1 + TimeService.HOUR
+          }
+        }
         for (int i=0; i <= Constants.STORAGE_HEATER_PHASES ;i++){
           newControllableLoad[minindex+i] = Constants.QUARTERS_OF_HOUR*power
         }

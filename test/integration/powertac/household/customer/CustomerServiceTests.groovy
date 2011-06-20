@@ -425,14 +425,7 @@ class CustomerServiceTests extends GroovyTestCase {
     Tariff tc1 = Tariff.findBySpecId(tsc1.id)
     assertNotNull("first tariff found", tc1)
     def tclist = tariffMarketService.getActiveTariffList(PowerType.CONSUMPTION)
-    Village.list().each{ village ->
-      def sumConsumptions = villageConsumersService.getSumConsumptions(village)
-      for (int i =0;i < villageConsumersService.getBootstrapConsumptions(village).size();i++){
-        println("Day "+ i)
-        println(sumConsumptions[i].toString())
-        println(villageConsumersService.getBootstrapConsumptions(village)[i].toString())
-      }
-    }
+
     Village.list().each{ customer ->
       customer.possibilityEvaluationNewTariffs(Tariff.list())
     }

@@ -253,78 +253,93 @@ class Household {
    */
   def fillAppliances(ConfigObject conf, Random gen) {
 
-    // Refrigerator
-    Refrigerator ref = new Refrigerator();
-    this.addToAppliances(ref)
-    ref.initialize(this.name, conf,gen);
-    ref.fillWeeklyFunction(gen)
-    ref.createWeeklyPossibilityOperationVector()
+    // NOT SHIFTING ================================
+
     // Consumer Electronics
     ConsumerElectronics ce = new ConsumerElectronics();
     this.addToAppliances(ce)
     ce.initialize(this.name,conf,gen);
     ce.fillWeeklyFunction(gen)
     ce.createWeeklyPossibilityOperationVector()
+
     // ICT
     ICT ict = new ICT();
     this.addToAppliances(ict)
     ict.initialize(this.name,conf,gen);
     ict.fillWeeklyFunction(gen)
     ict.createWeeklyPossibilityOperationVector()
+
     // Lights
     Lights lights = new Lights();
     this.addToAppliances(lights)
     lights.initialize(this.name,conf,gen);
     lights.fillWeeklyFunction(gen)
     lights.createWeeklyPossibilityOperationVector()
+
     //Others
     Others others = new Others();
     this.addToAppliances(others)
     others.initialize(this.name,conf,gen);
     others.fillWeeklyFunction(gen)
     others.createWeeklyPossibilityOperationVector()
-    //Water Heater
-    WaterHeater wh = new WaterHeater()
-    this.addToAppliances(wh)
-    wh.initialize(this.name,conf,gen)
-    checkProbability(wh,gen)
-    // Freezer
-    Freezer fr = new Freezer()
-    this.addToAppliances(fr)
-    fr.initialize(this.name,conf,gen)
-    checkProbability(fr,gen)
-    // Dishwasher
-    Dishwasher dw = new Dishwasher()
-    this.addToAppliances(dw)
-    dw.initialize(this.name,conf,gen)
-    checkProbability(dw,gen)
+
     //Circulation Pump
     CirculationPump cp = new CirculationPump()
     this.addToAppliances(cp)
     cp.initialize(this.name,conf,gen)
     checkProbability(cp,gen)
-    // Washing Machine
-    WashingMachine wm = new WashingMachine();
-    this.addToAppliances(wm)
-    wm.initialize(this.name,conf,gen);
-    wm.fillWeeklyFunction(gen)
-    wm.createWeeklyPossibilityOperationVector()
-    //Dryer
-    Dryer dr = new Dryer()
-    this.addToAppliances(dr)
-    dr.initialize(this.name,conf,gen)
-    checkProbability(dr,gen)
+    // FULLY SHIFTING ================================
+
+    // Refrigerator
+    Refrigerator ref = new Refrigerator();
+    this.addToAppliances(ref)
+    ref.initialize(this.name, conf,gen);
+    ref.fillWeeklyFunction(gen)
+    ref.createWeeklyPossibilityOperationVector()
+
+    // Freezer
+    Freezer fr = new Freezer()
+    this.addToAppliances(fr)
+    fr.initialize(this.name,conf,gen)
+    checkProbability(fr,gen)
+
+    //Water Heater
+    WaterHeater wh = new WaterHeater()
+    this.addToAppliances(wh)
+    wh.initialize(this.name,conf,gen)
+    checkProbability(wh,gen)
+
     //Space Heater
     SpaceHeater sh = new SpaceHeater()
     this.addToAppliances(sh)
     sh.initialize(this.name,conf,gen)
     checkProbability(sh,gen)
+    // SEMI SHIFTING ================================
+
+    // Dishwasher
+    Dishwasher dw = new Dishwasher()
+    this.addToAppliances(dw)
+    dw.initialize(this.name,conf,gen)
+    checkProbability(dw,gen)
+
     //Stove
     Stove st = new Stove()
     this.addToAppliances(st)
     st.initialize(this.name,conf,gen)
     checkProbability(st,gen)
 
+    // Washing Machine
+    WashingMachine wm = new WashingMachine()
+    this.addToAppliances(wm)
+    wm.initialize(this.name,conf,gen);
+    wm.fillWeeklyFunction(gen)
+    wm.createWeeklyPossibilityOperationVector()
+
+    //Dryer
+    Dryer dr = new Dryer()
+    this.addToAppliances(dr)
+    dr.initialize(this.name,conf,gen)
+    checkProbability(dr,gen)
 
   }
 
@@ -542,7 +557,7 @@ class Household {
    * @param day
    * @return
    */
-  def dailyShifting(Random gen,Tariff tariff,Instant now, int day){
+  def dailyShifting(Random gen, Tariff tariff, Instant now, int day){
 
     BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
     for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
