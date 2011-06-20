@@ -109,8 +109,8 @@ class Household {
     fillAppliances(conf, gen)
 
     for (int i =0;i < Constants.DAYS_OF_WEEK;i++) {
-      setDailyBaseLoad(fillDailyBaseLoad(i))
-      setDailyControllableLoad(fillDailyControllableLoad(i))
+      setDailyBaseLoad(fillDailyBaseLoad(week*Constants.DAYS_OF_WEEK+i))
+      setDailyControllableLoad(fillDailyControllableLoad(week*Constants.DAYS_OF_WEEK+i))
       weeklyBaseLoad.add(dailyBaseLoad)
       weeklyControllableLoad.add(dailyControllableLoad)
       setDailyBaseLoadInHours(fillDailyBaseLoadInHours())
@@ -118,8 +118,34 @@ class Household {
       weeklyBaseLoadInHours.add(dailyBaseLoadInHours)
       weeklyControllableLoadInHours.add(dailyControllableLoadInHours)
     }
+    week = 1
+    refresh(conf,gen)
 
-    for (week;week < Constants.WEEKS_OF_COMPETITION-1;week++){
+    this.appliances.each{ appliance ->
+      appliance.setVectors()
+    }
+  }
+
+
+  def createActualData(ConfigObject conf, Random gen) {
+
+    weeklyBaseLoad = new Vector()
+    weeklyControllableLoad = new Vector()
+    weeklyBaseLoadInHours = new Vector()
+    weeklyControllableLoadInHours = new Vector()
+
+    appliances.each { appliance ->
+      householdConsumersService.appliancesOperations.remove(appliance.name)
+      householdConsumersService.appliancesLoads.remove(appliance.name)
+      householdConsumersService.appliancesPossibilityOperations.remove(appliance.name)
+      householdConsumersService.appliancesOperationDays.remove(appliance.name)
+      appliance.operationVector = new Vector()
+      appliance.possibilityOperationVector = new Vector()
+      appliance.weeklyOperation = new Vector()
+      appliance.weeklyLoadVector = new Vector()
+    }
+
+    for (week = 0;week < Constants.WEEKS_OF_COMPETITION;week++){
       refresh(conf,gen)
     }
 
@@ -358,14 +384,14 @@ class Household {
    * @param weekday
    * @return
    */
-  def fillDailyBaseLoad(int weekday) {
+  def fillDailyBaseLoad(int day) {
     // Creating auxiliary variables
     Vector v = new Vector(Constants.QUARTERS_OF_DAY)
     int sum = 0
     for (int i = 0;i < Constants.QUARTERS_OF_DAY; i++) {
       sum = 0
       this.appliances.each {
-        if (it instanceof NotShiftingAppliance) sum = sum + it.weeklyLoadVector.get(weekday).get(i)
+        if (it instanceof NotShiftingAppliance) sum = sum + it.weeklyLoadVector.get(day).get(i)
       }
       v.add(sum)
     }
@@ -377,14 +403,14 @@ class Household {
    * @param weekday
    * @return
    */
-  def fillDailyControllableLoad(int weekday) {
+  def fillDailyControllableLoad(int day) {
     // Creating auxiliary variables
     Vector v = new Vector(Constants.QUARTERS_OF_DAY)
     int sum = 0
     for (int i = 0;i < Constants.QUARTERS_OF_DAY; i++) {
       sum = 0
       this.appliances.each {
-        if (!(it instanceof NotShiftingAppliance)) sum = sum + it.weeklyLoadVector.get(weekday).get(i)
+        if (!(it instanceof NotShiftingAppliance)) sum = sum + it.weeklyLoadVector.get(day).get(i)
       }
       v.add(sum)
     }
@@ -490,12 +516,14 @@ class Household {
 
     // For each appliance of the household
     this.appliances.each { appliance ->
-      appliance.refresh(gen)
+      appliance.operationVector = new Vector()
+      if (!(appliance instanceof Dryer)) appliance.refresh(gen)
+
     }
 
     for (int i =0;i < Constants.DAYS_OF_WEEK;i++) {
-      setDailyBaseLoad(fillDailyBaseLoad(i))
-      setDailyControllableLoad(fillDailyControllableLoad(i))
+      setDailyBaseLoad(fillDailyBaseLoad(week*Constants.DAYS_OF_WEEK+i))
+      setDailyControllableLoad(fillDailyControllableLoad(week*Constants.DAYS_OF_WEEK+i))
       weeklyBaseLoad.add(dailyBaseLoad)
       weeklyControllableLoad.add(dailyControllableLoad)
       setDailyBaseLoadInHours(fillDailyBaseLoadInHours())
@@ -514,14 +542,14 @@ class Household {
    * @param day
    * @return
    */
-  def dailyShifting(Tariff tariff,Instant now, int day){
+  def dailyShifting(Random gen,Tariff tariff,Instant now, int day){
 
     BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
     for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
 
     appliances.each { appliance ->
       if (!(appliance instanceof NotShiftingAppliance)) {
-        def temp = appliance.dailyShifting(tariff,now,day)
+        def temp = appliance.dailyShifting(gen,tariff,now,day)
         //log.info"Appliance ${appliance.toString()}"
         //log.info"Load: ${householdConsumersService.getApplianceLoads(appliance,day).toString()}"
         //log.info("Temp: " + temp.toString())

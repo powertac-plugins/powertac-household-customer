@@ -20,6 +20,7 @@ package org.powertac.appliances
 import groovy.util.ConfigObject
 
 import java.util.HashMap
+import java.util.Random
 
 import org.joda.time.Instant
 import org.powertac.common.Tariff
@@ -126,7 +127,7 @@ class WashingMachine extends SemiShiftingAppliance{
   }
 
   @ Override
-  def dailyShifting(Tariff tariff,Instant now, int day){
+  def dailyShifting(Random gen,Tariff tariff,Instant now, int day){
 
     BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
     for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
@@ -243,8 +244,17 @@ class WashingMachine extends SemiShiftingAppliance{
     createWeeklyOperationVector(times,gen)
     fillWeeklyFunction(gen)
     createWeeklyPossibilityOperationVector()
-  }
 
+    if (dryerFlag == true) {
+      this.applianceOf.appliances.each {
+        Object o = (Object) it
+        if (o instanceof Dryer) {
+          it.operationVector = new Vector()
+          it.refresh(gen)
+        }
+      }
+    }
+  }
   static constraints = {
   }
 }

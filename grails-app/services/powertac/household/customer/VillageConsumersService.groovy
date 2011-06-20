@@ -31,12 +31,13 @@ class VillageConsumersService {
   Map households = [:]
   Map baseConsumptions = [:]
   Map controllableConsumptions = [:]
+  Map bootstrapConsumptions = [:]
   Map days = [:]
 
   // manage rate maps
   void createHouseholdsMap (Village village, int types, int population)
   {
-    log.info "create household map for Household Customer ${village.toString()} [${types}]"
+    log.debug "create household map for Household Customer ${village.toString()} [${types}]"
     households[village.customerInfo.name] = new Household[types][population]
   }
 
@@ -51,7 +52,7 @@ class VillageConsumersService {
       return
     }
 
-    for (int i=0;i < 4;i++) {
+    for (int i=0;i < village.types;i++) {
       houses.addAll(householdMap[i])
     }
 
@@ -82,8 +83,8 @@ class VillageConsumersService {
 
   void createBaseConsumptionsMap (Village village, int types)
   {
-    log.info "create Base Consumption map for Household Customer ${village.customerInfo.name} [${types}]"
-    baseConsumptions[village.customerInfo.name] = new BigInteger[types][63][24]
+    log.debug "create Base Consumption map for Household Customer ${village.customerInfo.name} [${types}]"
+    baseConsumptions[village.customerInfo.name] = new BigInteger[types][Constants.DAYS_OF_COMPETITION][Constants.HOURS_OF_DAY]
   }
 
   def getBaseConsumptions(Village village, int type)
@@ -103,8 +104,8 @@ class VillageConsumersService {
 
   void createControllableConsumptionsMap (Village village, int types)
   {
-    log.info "create Controllable consumption map for Household Customer ${village.customerInfo.name} [${types}]"
-    controllableConsumptions[village.customerInfo.name] = new BigInteger[types][63][24]
+    log.debug "create Controllable consumption map for Household Customer ${village.customerInfo.name} [${types}]"
+    controllableConsumptions[village.customerInfo.name] = new BigInteger[types][Constants.DAYS_OF_COMPETITION][Constants.HOURS_OF_DAY]
   }
 
   def getControllableConsumptions(Village village, int type, int day)
@@ -145,14 +146,13 @@ class VillageConsumersService {
   }
 
 
-  // manage rate maps
   void createDaysMap (Village village)
   {
-    log.info "create Days List map for Household Customer ${village.toString()}"
+    log.debug "create Days List map for Household Customer ${village.toString()}"
     days[village.customerInfo.name] = new int[Constants.RANDOM_DAYS_NUMBER]
   }
 
-  // manage tier lists
+
   def getDays(Village village)
   {
     def dayMap = days[village.customerInfo.name]
@@ -173,6 +173,49 @@ class VillageConsumersService {
     }
     dayMap[index] = value
   }
+
+  void createBootstrapConsumptionsMap (Village village)
+  {
+    log.debug "create Base Consumption map for Household Customer ${village.customerInfo.name}"
+    bootstrapConsumptions[village.customerInfo.name] = new BigInteger[Constants.DAYS_OF_BOOTSTRAP][Constants.HOURS_OF_DAY]
+  }
+
+  def getBootstrapConsumptions(Village village)
+  {
+    return bootstrapConsumptions[village.customerInfo.name]
+  }
+
+  void setBootstrapConsumptions(Village village)
+  {
+    def bootstrapConsumptionMap = bootstrapConsumptions[village.customerInfo.name]
+    if (bootstrapConsumptionMap == null) {
+      log.error "could not find Bootstrap Consumption map for village ${village.toString()}"
+      return
+    }
+
+    for (int j=0;j < Constants.DAYS_OF_BOOTSTRAP;j++) {
+      for (int k=0;k < Constants.HOURS_OF_DAY;k++){
+        BigInteger temp = 0
+        for (int i=0;i < village.types;i++)  temp += getBaseConsumptions(village,i)[j][k] + getControllableConsumptions(village,i)[j][k]
+        bootstrapConsumptionMap[j][k] = temp
+      }
+    }
+  }
+
+  def getSumConsumptions(Village village){
+
+    def sumConsumption = new BigInteger[Constants.DAYS_OF_COMPETITION][Constants.HOURS_OF_DAY]
+
+    for (int j=0;j < Constants.DAYS_OF_COMPETITION;j++) {
+      for (int k=0;k < Constants.HOURS_OF_DAY;k++){
+        BigInteger temp = 0
+        for (int i=0;i < village.types;i++) temp += getBaseConsumptions(village,i)[j][k] + getControllableConsumptions(village,i)[j][k]
+        sumConsumption[j][k] = temp
+      }
+    }
+    return sumConsumption
+  }
+
 
 }
 

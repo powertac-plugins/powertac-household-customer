@@ -54,6 +54,7 @@ class Stove extends SemiShiftingAppliance{
     probabilityWeekday = fillDay(Constants.STOVE_POSSIBILITY_DAY_1,Constants.STOVE_POSSIBILITY_DAY_2,Constants.STOVE_POSSIBILITY_DAY_3)
     times = conf.household.appliances.stove.StoveDailyTimes
     createWeeklyOperationVector(times,gen)
+
   }
 
   @ Override
@@ -132,7 +133,7 @@ class Stove extends SemiShiftingAppliance{
   }
 
   @ Override
-  def dailyShifting(Tariff tariff,Instant now, int day){
+  def dailyShifting(Random gen,Tariff tariff,Instant now, int day){
 
     BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
     for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0

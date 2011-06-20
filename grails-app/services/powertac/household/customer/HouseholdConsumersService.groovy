@@ -39,22 +39,22 @@ class HouseholdConsumersService {
 
 
   void createAppliancesOperationsMap (Appliance appliance) {
-    log.info "create appliance Operations map for Appliance ${appliance.toString()}"
+    log.debug "create appliance Operations map for Appliance ${appliance.toString()}"
     appliancesOperations[appliance.name] = new boolean[63][96]
   }
 
   void createAppliancesLoadsMap (Appliance appliance) {
-    log.info "create appliance load map for Appliance ${appliance.toString()}"
+    log.debug "create appliance load map for Appliance ${appliance.toString()}"
     appliancesLoads[appliance.name] = new BigInteger[63][96]
   }
 
   void createAppliancesPossibilityOperationsMap (Appliance appliance) {
-    log.info "create appliance Possibility Operations map for Appliance ${appliance.toString()}"
+    log.debug "create appliance Possibility Operations map for Appliance ${appliance.toString()}"
     appliancesPossibilityOperations[appliance.name] = new boolean[63][96]
   }
 
   void createAppliancesOperationDaysMap (Appliance appliance) {
-    log.info "create appliance operation days map for Appliance ${appliance.toString()}"
+    log.debug "create appliance operation days map for Appliance ${appliance.toString()}"
     appliancesOperationDays[appliance.name] = new boolean[63]
   }
 

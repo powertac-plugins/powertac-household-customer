@@ -29,6 +29,8 @@ public class Constants {
   // TIME VARIABLES -----------------------------//
   public static final int DAYS_OF_COMPETITION = 63;
   public static final int WEEKS_OF_COMPETITION = 9;
+  public static final int DAYS_OF_BOOTSTRAP = 14;
+  public static final int WEEKS_OF_BOOTSTRAP = 2;
   public static final int DAYS_OF_WEEK = 7;
   public static final int WEEKDAYS = 5;
   public static final int QUARTERS_OF_HOUR = 4;

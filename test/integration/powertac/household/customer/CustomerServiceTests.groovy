@@ -346,7 +346,6 @@ class CustomerServiceTests extends GroovyTestCase {
    */
   void testDailyShifting() {
     initializeService()
-
     def tsc1 = new TariffSpecification(broker: broker1,
         expiration: new Instant(now.millis + TimeService.DAY * 5),
         minDuration: TimeService.WEEK * 8, powerType: PowerType.CONSUMPTION)
@@ -426,13 +425,20 @@ class CustomerServiceTests extends GroovyTestCase {
     Tariff tc1 = Tariff.findBySpecId(tsc1.id)
     assertNotNull("first tariff found", tc1)
     def tclist = tariffMarketService.getActiveTariffList(PowerType.CONSUMPTION)
+    Village.list().each{ village ->
+      def sumConsumptions = villageConsumersService.getSumConsumptions(village)
+      for (int i =0;i < villageConsumersService.getBootstrapConsumptions(village).size();i++){
+        println("Day "+ i)
+        println(sumConsumptions[i].toString())
+        println(villageConsumersService.getBootstrapConsumptions(village)[i].toString())
+      }
+    }
     Village.list().each{ customer ->
       customer.possibilityEvaluationNewTariffs(Tariff.list())
     }
     timeService.base = now.toInstant().millis
     timeService.currentTime = new Instant(timeService.currentTime.millis + TimeService.HOUR*11)
     householdCustomerService.activate(timeService.currentTime, 1)
-
   }
 
 }

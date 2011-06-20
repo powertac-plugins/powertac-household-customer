@@ -18,6 +18,7 @@
 
 package org.powertac.appliances
 import java.util.HashMap
+import java.util.Random
 
 import org.joda.time.Instant
 import org.powertac.common.Tariff
@@ -85,7 +86,7 @@ class Refrigerator extends FullyShiftingAppliance {
   }
 
   @ Override
-  def dailyShifting(Tariff tariff,Instant now, int day){
+  def dailyShifting(Random gen,Tariff tariff,Instant now, int day){
 
     BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
     for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
