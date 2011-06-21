@@ -629,7 +629,7 @@ class Village extends AbstractCustomer{
   }
 
   @ Override
-  void step(Random gen){
+  void step(){
     super.step();
     if (timeService.getHourOfDay() == 23) rescheduleNextDay()
   }
@@ -667,7 +667,7 @@ class Village extends AbstractCustomer{
       println(now)
       subscriptions.each { sub ->
         for (int i=0;i < types;i++){
-          BigInteger[] newControllableLoad = dailyShifting(gen,sub.tariff,now,i,day)
+          BigInteger[] newControllableLoad = dailyShifting(sub.tariff,now,i,day)
           villageConsumersService.setControllableConsumption(this, i, day,newControllableLoad)
         }
       }

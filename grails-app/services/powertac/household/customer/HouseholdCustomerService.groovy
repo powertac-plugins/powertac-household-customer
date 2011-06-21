@@ -82,7 +82,7 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
 
     Random gen = ensureRandomSeed()
 
-    if (phase == 1) villageList*.step(gen)
+    if (phase == 1) villageList*.step()
     else villageList*.toString()
   }
 
