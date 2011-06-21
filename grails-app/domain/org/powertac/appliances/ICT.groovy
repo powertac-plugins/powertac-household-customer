@@ -58,6 +58,7 @@ class ICT extends NotShiftingAppliance{
 
     def possibilityDailyOperation = new Vector()
 
+    // The ICT appliances need someone to be there to operate them
     for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
       if (applianceOf.isEmpty(day,j) == false) possibilityDailyOperation.add(true)
       else possibilityDailyOperation.add(false)

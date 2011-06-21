@@ -52,6 +52,7 @@ class Village extends AbstractCustomer{
   /** This is an agreggated vector containing each day's controllable load of all the households in hours. **/
   Vector aggDailyControllableLoadInHours = new Vector()
 
+  /** This variable is utilized for the creation of the random numbers and is taken from the service.*/
   Random gen
 
   //static hasMany = [houses:Household]
@@ -119,6 +120,9 @@ class Village extends AbstractCustomer{
     }
   }
 
+  /** Once the households that belong to the village are created, a two week scheduling is beginning
+   *  in order to create bootstrap dataset for the brokers in competition.
+   */
   void createBootstrapData(){
 
     fillAggWeeklyBootstrapLoad("NotShifting")
@@ -131,6 +135,11 @@ class Village extends AbstractCustomer{
     for (int day = 0;day < Constants.DAYS_OF_BOOTSTRAP;day++) log.info("Day ${day}: Bootstrap Load : ${villageConsumersService.getBootstrapConsumptions(this)[day].toString()}")
   }
 
+  /** After the bootstrap datasets are created, we reset the variables and the mappings
+   * in order to fill them with the actual data of the competition.
+   * 
+   * @param conf
+   */
   void createActualData(ConfigObject conf){
 
     villageConsumersService.baseConsumptions.remove(this.customerInfo.name)
@@ -368,24 +377,22 @@ class Village extends AbstractCustomer{
    * @param gen
    * @return
    */
-  def refresh(ConfigObject conf) {
-    for (int i=0; i < villageConsumersService.households.size();i++){
-      for (int j=0; j < villageConsumersService.getHouseholds(this,i).size();j++){
-        villageConsumersService.getHouseholds(this,i)[j].refresh(conf,gen)
-      }
-    }
-
-    villageConsumersService.baseConsumptions.remove(this.customerInfo.name)
-    villageConsumersService.createBaseConsumptionsMap(this,types)
-    villageConsumersService.controllableConsumptions.remove(this.customerInfo.name)
-    villageConsumersService.createControllableConsumptionsMap(this,types)
-
-    fillAggWeeklyLoad("NotShifting")
-    fillAggWeeklyLoad("RandomlyShifting")
-    fillAggWeeklyLoad("RegularlyShifting")
-    fillAggWeeklyLoad("SmartShifting")
-
-  }
+  /*  def refresh(ConfigObject conf) {
+   for (int i=0; i < villageConsumersService.households.size();i++){
+   for (int j=0; j < villageConsumersService.getHouseholds(this,i).size();j++){
+   villageConsumersService.getHouseholds(this,i)[j].refresh(conf,gen)
+   }
+   }
+   villageConsumersService.baseConsumptions.remove(this.customerInfo.name)
+   villageConsumersService.createBaseConsumptionsMap(this,types)
+   villageConsumersService.controllableConsumptions.remove(this.customerInfo.name)
+   villageConsumersService.createControllableConsumptionsMap(this,types)
+   fillAggWeeklyLoad("NotShifting")
+   fillAggWeeklyLoad("RandomlyShifting")
+   fillAggWeeklyLoad("RegularlyShifting")
+   fillAggWeeklyLoad("SmartShifting")
+   }
+   */
 
   @ Override
   double costEstimation(Tariff tariff)
@@ -499,6 +506,7 @@ class Village extends AbstractCustomer{
    * readies the shifted Controllable Consumption for the needs of the tariff evaluation.
    * @param tariff
    * @param now
+   * @param type
    * @param day
    * @return
    */
@@ -626,6 +634,11 @@ class Village extends AbstractCustomer{
     if (timeService.getHourOfDay() == 23) rescheduleNextDay()
   }
 
+  /** This function is utilized in order to reschedule the consumption load for the
+   * next day of the competition according to the tariff rates of the subscriptions under
+   * contract.
+   * 
+   */
   void rescheduleNextDay(){
 
     int serial = ((timeService.currentTime.millis - timeService.base) / TimeService.HOUR)
@@ -642,6 +655,10 @@ class Village extends AbstractCustomer{
     }
   }
 
+  /** This function is utilized in order to schedule the consumption load for the
+   * bootstrap data of the two weeks, so that the brokers can see the smart scheduling
+   * 
+   */
   void bootstrapSchedule(){
 
     Instant now = timeService.currentTime

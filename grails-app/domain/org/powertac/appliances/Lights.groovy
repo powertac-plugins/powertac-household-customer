@@ -55,6 +55,7 @@ class Lights extends NotShiftingAppliance{
 
     def possibilityDailyOperation = new Vector()
 
+    // Lights need to operate only when someone is in the house
     for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
       if (applianceOf.isEmpty(day,j) == false) possibilityDailyOperation.add(true)
       else possibilityDailyOperation.add(false)

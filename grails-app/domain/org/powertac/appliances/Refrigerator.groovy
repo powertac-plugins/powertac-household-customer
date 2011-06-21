@@ -58,6 +58,7 @@ class Refrigerator extends FullyShiftingAppliance {
 
     def possibilityDailyOperation = new Vector()
 
+    // Freezer can work anytime
     for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
       possibilityDailyOperation.add(true)
     }
@@ -92,10 +93,12 @@ class Refrigerator extends FullyShiftingAppliance {
     for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
     Instant now2 = now
 
+    // Daily operation is seperated in shifting periods
     for (int i=0;i < Constants.REFRIGERATOR_SHIFTING_PERIODS;i++){
       def minvalue = Double.POSITIVE_INFINITY
       def minindex = 0;
 
+      // For each shifting period we search the best value
       for (int j =0;j < Constants.REFRIGERATOR_SHIFTING_INTERVAL;j++){
         if ((minvalue > tariff.getUsageCharge(now2)) || (minvalue == tariff.getUsageCharge(now2) && gen.nextFloat() > Constants.HALF)) {
           minvalue = tariff.getUsageCharge(now2)

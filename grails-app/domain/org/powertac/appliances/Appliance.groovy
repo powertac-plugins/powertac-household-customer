@@ -95,6 +95,7 @@ class Appliance {
   /** This variable contains the amount of times the appliance may work through the week or day */
   int times
 
+  /** Each appliance belongs to a single household and consumes its power load.*/
   static belongsTo = [applianceOf:Household]
 
   /** This function is used to create the operation vector of the appliance for the week
@@ -149,6 +150,7 @@ class Appliance {
 
   /** This is a complex function that changes the appliance's function in order to have the
    * most cost effective operation load in a day schedule. 
+   * @param gen
    * @param tariff
    * @param now
    * @param day
@@ -290,12 +292,13 @@ class Appliance {
    */
   def setVectors() {
 
-
+    // Creation of the appliance mappings in the service.
     householdConsumersService.createAppliancesOperationsMap(this)
     householdConsumersService.createAppliancesLoadsMap(this)
     if (!(this instanceof Dryer)) householdConsumersService.createAppliancesPossibilityOperationsMap(this)
     householdConsumersService.createAppliancesOperationDaysMap(this)
 
+    // Add the data values for each day of competition and each quarter of each day.
     for (int i=0;i < weeklyOperation.size();i++){
       boolean function = false
       for (int j=0;j < Constants.QUARTERS_OF_DAY;j++){

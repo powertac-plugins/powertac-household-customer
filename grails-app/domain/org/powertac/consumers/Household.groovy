@@ -118,6 +118,8 @@ class Household {
       weeklyBaseLoadInHours.add(dailyBaseLoadInHours)
       weeklyControllableLoadInHours.add(dailyControllableLoadInHours)
     }
+
+    //Filling another week for the bootstrap data
     week = 1
     refresh(conf,gen)
 
@@ -126,19 +128,30 @@ class Household {
     }
   }
 
-
+  /** After the creation of the household and the filling of the two weeks bootstrap data
+   * the next thing to do is to fill the actual data for the competition functioning.
+   * 
+   * @param conf
+   * @param gen
+   * @return
+   */
   def createActualData(ConfigObject conf, Random gen) {
 
+    // Reset the variables for the new data
     weeklyBaseLoad = new Vector()
     weeklyControllableLoad = new Vector()
     weeklyBaseLoadInHours = new Vector()
     weeklyControllableLoadInHours = new Vector()
 
     appliances.each { appliance ->
+
+      // Remove the mappings in order to remake them
       householdConsumersService.appliancesOperations.remove(appliance.name)
       householdConsumersService.appliancesLoads.remove(appliance.name)
       householdConsumersService.appliancesPossibilityOperations.remove(appliance.name)
       householdConsumersService.appliancesOperationDays.remove(appliance.name)
+
+      // Reset the variables for the new data
       appliance.operationVector = new Vector()
       appliance.possibilityOperationVector = new Vector()
       appliance.weeklyOperation = new Vector()
@@ -288,6 +301,7 @@ class Household {
     this.addToAppliances(cp)
     cp.initialize(this.name,conf,gen)
     checkProbability(cp,gen)
+
     // FULLY SHIFTING ================================
 
     // Refrigerator
@@ -314,6 +328,7 @@ class Household {
     this.addToAppliances(sh)
     sh.initialize(this.name,conf,gen)
     checkProbability(sh,gen)
+
     // SEMI SHIFTING ================================
 
     // Dishwasher
