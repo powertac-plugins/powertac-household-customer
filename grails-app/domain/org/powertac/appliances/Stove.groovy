@@ -157,7 +157,8 @@ class Stove extends SemiShiftingAppliance{
       for (int i=0;i < Constants.HOURS_OF_DAY;i++){
         if (functionMatrix[i]) possibleHours.add(i)
       }
-      minindex = possibleHours.get(gen.nextInt(possibleHours.size()))
+      log.debug("Stove Bag Size: ${possibleHours.size()}")
+      if (possibleHours.size() > 0) minindex = possibleHours.get(gen.nextInt(possibleHours.size()))
     }
     // case of variable tariff rate
     else {
