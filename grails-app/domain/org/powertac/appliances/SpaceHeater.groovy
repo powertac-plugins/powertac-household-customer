@@ -94,6 +94,7 @@ class SpaceHeater extends FullyShiftingAppliance{
 
     def possibilityDailyOperation = new Vector()
 
+    // In case the attenants are not in vacation, the spaceheater works all day
     if (applianceOf.isOnVacation(day,0)) {
       for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
         possibilityDailyOperation.add(false)
@@ -113,6 +114,7 @@ class SpaceHeater extends FullyShiftingAppliance{
     BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
     for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
 
+    // In this case the daily shifting is useless because it works all day
     for (int i=0;i < Constants.HOURS_OF_DAY;i++){
       for (int j=0; j < Constants.QUARTERS_OF_HOUR;j++) newControllableLoad[i] += householdConsumersService.getApplianceLoads(this,day,(i*Constants.QUARTERS_OF_HOUR)+j)
     }

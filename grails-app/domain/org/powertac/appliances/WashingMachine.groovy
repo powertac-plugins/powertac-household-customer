@@ -103,6 +103,7 @@ class WashingMachine extends SemiShiftingAppliance{
 
     def possibilityDailyOperation = new Vector()
 
+    // In order to function the washing machine needs someone to be there in the end of its operation
     for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
       if (checkHouse(day,j) == true) possibilityDailyOperation.add(false)
       else possibilityDailyOperation.add(true)
@@ -126,14 +127,17 @@ class WashingMachine extends SemiShiftingAppliance{
     BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
     for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
 
+    // If it supposed to operate at the day of shifting
     if (householdConsumersService.getApplianceOperationDays(this,day)) {
 
       def minindex = 0
       def functionMatrix = createShiftingOperationMatrix(day)
 
+      // case of fixed tariff rate
       if ((tariff.tariffSpec.rates.size() == 1) && (tariff.tariffSpec.rates.getAt(0).isFixed)) {
         def possibleHours = new Vector()
 
+        // find the all the available functioning hours of the appliance
         for (int i=0;i < Constants.END_OF_FUNCTION_HOUR;i++){
           if (functionMatrix[i]) possibleHours.add(i)
         }
@@ -142,20 +146,22 @@ class WashingMachine extends SemiShiftingAppliance{
         newControllableLoad[minindex] = Constants.QUARTERS_OF_HOUR*power
         newControllableLoad[minindex+1] = Constants.QUARTERS_OF_HOUR*power
 
+        // if we have dryer in the household
         if (dryerFlag){
           newControllableLoad[minindex+2] = Constants.QUARTERS_OF_HOUR*dryerPower - Constants.DRYER_THIRD_PHASE_LOAD
           newControllableLoad[minindex+3] = (Constants.QUARTERS_OF_HOUR/2)*dryerPower - (Constants.QUARTERS_OF_HOUR+1)*Constants.DRYER_THIRD_PHASE_LOAD
         }
       }
+      // case of variable tariff rate
       else {
-
-
 
         def minvalue = Double.POSITIVE_INFINITY
         Instant hour1 = now
 
+        // if we have dryer in the household
         if (dryerFlag){
 
+          // find the all the available functioning hours of the appliance
           for (int i=0;i < Constants.END_OF_FUNCTION_HOUR;i++){
             if (functionMatrix[i]){
               if (minvalue >= tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour1+TimeService.HOUR)+tariff.getUsageCharge(hour1+2*TimeService.HOUR)+tariff.getUsageCharge(hour1+3*TimeService.HOUR)){
@@ -170,8 +176,9 @@ class WashingMachine extends SemiShiftingAppliance{
           newControllableLoad[minindex+2] = Constants.QUARTERS_OF_HOUR*dryerPower - Constants.DRYER_THIRD_PHASE_LOAD
           newControllableLoad[minindex+3] = (Constants.QUARTERS_OF_HOUR/2)*dryerPower - (Constants.QUARTERS_OF_HOUR+1)*Constants.DRYER_THIRD_PHASE_LOAD
         }
+        // if we don't have dryer in the household
         else {
-
+          // find the all the available functioning hours of the appliance
           if (householdConsumersService.getApplianceOperationDays(this,day)) {
             for (int i=0;i < Constants.HOURS_OF_DAY;i++){
               if (functionMatrix[i]){
@@ -253,6 +260,7 @@ class WashingMachine extends SemiShiftingAppliance{
     fillWeeklyFunction(gen)
     createWeeklyPossibilityOperationVector()
 
+    // if we have dryer in the household we refresh it too
     if (dryerFlag == true) {
       this.applianceOf.appliances.each {
         Object o = (Object) it

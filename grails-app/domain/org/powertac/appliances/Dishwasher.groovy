@@ -24,7 +24,6 @@ import org.joda.time.Instant
 import org.powertac.common.Tariff
 import org.powertac.common.TimeService
 import org.powertac.common.configurations.Constants
-import org.powertac.common.enumerations.Mode
 
 
 /**
@@ -40,7 +39,7 @@ import org.powertac.common.enumerations.Mode
 class Dishwasher extends SemiShiftingAppliance {
 
   /** The function mode of the dishwasher. For more info, read the details in the enumerations.Mode java file **/
-  Mode mode = Mode.One
+  //Mode mode = Mode.One
 
   @ Override
   def initialize(String household,ConfigObject conf,Random gen) {
@@ -121,6 +120,7 @@ class Dishwasher extends SemiShiftingAppliance {
 
     def possibilityDailyOperation = new Vector()
 
+    // The dishwasher needs for someone to be in the house at the beginning and the end of its function
     for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
       if (checkHouse(day,j) == true) possibilityDailyOperation.add(false)
       else possibilityDailyOperation.add(true)
@@ -177,6 +177,7 @@ class Dishwasher extends SemiShiftingAppliance {
     else return applianceOf.isEmpty(weekday,quarter+Constants.DISHWASHER_DURATION_CYCLE)
 
   }
+
   @ Override
   def dailyShifting(Random gen,Tariff tariff,Instant now, int day){
 
@@ -187,9 +188,11 @@ class Dishwasher extends SemiShiftingAppliance {
       def minindex = 0
       def functionMatrix = createShiftingOperationMatrix(day)
 
+      // If we have a fixed tariff rate
       if ((tariff.tariffSpec.rates.size() == 1) && (tariff.tariffSpec.rates.getAt(0).isFixed)) {
         def possibleHours = new Vector()
 
+        // find the all the available functioning hours of the appliance
         for (int i=0;i < Constants.HOURS_OF_DAY;i++){
           if (functionMatrix[i] && functionMatrix[i+1]){
             possibleHours.add(i)
@@ -197,12 +200,14 @@ class Dishwasher extends SemiShiftingAppliance {
         }
         minindex = possibleHours.get(gen.nextInt(possibleHours.size()))
       }
+      // case of variable tariff rate
       else {
 
         def minvalue = Double.POSITIVE_INFINITY
         Instant hour1 = now
         Instant hour2 = now + TimeService.HOUR
 
+        // find the all the available functioning hours of the appliance
         for (int i=0;i < Constants.HOURS_OF_DAY;i++){
           if (functionMatrix[i] && functionMatrix[i+1]){
             if (minvalue >= tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour2)){
@@ -214,10 +219,8 @@ class Dishwasher extends SemiShiftingAppliance {
           hour2 = hour2 + TimeService.HOUR
         }
       }
-
       newControllableLoad[minindex] = Constants.QUARTERS_OF_HOUR*power
       newControllableLoad[minindex+1] = Constants.QUARTERS_OF_HOUR*power
-
     }
     return newControllableLoad
   }

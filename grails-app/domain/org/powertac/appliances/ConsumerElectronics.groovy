@@ -98,6 +98,7 @@ class ConsumerElectronics extends NotShiftingAppliance {
 
     def possibilityDailyOperation = new Vector()
 
+    // The consumers electronics can work each quarter someone is in the premises
     for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
       if (applianceOf.isEmpty(day,j) == false) possibilityDailyOperation.add(true)
       else possibilityDailyOperation.add(false)

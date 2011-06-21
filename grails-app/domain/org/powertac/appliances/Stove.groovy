@@ -123,10 +123,12 @@ class Stove extends SemiShiftingAppliance{
 
     def possibilityDailyOperation = new Vector()
 
+    // In order for stove to work someone must be in the house for half hour
     for (int j = 0;j < Constants.QUARTERS_OF_DAY - 1;j++) {
       if (applianceOf.isEmpty(day,j) == false && applianceOf.isEmpty(day,j+1) == false) possibilityDailyOperation.add(true)
       else possibilityDailyOperation.add(false)
     }
+
     // For the last time, without check because it is the next day
     possibilityDailyOperation.add(false)
     return possibilityDailyOperation
@@ -144,17 +146,22 @@ class Stove extends SemiShiftingAppliance{
     Instant hour1 = now
     BigInteger sumPower = 0
 
+    // Gather the Load Summary of the day
     for (int i=0;i< Constants.QUARTERS_OF_DAY;i++) sumPower += householdConsumersService.getApplianceLoads(this,day,i)
 
+    // If we have a fixed tariff rate
     if ((tariff.tariffSpec.rates.size() == 1) && (tariff.tariffSpec.rates.getAt(0).isFixed)) {
       def possibleHours = new Vector()
 
+      // find the all the available functioning hours of the appliance
       for (int i=0;i < Constants.HOURS_OF_DAY;i++){
         if (functionMatrix[i]) possibleHours.add(i)
       }
       minindex = possibleHours.get(gen.nextInt(possibleHours.size()))
     }
+    // case of variable tariff rate
     else {
+      // find the all the available functioning hours of the appliance
       for (int i=0;i < Constants.HOURS_OF_DAY;i++){
         if (functionMatrix[i]){
           if (minvalue >= tariff.getUsageCharge(hour1)){
@@ -165,9 +172,7 @@ class Stove extends SemiShiftingAppliance{
         hour1 = hour1 + TimeService.HOUR
       }
     }
-
     newControllableLoad[minindex] = sumPower
-
     return newControllableLoad
   }
 

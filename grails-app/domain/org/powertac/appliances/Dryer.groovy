@@ -56,6 +56,7 @@ class Dryer extends SemiShiftingAppliance {
     probabilityWeekday = fillDay(Constants.DRYER_POSSIBILITY_DAY_1,Constants.DRYER_POSSIBILITY_DAY_2,Constants.DRYER_POSSIBILITY_DAY_3)
     times = conf.household.appliances.dryer.DryerWeeklyTimes + (int)(applianceOf.members.size() / 2)
 
+    // Inform the washing machine for the existence of the dryer
     this.applianceOf.appliances.each {
       Object o = (Object) it
       if (o instanceof WashingMachine) {
@@ -63,7 +64,6 @@ class Dryer extends SemiShiftingAppliance {
         o.dryerPower = power
       }
     }
-
 
     createWeeklyOperationVector(times,gen)
   }
@@ -111,7 +111,7 @@ class Dryer extends SemiShiftingAppliance {
     def possibilityDailyOperation = new Vector()
 
     for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
-
+      // The dishwasher needs for someone to be in the house at the beginning of its function
       if (applianceOf.isEmpty(day,j) == false) possibilityDailyOperation.add(true)
       else possibilityDailyOperation.add(false)
     }
@@ -129,6 +129,8 @@ class Dryer extends SemiShiftingAppliance {
     // Creating auxiliary variables
     Vector v = new Vector()
     int start = 0
+
+    // Search for the washing machine to take its schedule in consideration
     this.applianceOf.appliances.each {
       Object o = (Object) it
       if (o instanceof WashingMachine) v = o.getWeeklyOperation().get(weekday)
@@ -217,7 +219,7 @@ class Dryer extends SemiShiftingAppliance {
 
   @ Override
   def dailyShifting(Random gen,Tariff tariff,Instant now, int day){
-
+    // Dryer's daily shifting is done by the washing machine for safety
     BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
     for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
 
