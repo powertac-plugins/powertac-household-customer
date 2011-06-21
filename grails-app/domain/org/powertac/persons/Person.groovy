@@ -16,7 +16,6 @@
 
 package org.powertac.persons
 
-import java.util.HashMap
 import java.util.Random
 import java.util.Vector
 
@@ -36,6 +35,7 @@ import org.powertac.consumers.*
 
 class Person {
 
+  /** The service that contains the Mappings useful for the functioning and load of the appliances.*/
   def householdConsumersService
 
   /** the person's name in the community. Usually it includes the household he is living in or its type of person */
@@ -67,8 +67,7 @@ class Person {
   static belongsTo = [memberOf:Household]
 
 
-  /** This function checks if the person is sleeping
-   * 
+  /** This function checks if the person is sleeping.
    * @return
    */
   def isSleeping()
@@ -77,8 +76,7 @@ class Person {
     else return false
   }
 
-  /** This function checks if the person is at work
-   * 
+  /** This function checks if the person is at work.
    * @return
    */
   def isAtWork() {
@@ -86,8 +84,7 @@ class Person {
     else return false
   }
 
-  /** This function checks if the person is doing a leisure activity
-   * 
+  /** This function checks if the person is doing a leisure activity.
    * @return
    */
   def isLeisure() {
@@ -95,8 +92,7 @@ class Person {
     else return false
   }
 
-  /** This function checks if the person is on vacation
-   * 
+  /** This function checks if the person is on vacation.
    * @return
    */
   def isVacation() {
@@ -104,8 +100,7 @@ class Person {
     else return false
   }
 
-  /** This function checks if the person is sick
-   * 
+  /** This function checks if the person is sick.
    * @return
    */
   def isSick() {
@@ -117,11 +112,10 @@ class Person {
   /** This function fills out the leisure days' vector of the person 
    * by choosing randomly days of the week, while the amount of days is
    * different for each person type.
-   * 
    * @param counter
+   * @param gen
    * @return
    */
-
   def createLeisureVector(int counter, Random gen) {
     // Create auxiliary variable
     Vector v = new Vector()
@@ -136,13 +130,12 @@ class Person {
   }
 
   /** This function fills out the daily routine of the person, taking into
-   * account the different variables and occupations, if he is sick or working etc.
-   *  
+   * account the different variables and occupations, if he is sick or working etc
    * @param day
    * @param vacationAbsence
+   * @param gen
    * @return
    */
-
   def fillDailyRoutine(int day, float vacationAbsence, Random gen) {
     // Create auxiliary variable
     Vector v = new Vector(Constants.QUARTERS_OF_DAY)
@@ -184,6 +177,7 @@ class Person {
    * account the different variables and occupations, if he is sick or working etc.
    * @param mean
    * @param dev
+   * @param gen
    * @return
    */
   def createSicknessVector(float mean, float dev, Random gen) {
@@ -211,6 +205,7 @@ class Person {
   /** This function fills out the daily routine with the leisure activity of the day,
    * if there is one for the person in question.
    * @param weekday
+   * @param gen
    * @return
    */
   def addLeisure(int weekday, Random gen) {
@@ -282,13 +277,16 @@ class Person {
   /** At the end of each week the person models refresh their schedule. This way
    * we have a realistic and dynamic model, changing working hours, leisure activities
    * and so on.
+   * @param conf
+   * @param gen
    * @return
    */
   void refresh(ConfigObject conf, Random gen) {
   }
 
   /** This is an function to fill the maps utilized by Services in order to keep the vectors of each appliance
-   *  during the runtime.
+   * during the runtime.
+   * @param index
    * @return
    */
   def setVectors(int index) {
@@ -308,6 +306,6 @@ class Person {
   static mapping = { sort "name" }
 
   String toString(){
-    "${name}, ${Household} (${status})"
+    "${name}"
   }
 }

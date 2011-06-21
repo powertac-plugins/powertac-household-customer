@@ -20,8 +20,10 @@ package org.powertac.appliances
 import java.util.HashMap
 import java.util.Random
 
+import org.joda.time.Instant
+import org.powertac.common.Tariff
+import org.powertac.common.TimeService
 import org.powertac.common.configurations.Constants
-import org.powertac.common.enumerations.Mode
 
 
 /**
@@ -37,7 +39,7 @@ import org.powertac.common.enumerations.Mode
 class Dishwasher extends SemiShiftingAppliance {
 
   /** The function mode of the dishwasher. For more info, read the details in the enumerations.Mode java file **/
-  Mode mode = Mode.One
+  //Mode mode = Mode.One
 
   @ Override
   def initialize(String household,ConfigObject conf,Random gen) {
@@ -53,8 +55,8 @@ class Dishwasher extends SemiShiftingAppliance {
     inUse = false
     probabilitySeason = fillSeason(Constants.DISHWASHER_POSSIBILITY_SEASON_1,Constants.DISHWASHER_POSSIBILITY_SEASON_2,Constants.DISHWASHER_POSSIBILITY_SEASON_3)
     probabilityWeekday = fillDay(Constants.DISHWASHER_POSSIBILITY_DAY_1,Constants.DISHWASHER_POSSIBILITY_DAY_2,Constants.DISHWASHER_POSSIBILITY_DAY_3)
-    times = conf.household.appliances.dishwasher.DishwasherWeeklyTimes
-    createWeeklyOperationVector((int)(times + applianceOf.members.size()),gen)
+    times = conf.household.appliances.dishwasher.DishwasherWeeklyTimes + applianceOf.members.size()
+    createWeeklyOperationVector(times,gen)
   }
 
   @ Override
@@ -118,6 +120,7 @@ class Dishwasher extends SemiShiftingAppliance {
 
     def possibilityDailyOperation = new Vector()
 
+    // The dishwasher needs for someone to be in the house at the beginning and the end of its function
     for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
       if (checkHouse(day,j) == true) possibilityDailyOperation.add(false)
       else possibilityDailyOperation.add(true)
@@ -164,7 +167,8 @@ class Dishwasher extends SemiShiftingAppliance {
 
   /** This function checks for the household to see when it is empty or not empty
    * for the duration of the operation	
-   * @param hour
+   * @param weekday
+   * @param quarter
    * @return
    */
   def checkHouse(int weekday,int quarter) {
@@ -175,8 +179,55 @@ class Dishwasher extends SemiShiftingAppliance {
   }
 
   @ Override
+  def dailyShifting(Random gen,Tariff tariff,Instant now, int day){
+
+    BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
+    for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
+
+    if (householdConsumersService.getApplianceOperationDays(this,day)) {
+      def minindex = 0
+      def functionMatrix = createShiftingOperationMatrix(day)
+
+      // If we have a fixed tariff rate
+      if ((tariff.tariffSpec.rates.size() == 1) && (tariff.tariffSpec.rates.getAt(0).isFixed)) {
+        def possibleHours = new Vector()
+
+        // find the all the available functioning hours of the appliance
+        for (int i=0;i < Constants.HOURS_OF_DAY;i++){
+          if (functionMatrix[i] && functionMatrix[i+1]){
+            possibleHours.add(i)
+          }
+        }
+        minindex = possibleHours.get(gen.nextInt(possibleHours.size()))
+      }
+      // case of variable tariff rate
+      else {
+
+        def minvalue = Double.POSITIVE_INFINITY
+        Instant hour1 = now
+        Instant hour2 = now + TimeService.HOUR
+
+        // find the all the available functioning hours of the appliance
+        for (int i=0;i < Constants.HOURS_OF_DAY;i++){
+          if (functionMatrix[i] && functionMatrix[i+1]){
+            if (minvalue >= tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour2)){
+              minvalue = tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour2)
+              minindex = i
+            }
+          }
+          hour1 = hour1 + TimeService.HOUR
+          hour2 = hour2 + TimeService.HOUR
+        }
+      }
+      newControllableLoad[minindex] = Constants.QUARTERS_OF_HOUR*power
+      newControllableLoad[minindex+1] = Constants.QUARTERS_OF_HOUR*power
+    }
+    return newControllableLoad
+  }
+
+  @ Override
   def refresh(Random gen) {
-    createWeeklyOperationVector((int)(times + applianceOf.members.size()), gen)
+    createWeeklyOperationVector(times, gen)
     fillWeeklyFunction(gen)
     createWeeklyPossibilityOperationVector()
   }

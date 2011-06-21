@@ -31,7 +31,7 @@ class FullyShiftingAppliance extends Appliance{
 
 
   /** This function fills out all the days of the appliance functions for each day of the week
-   * 
+   * @param gen
    * @return
    */
   def fillWeeklyFunction(Random gen) {
@@ -39,8 +39,8 @@ class FullyShiftingAppliance extends Appliance{
   }
 
   /** This function creates the weekly operation vector after the shifting for each day of the week
-   * 
    * @param times
+   * @param gen
    * @return
    */
   def createWeeklyOperationVector(int times,Random gen) {
@@ -48,8 +48,8 @@ class FullyShiftingAppliance extends Appliance{
   }
 
   /** This function creates the daily operation vector after the shifting
-   * 
    * @param times
+   * @param gen
    * @return
    */
   def createDailyOperationVector(int times, Random gen) {

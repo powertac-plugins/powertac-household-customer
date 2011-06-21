@@ -15,6 +15,8 @@
  */
 package org.powertac.consumers
 
+import groovy.util.ConfigObject
+
 import java.util.Random
 
 import org.joda.time.Instant
@@ -32,7 +34,11 @@ import org.powertac.common.configurations.Constants
 
 class Village extends AbstractCustomer{
 
+  /** This is the service that is utilized to store the Mappings of each village.*/
   def villageConsumersService
+
+  /** Number of customer types in the village.*/
+  int types = 4
 
   /** This is a vector containing aggregated each day's base load from the appliances installed inside the households. **/
   Vector aggDailyBaseLoad = new Vector()
@@ -46,6 +52,9 @@ class Village extends AbstractCustomer{
   /** This is an agreggated vector containing each day's controllable load of all the households in hours. **/
   Vector aggDailyControllableLoadInHours = new Vector()
 
+  /** This variable is utilized for the creation of the random numbers and is taken from the service.*/
+  Random gen
+
   //static hasMany = [houses:Household]
 
   /** This hashmap variable is utilized to show which portion of the population is under which subscription **/
@@ -54,11 +63,10 @@ class Village extends AbstractCustomer{
   /** This is the initialization function. It uses the variable values for the
    * configuration file to create the village with its households and then fill
    * them with persons and appliances.
-   * @param hm
-   * @param publicVacationVector
+   * @param conf
+   * @param gen
    */
-
-  void initialize(ConfigObject conf, Random gen) {
+  void initialize(ConfigObject conf, Random generator) {
     // Initializing variables
 
     int nshouses = conf.household.houses.NotShiftingCustomers
@@ -67,20 +75,23 @@ class Village extends AbstractCustomer{
     int sshouses = conf.household.houses.SmartShiftingCustomers
     int days = conf.household.general.PublicVacationDuration
 
-    customerInfo.population = nshouses + rashouses + reshouses + sshouses
-    villageConsumersService.createHouseholdsMap(this, 4, nshouses)
-    villageConsumersService.createBaseConsumptionsMap(this,4)
-    villageConsumersService.createControllableConsumptionsMap(this,4)
-    villageConsumersService.createDaysMap(this)
-    createCostEstimationDaysList(Constants.RANDOM_DAYS_NUMBER,gen)
+    gen = generator
 
-    def publicVacationVector = createPublicVacationVector(days, gen)
+    customerInfo.population = nshouses + rashouses + reshouses + sshouses
+    villageConsumersService.createHouseholdsMap(this, types, nshouses)
+    villageConsumersService.createBaseConsumptionsMap(this,types)
+    villageConsumersService.createControllableConsumptionsMap(this,types)
+    villageConsumersService.createBootstrapConsumptionsMap(this)
+    villageConsumersService.createDaysMap(this)
+    createCostEstimationDaysList(Constants.RANDOM_DAYS_NUMBER)
+
+    def publicVacationVector = createPublicVacationVector(days)
 
     for (i in 0..nshouses-1) {
       log.info "Initializing ${this.customerInfo.name} NSHouse ${i} "
       def hh = new Household()
       hh.initialize(this.customerInfo.name+" NSHouse" + i,conf, publicVacationVector, gen)
-      villageConsumersService.setHousehold(this, 0, i, hh)
+      villageConsumersService.setHousehold(this, Constants.NOT_SHIFTING_TYPE, i, hh)
       //addToHouses(hh)
     }
 
@@ -88,7 +99,7 @@ class Village extends AbstractCustomer{
       log.info "Initializing ${this.customerInfo.name} RaSHouse ${i} "
       def hh = new Household()
       hh.initialize(this.customerInfo.name+" RaSHouse" + i,conf, publicVacationVector, gen)
-      villageConsumersService.setHousehold(this, 1, i, hh)
+      villageConsumersService.setHousehold(this, Constants.RANDOM_SHIFTING_TYPE, i, hh)
       //addToHouses(hh)
     }
 
@@ -96,16 +107,49 @@ class Village extends AbstractCustomer{
       log.info "Initializing ${this.customerInfo.name} ReSHouse ${i} "
       def hh = new Household()
       hh.initialize(this.customerInfo.name+" ReSHouse" + i,conf, publicVacationVector, gen)
-      villageConsumersService.setHousehold(this, 2, i, hh)
+      villageConsumersService.setHousehold(this, Constants.REGULAR_SHIFTING_TYPE, i, hh)
       //addToHouses(hh)
     }
+
     for (i in 0..sshouses-1) {
       log.info "Initializing ${this.customerInfo.name} SSHouse ${i} "
       def hh = new Household()
       hh.initialize(this.customerInfo.name+" SSHouse" + i,conf, publicVacationVector, gen)
-      villageConsumersService.setHousehold(this, 3, i, hh)
+      villageConsumersService.setHousehold(this, Constants.SMART_SHIFTING_TYPE, i, hh)
       //addToHouses(hh)
     }
+  }
+
+  /** Once the households that belong to the village are created, a two week scheduling is beginning
+   *  in order to create bootstrap dataset for the brokers in competition.
+   */
+  void createBootstrapData(){
+
+    fillAggWeeklyBootstrapLoad("NotShifting")
+    fillAggWeeklyBootstrapLoad("RandomlyShifting")
+    fillAggWeeklyBootstrapLoad("RegularlyShifting")
+    fillAggWeeklyBootstrapLoad("SmartShifting")
+
+    //bootstrapSchedule()
+    villageConsumersService.setBootstrapConsumptions(this)
+    for (int day = 0;day < Constants.DAYS_OF_BOOTSTRAP;day++) log.info("Day ${day}: Bootstrap Load : ${villageConsumersService.getBootstrapConsumptions(this)[day].toString()}")
+  }
+
+  /** After the bootstrap datasets are created, we reset the variables and the mappings
+   * in order to fill them with the actual data of the competition.
+   * 
+   * @param conf
+   */
+  void createActualData(ConfigObject conf){
+
+    villageConsumersService.baseConsumptions.remove(this.customerInfo.name)
+    villageConsumersService.createBaseConsumptionsMap(this,types)
+    villageConsumersService.controllableConsumptions.remove(this.customerInfo.name)
+    villageConsumersService.createControllableConsumptionsMap(this,types)
+
+    def houses = villageConsumersService.getHouseholds(this)
+
+    houses.each { house -> house.createActualData(conf,gen) }
 
     fillAggWeeklyLoad("NotShifting")
     fillAggWeeklyLoad("RandomlyShifting")
@@ -116,11 +160,11 @@ class Village extends AbstractCustomer{
 
   /** This function is used in order to fill each week day of the aggregated daily Load 
    * of the village households for each quarter of the hour.
-   * 
+   * @param portion
    * @return
    */
   def fillAggWeeklyLoad(String portion) {
-    for (int i = 0; i < Constants.DAYS_OF_WEEK * 9;i++) {
+    for (int i = 0; i < Constants.DAYS_OF_WEEK * Constants.WEEKS_OF_COMPETITION;i++) {
       setAggDailyBaseLoad(fillAggDailyBaseLoad(i, portion))
       setAggDailyControllableLoad(fillAggDailyControllableLoad(i, portion))
       setAggDailyBaseLoadInHours(fillAggDailyBaseLoadInHours(i,portion))
@@ -128,8 +172,23 @@ class Village extends AbstractCustomer{
     }
   }
 
+  /** This function is used in order to fill the two week bootstrap data of the aggregated daily Load
+   * of the village households for each quarter of the hour.
+   * @param portion
+   * @return
+   */
+  def fillAggWeeklyBootstrapLoad(String portion) {
+    for (int i = 0; i < Constants.DAYS_OF_WEEK * Constants.WEEKS_OF_BOOTSTRAP;i++) {
+      setAggDailyBaseLoad(fillAggDailyBaseLoad(i, portion))
+      setAggDailyControllableLoad(fillAggDailyControllableLoad(i, portion))
+      setAggDailyBaseLoadInHours(fillAggDailyBaseLoadInHours(i,portion))
+      setAggDailyControllableLoadInHours(fillAggDailyControllableLoadInHours(i,portion))
+    }
+  }
+
+
   /** This function is used in order to print the aggregated load of the village households.
-   * 
+   * @param portion
    * @return
    */
   def showAggWeeklyLoad(String portion) {
@@ -138,20 +197,20 @@ class Village extends AbstractCustomer{
     def housesControllable
 
     if (portion.equals("NotShifting")){
-      housesBase = villageConsumersService.getBaseConsumptions(this,0)
-      housesControllable = villageConsumersService.getControllableConsumptions(this,0)
+      housesBase = villageConsumersService.getBaseConsumptions(this,Constants.NOT_SHIFTING_TYPE)
+      housesControllable = villageConsumersService.getControllableConsumptions(this,Constants.NOT_SHIFTING_TYPE)
     }
     else if (portion.equals("RandomlyShifting")){
-      housesBase = villageConsumersService.getBaseConsumptions(this,1)
-      housesControllable = villageConsumersService.getControllableConsumptions(this,1)
+      housesBase = villageConsumersService.getBaseConsumptions(this,Constants.RANDOM_SHIFTING_TYPE)
+      housesControllable = villageConsumersService.getControllableConsumptions(this,Constants.RANDOM_SHIFTING_TYPE)
     }
     else if (portion.equals("RegularlyShifting")){
-      housesBase = villageConsumersService.getBaseConsumptions(this,2)
-      housesControllable = villageConsumersService.getControllableConsumptions(this,2)
+      housesBase = villageConsumersService.getBaseConsumptions(this,Constants.REGULAR_SHIFTING_TYPE)
+      housesControllable = villageConsumersService.getControllableConsumptions(this,Constants.REGULAR_SHIFTING_TYPE)
     }
     else {
-      housesBase = villageConsumersService.getBaseConsumptions(this,3)
-      housesControllable = villageConsumersService.getControllableConsumptions(this,3)
+      housesBase = villageConsumersService.getBaseConsumptions(this,Constants.SMART_SHIFTING_TYPE)
+      housesControllable = villageConsumersService.getControllableConsumptions(this,Constants.SMART_SHIFTING_TYPE)
     }
 
     log.info "Portion ${portion} Weekly Aggregated Load "
@@ -171,7 +230,7 @@ class Village extends AbstractCustomer{
 
     log.info " Serial : ${serial} Day: ${day} Hour: ${hour} "
 
-    for (int i=0;i < 4;i++){
+    for (int i=0;i < types;i++){
       ran = ran + (villageConsumersService.getBaseConsumptions(this,i)[day][hour] + villageConsumersService.getControllableConsumptions(this,i)[day][hour])
     }
     ran = ran / Constants.PERCENTAGE
@@ -180,7 +239,8 @@ class Village extends AbstractCustomer{
 
   /** This function is used in order to fill the aggregated daily Base Load of the village
    * households for each quarter of the hour.
-   * @param weekday
+   * @param day
+   * @param portion
    * @return
    */
   def fillAggDailyBaseLoad(int day, String portion) {
@@ -188,16 +248,16 @@ class Village extends AbstractCustomer{
     def houses
 
     if (portion.equals("NotShifting")){
-      houses = villageConsumersService.getHouseholds(this,0)
+      houses = villageConsumersService.getHouseholds(this,Constants.NOT_SHIFTING_TYPE)
     }
     else if (portion.equals("RandomlyShifting")){
-      houses = villageConsumersService.getHouseholds(this,1)
+      houses = villageConsumersService.getHouseholds(this,Constants.RANDOM_SHIFTING_TYPE)
     }
     else if (portion.equals("RegularlyShifting")){
-      houses = villageConsumersService.getHouseholds(this,2)
+      houses = villageConsumersService.getHouseholds(this,Constants.REGULAR_SHIFTING_TYPE)
     }
     else {
-      houses = villageConsumersService.getHouseholds(this,3)
+      houses = villageConsumersService.getHouseholds(this,Constants.SMART_SHIFTING_TYPE)
     }
 
     Vector v = new Vector(Constants.QUARTERS_OF_DAY)
@@ -205,7 +265,7 @@ class Village extends AbstractCustomer{
     for (int i = 0;i < Constants.QUARTERS_OF_DAY; i++) {
       sum = 0
       houses.each {
-        sum = sum + it.weeklyBaseLoad.get(day).get(i)\
+        sum = sum + it.weeklyBaseLoad.get(day).get(i)
       }
       v.add(sum)
     }
@@ -214,7 +274,8 @@ class Village extends AbstractCustomer{
 
   /** This function is used in order to fill the aggregated daily Controllable Load of the village
    * households for each quarter of the hour.
-   * @param weekday
+   * @param day
+   * @param portion
    * @return
    */
   def fillAggDailyControllableLoad(int day, String portion) {
@@ -222,16 +283,16 @@ class Village extends AbstractCustomer{
     def houses
 
     if (portion.equals("NotShifting")){
-      houses = villageConsumersService.getHouseholds(this,0)
+      houses = villageConsumersService.getHouseholds(this,Constants.NOT_SHIFTING_TYPE)
     }
     else if (portion.equals("RandomlyShifting")){
-      houses = villageConsumersService.getHouseholds(this,1)
+      houses = villageConsumersService.getHouseholds(this,Constants.RANDOM_SHIFTING_TYPE)
     }
     else if (portion.equals("RegularlyShifting")){
-      houses = villageConsumersService.getHouseholds(this,2)
+      houses = villageConsumersService.getHouseholds(this,Constants.REGULAR_SHIFTING_TYPE)
     }
     else {
-      houses = villageConsumersService.getHouseholds(this,3)
+      houses = villageConsumersService.getHouseholds(this,Constants.SMART_SHIFTING_TYPE)
     }
 
     Vector v = new Vector(Constants.QUARTERS_OF_DAY)
@@ -248,6 +309,8 @@ class Village extends AbstractCustomer{
 
   /** This function is used in order to fill the daily Base Load of the household
    * for each hour.
+   * @param day
+   * @param portion
    * @return
    */
   def fillAggDailyBaseLoadInHours(int day, String portion) {
@@ -255,16 +318,16 @@ class Village extends AbstractCustomer{
     def houses
 
     if (portion.equals("NotShifting")){
-      houses = 0
+      houses = Constants.NOT_SHIFTING_TYPE
     }
     else if (portion.equals("RandomlyShifting")){
-      houses = 1
+      houses = Constants.RANDOM_SHIFTING_TYPE
     }
     else if (portion.equals("RegularlyShifting")){
-      houses = 2
+      houses = Constants.REGULAR_SHIFTING_TYPE
     }
     else {
-      houses = 3
+      houses = Constants.SMART_SHIFTING_TYPE
     }
 
     int sum = 0
@@ -277,6 +340,8 @@ class Village extends AbstractCustomer{
 
   /** This function is used in order to fill the daily Base Load of the household
    * for each hour.
+   * @param day
+   * @param portion
    * @return
    */
   def fillAggDailyControllableLoadInHours(int day, String portion) {
@@ -284,16 +349,16 @@ class Village extends AbstractCustomer{
     def houses
 
     if (portion.equals("NotShifting")){
-      houses = 0
+      houses = Constants.NOT_SHIFTING_TYPE
     }
     else if (portion.equals("RandomlyShifting")){
-      houses = 1
+      houses = Constants.RANDOM_SHIFTING_TYPE
     }
     else if (portion.equals("RegularlyShifting")){
-      houses = 2
+      houses = Constants.REGULAR_SHIFTING_TYPE
     }
     else {
-      houses = 3
+      houses = Constants.SMART_SHIFTING_TYPE
     }
 
     int sum = 0
@@ -308,30 +373,37 @@ class Village extends AbstractCustomer{
   /** At the end of each week the village households' models refresh their schedule. 
    * This way we have a realistic and dynamic model, changing function hours, consuming power
    * and so on.
-   * @param hm
+   * @param conf
+   * @param gen
    * @return
    */
-  def refresh(ConfigObject conf, Random gen) {
-    for (int i=0; i < villageConsumersService.households.size();i++){
-      for (int j=0; j < villageConsumersService.getHouseholds(this,i).size();j++){
-        villageConsumersService.getHouseholds(this,i)[j].refresh(conf,gen)
-      }
-    }
+  /*  def refresh(ConfigObject conf) {
+   for (int i=0; i < villageConsumersService.households.size();i++){
+   for (int j=0; j < villageConsumersService.getHouseholds(this,i).size();j++){
+   villageConsumersService.getHouseholds(this,i)[j].refresh(conf,gen)
+   }
+   }
+   villageConsumersService.baseConsumptions.remove(this.customerInfo.name)
+   villageConsumersService.createBaseConsumptionsMap(this,types)
+   villageConsumersService.controllableConsumptions.remove(this.customerInfo.name)
+   villageConsumersService.createControllableConsumptionsMap(this,types)
+   fillAggWeeklyLoad("NotShifting")
+   fillAggWeeklyLoad("RandomlyShifting")
+   fillAggWeeklyLoad("RegularlyShifting")
+   fillAggWeeklyLoad("SmartShifting")
+   }
+   */
 
-    villageConsumersService.baseConsumptions.remove(this.customerInfo.name)
-    villageConsumersService.createBaseConsumptionsMap(this,4)
-    villageConsumersService.controllableConsumptions.remove(this.customerInfo.name)
-    villageConsumersService.createControllableConsumptionsMap(this,4)
-
-    fillAggWeeklyLoad("NotShifting")
-    fillAggWeeklyLoad("RandomlyShifting")
-    fillAggWeeklyLoad("RegularlyShifting")
-    fillAggWeeklyLoad("SmartShifting")
-
+  @ Override
+  double costEstimation(Tariff tariff)
+  {
+    double costVariable = estimateShiftingVariableTariffPayment(tariff)
+    double costFixed = estimateFixedTariffPayments(tariff)
+    return (costVariable + costFixed)/Constants.MILLION
   }
 
+  @ Override
   double estimateVariableTariffPayment(Tariff tariff){
-
 
     int serial = ((timeService.currentTime.millis - timeService.base) / TimeService.HOUR)
     Instant base = timeService.currentTime - serial*TimeService.HOUR
@@ -348,8 +420,48 @@ class Village extends AbstractCustomer{
       float summary = 0, cumulativeSummary = 0
 
       for (int hour=0;hour < Constants.HOURS_OF_DAY;hour++){
-        for (int j=0;j < 4;j++){
+        for (int j=0;j < types;j++){
           summary = summary + (villageConsumersService.getBaseConsumptions(this,j)[day][hour] + villageConsumersService.getControllableConsumptions(this,j)[day][hour])
+        }
+        log.info "Cost for hour ${hour}: ${tariff.getUsageCharge(now)}"
+        summary = summary / Constants.PERCENTAGE
+        cumulativeSummary += summary
+        costSummary += tariff.getUsageCharge(now,summary,cumulativeSummary)
+        now = now + TimeService.HOUR
+      }
+      log.info "Variable Cost Summary: ${finalCostSummary}"
+      finalCostSummary += costSummary
+    }
+    return finalCostSummary / Constants.RANDOM_DAYS_NUMBER
+  }
+
+  /** This is the new function, used in order to find the most cost efficient tariff over the 
+   * available ones. It is using Daily shifting in order to put the appliances operation in most
+   * suitable hours of the day.
+   * @param tariff
+   * @return
+   */
+  double estimateShiftingVariableTariffPayment(Tariff tariff){
+
+    int serial = ((timeService.currentTime.millis - timeService.base) / TimeService.HOUR)
+    Instant base = timeService.currentTime - serial*TimeService.HOUR
+    int daylimit = (int) (serial / Constants.HOURS_OF_DAY) + 1 // this will be changed to one or more random numbers
+
+    float finalCostSummary = 0
+
+    def daysList = villageConsumersService.getDays(this)
+
+    daysList.each { day ->
+      if (day < daylimit) day = (int) (day + (daylimit / Constants.RANDOM_DAYS_NUMBER))
+      Instant now = base + day * TimeService.DAY
+      float costSummary = 0
+      float summary = 0, cumulativeSummary = 0
+
+      BigInteger[] newControllableLoad = dailyShifting(tariff,now,day)
+
+      for (int hour=0;hour < Constants.HOURS_OF_DAY;hour++){
+        for (int j=0;j < types;j++){
+          summary = summary + (villageConsumersService.getBaseConsumptions(this,j)[day][hour] + newControllableLoad[hour])
         }
         summary = summary / Constants.PERCENTAGE
         cumulativeSummary += summary
@@ -362,10 +474,64 @@ class Village extends AbstractCustomer{
     return finalCostSummary / Constants.RANDOM_DAYS_NUMBER
   }
 
+  /** This is the function that takes every household in the village and 
+   * readies the shifted Controllable Consumption for the needs of the tariff evaluation.
+   * @param tariff
+   * @param now
+   * @param day
+   * @return
+   */
+  def dailyShifting(Tariff tariff,Instant now, int day){
+
+    BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
+    for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
+
+    villageConsumersService.getHouseholds(this).each { house ->
+      def temp = house.dailyShifting(gen,tariff,now,day)
+      for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] += temp[j]
+    }
+
+    log.debug("New Controllable Load of Village ${this.toString()} for Tariff ${tariff.toString()}")
+
+    for (int i=0;i < Constants.HOURS_OF_DAY;i++) {
+      log.debug("Hour: ${i} Cost: ${tariff.getUsageCharge(now)} Load: ${newControllableLoad[i]}")
+      now = now + TimeService.HOUR
+    }
+
+    return newControllableLoad
+
+  }
+
+  /** This is the function that takes every household in the village and
+   * readies the shifted Controllable Consumption for the needs of the tariff evaluation.
+   * @param tariff
+   * @param now
+   * @param type
+   * @param day
+   * @return
+   */
+  def dailyShifting(Tariff tariff,Instant now, int type, int day){
+
+    BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
+    for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
+
+    villageConsumersService.getHouseholds(this,type).each { house ->
+      def temp = house.dailyShifting(gen,tariff,now,day)
+      for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] += temp[j]
+    }
+    log.debug("New Controllable Load of Village ${this.toString()} for Tariff ${tariff.toString()}")
+
+    for (int i=0;i < Constants.HOURS_OF_DAY;i++) {
+      log.debug("Hour: ${i} Cost: ${tariff.getUsageCharge(now)} Load: ${newControllableLoad[i]}")
+      now = now + TimeService.HOUR
+    }
+    return newControllableLoad
+  }
 
   /** This function prints to the screen the daily load of the village's households for the
    * weekday at hand.
-   * @param weekday
+   * @param day
+   * @param portion
    * @return
    */
   def printDailyLoad(int day, String portion) {
@@ -373,16 +539,16 @@ class Village extends AbstractCustomer{
     def houses
 
     if (portion.equals("NotShifting")){
-      houses = 0
+      houses = Constants.NOT_SHIFTING_TYPE
     }
     else if (portion.equals("RandomlyShifting")){
-      houses = 1
+      houses = Constants.RANDOM_SHIFTING_TYPE
     }
     else if (portion.equals("RegularlyShifting")){
-      houses = 2
+      houses = Constants.REGULAR_SHIFTING_TYPE
     }
     else {
-      houses = 3
+      houses = Constants.SMART_SHIFTING_TYPE
     }
 
     for (int i=0; i < villageConsumersService.households.size();i++){
@@ -395,7 +561,7 @@ class Village extends AbstractCustomer{
 
   /** This function represents the function that shows the status of all the households
    * in the village each moment in time.
-   * @param weekday
+   * @param day
    * @param quarter
    * @return
    */
@@ -409,11 +575,11 @@ class Village extends AbstractCustomer{
 
   /** This function is creating a certain number of random days that will be
    * public vacation for the people living in the environment.
-   *
    * @param days
+   * @param gen
    * @return
    */
-  def createPublicVacationVector(int days, Random gen) {
+  def createPublicVacationVector(int days) {
     // Creating auxiliary variables
     Vector v = new Vector(days)
 
@@ -433,7 +599,13 @@ class Village extends AbstractCustomer{
     return v
   }
 
-  def createCostEstimationDaysList(int days, Random gen) {
+  /** This function is creating the list of days for each village that will be utilized
+   * for the tariff evaluation.
+   * @param days
+   * @param gen
+   * @return
+   */
+  def createCostEstimationDaysList(int days) {
 
     Vector daysList = new Vector()
 
@@ -454,9 +626,54 @@ class Village extends AbstractCustomer{
     for (int i = 0;i < daysList.size();i++){
       villageConsumersService.setDays(this,i,daysList.get(i))
     }
-
   }
 
+  @ Override
+  void step(){
+    super.step();
+    if (timeService.getHourOfDay() == 23) rescheduleNextDay()
+  }
+
+  /** This function is utilized in order to reschedule the consumption load for the
+   * next day of the competition according to the tariff rates of the subscriptions under
+   * contract.
+   * 
+   */
+  void rescheduleNextDay(){
+
+    int serial = ((timeService.currentTime.millis - timeService.base) / TimeService.HOUR)
+    int day = (int) (serial / Constants.HOURS_OF_DAY) + 1
+    Instant now = timeService.currentTime + TimeService.HOUR
+
+    subscriptions.each { sub ->
+      for (int i=0;i < types;i++){
+        log.info "Old Consumption for day ${day} and Type ${i}: ${villageConsumersService.getControllableConsumptions(this,i,day)}"
+        BigInteger[] newControllableLoad = dailyShifting(sub.tariff,now,i,day)
+        villageConsumersService.setControllableConsumption(this, i, day,newControllableLoad)
+        log.info "New Consumption for day ${day} and Type ${i}: ${villageConsumersService.getControllableConsumptions(this,i,day)}"
+      }
+    }
+  }
+
+  /** This function is utilized in order to schedule the consumption load for the
+   * bootstrap data of the two weeks, so that the brokers can see the smart scheduling
+   * 
+   */
+  void bootstrapSchedule(){
+
+    Instant now = timeService.currentTime
+
+    for (int day = 0;day < Constants.DAYS_OF_BOOTSTRAP;day++){
+      println(now)
+      subscriptions.each { sub ->
+        for (int i=0;i < types;i++){
+          BigInteger[] newControllableLoad = dailyShifting(sub.tariff,now,i,day)
+          villageConsumersService.setControllableConsumption(this, i, day,newControllableLoad)
+        }
+      }
+      now = now + 24*TimeService.HOUR
+    }
+  }
 
   static auditable = true
 

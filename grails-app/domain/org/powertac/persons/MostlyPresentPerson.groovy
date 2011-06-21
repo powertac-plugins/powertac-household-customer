@@ -18,7 +18,6 @@
 package org.powertac.persons
 
 import java.math.*
-import java.util.HashMap
 import java.util.Vector
 
 import org.powertac.common.configurations.Constants
@@ -39,8 +38,9 @@ class MostlyPresentPerson extends Person {
   /** This is the initialization function. It uses the variable values for the
    * configuration file to create the person as it should for this type.
    * @param AgentName
-   * @param hm
+   * @param conf
    * @param publicVacationVector
+   * @param gen
    * @return
    */
   def initialize(String AgentName, ConfigObject conf, Vector publicVacationVector, Random gen) {

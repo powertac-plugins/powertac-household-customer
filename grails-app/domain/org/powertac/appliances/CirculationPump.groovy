@@ -23,7 +23,7 @@ import java.util.Random
 import org.powertac.common.configurations.Constants
 
 /**
- * Circulation pump is the appliance that brings water to the household. It works most
+ * Circulation Pump is the appliance that brings water to the household. It works most
  * of the hours of the day, but always when someone is at home in need of water. So it's
  * a not shifting appliance.
  *
@@ -33,7 +33,7 @@ import org.powertac.common.configurations.Constants
 
 class CirculationPump extends NotShiftingAppliance {
 
-  /** Variable that presents the mean possibility to utilize the appliance each hour of the day 
+  /** Variable that presents the mean possibility to utilize the appliance each quarter of the day 
    * that someone is present in the household.
    */
   BigDecimal percentage
@@ -62,8 +62,8 @@ class CirculationPump extends NotShiftingAppliance {
 
     def possibilityDailyOperation = new Vector()
 
+    // The pump can work each quarter someone is in the premises
     for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
-
       if (applianceOf.isEmpty(day,j) == false) possibilityDailyOperation.add(true)
       else possibilityDailyOperation.add(false)
     }
@@ -103,9 +103,7 @@ class CirculationPump extends NotShiftingAppliance {
     createWeeklyPossibilityOperationVector()
   }
 
-
   static constraints = {
-
     name()
     saturation()
     cycleDuration()

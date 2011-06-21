@@ -18,7 +18,11 @@
 
 package org.powertac.appliances
 import java.util.HashMap
+import java.util.Random
 
+import org.joda.time.Instant
+import org.powertac.common.Tariff
+import org.powertac.common.TimeService
 import org.powertac.common.configurations.Constants
 
 /**
@@ -39,14 +43,14 @@ class Refrigerator extends FullyShiftingAppliance {
     // Filling the base variables
     name = household + " Refrigerator"
     saturation =  conf.household.appliances.refrigerator.RefrigeratorSaturation
-    consumptionShare = (float) (Constants.PERCENTAGE * (Constants.REFRIDGERATOR_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.REFRIDGERATOR_CONSUMPTION_SHARE_MEAN))
-    baseLoadShare = Constants.PERCENTAGE * Constants.REFRIDGERATOR_BASE_LOAD_SHARE
-    power = (int) (Constants.REFRIDGERATOR_POWER_VARIANCE * gen.nextGaussian() + Constants.REFRIDGERATOR_POWER_MEAN)
-    cycleDuration = Constants.REFRIDGERATOR_DURATION_CYCLE
+    consumptionShare = (float) (Constants.PERCENTAGE * (Constants.REFRIGERATOR_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.REFRIGERATOR_CONSUMPTION_SHARE_MEAN))
+    baseLoadShare = Constants.PERCENTAGE * Constants.REFRIGERATOR_BASE_LOAD_SHARE
+    power = (int) (Constants.REFRIGERATOR_POWER_VARIANCE * gen.nextGaussian() + Constants.REFRIGERATOR_POWER_MEAN)
+    cycleDuration = Constants.REFRIGERATOR_DURATION_CYCLE
     od = false
     inUse = false
-    probabilitySeason = fillSeason(Constants.REFRIDGERATOR_POSSIBILITY_SEASON_1,Constants.REFRIDGERATOR_POSSIBILITY_SEASON_2,Constants.REFRIDGERATOR_POSSIBILITY_SEASON_3)
-    probabilityWeekday = fillDay(Constants.REFRIDGERATOR_POSSIBILITY_DAY_1,Constants.REFRIDGERATOR_POSSIBILITY_DAY_2,Constants.REFRIDGERATOR_POSSIBILITY_DAY_3)
+    probabilitySeason = fillSeason(Constants.REFRIGERATOR_POSSIBILITY_SEASON_1,Constants.REFRIGERATOR_POSSIBILITY_SEASON_2,Constants.REFRIGERATOR_POSSIBILITY_SEASON_3)
+    probabilityWeekday = fillDay(Constants.REFRIGERATOR_POSSIBILITY_DAY_1,Constants.REFRIGERATOR_POSSIBILITY_DAY_2,Constants.REFRIGERATOR_POSSIBILITY_DAY_3)
   }
 
   @Override
@@ -54,8 +58,8 @@ class Refrigerator extends FullyShiftingAppliance {
 
     def possibilityDailyOperation = new Vector()
 
+    // Freezer can work anytime
     for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
-
       possibilityDailyOperation.add(true)
     }
 
@@ -69,7 +73,7 @@ class Refrigerator extends FullyShiftingAppliance {
     dailyOperation = new Vector()
 
     for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
-      if (i % 2 == 0) {
+      if (i % cycleDuration == 0) {
         loadVector.add(power)
         dailyOperation.add(true)
       } else  {
@@ -80,6 +84,31 @@ class Refrigerator extends FullyShiftingAppliance {
     weeklyLoadVector.add(loadVector)
     weeklyOperation.add(dailyOperation)
     operationVector.add(dailyOperation)
+  }
+
+  @ Override
+  def dailyShifting(Random gen,Tariff tariff,Instant now, int day){
+
+    BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
+    for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
+    Instant now2 = now
+
+    // Daily operation is seperated in shifting periods
+    for (int i=0;i < Constants.REFRIGERATOR_SHIFTING_PERIODS;i++){
+      def minvalue = Double.POSITIVE_INFINITY
+      def minindex = 0;
+
+      // For each shifting period we search the best value
+      for (int j =0;j < Constants.REFRIGERATOR_SHIFTING_INTERVAL;j++){
+        if ((minvalue > tariff.getUsageCharge(now2)) || (minvalue == tariff.getUsageCharge(now2) && gen.nextFloat() > Constants.HALF)) {
+          minvalue = tariff.getUsageCharge(now2)
+          minindex = j
+        }
+        now2 = now2 + TimeService.HOUR
+      }
+      newControllableLoad[Constants.REFRIGERATOR_SHIFTING_INTERVAL*i+minindex] = Constants.QUARTERS_OF_HOUR*power
+    }
+    return newControllableLoad
   }
 
   @ Override

@@ -17,13 +17,17 @@ package org.powertac.consumers
 
 import groovy.util.ConfigObject
 
+import java.math.BigInteger
 import java.util.Random
 import java.util.Vector
 
+import org.joda.time.Instant
 import org.powertac.appliances.*
+import org.powertac.common.Tariff
 import org.powertac.common.configurations.Constants
 import org.powertac.common.enumerations.Status
 import org.powertac.persons.*
+
 /**
  * The household is the domain instance represents a single house with the tenants living
  * inside it and fully equipped with appliances statistically distributed. There
@@ -37,6 +41,7 @@ import org.powertac.persons.*
 
 class Household {
 
+  /** The service that contains the Mappings useful for the functioning and load of the appliances.*/
   def householdConsumersService
 
   /** the household name. It is different for each one to be able to tell them apart.*/
@@ -83,8 +88,9 @@ class Household {
    * configuration file to create the household and then fill it with persons and
    * appliances as it seems fit.
    * @param HouseName
-   * @param hm
+   * @param conf
    * @param publicVacationVector
+   * @param gen
    * @return
    */
   def initialize(String HouseName, ConfigObject conf, Vector publicVacationVector, Random gen) {
@@ -103,8 +109,8 @@ class Household {
     fillAppliances(conf, gen)
 
     for (int i =0;i < Constants.DAYS_OF_WEEK;i++) {
-      setDailyBaseLoad(fillDailyBaseLoad(i))
-      setDailyControllableLoad(fillDailyControllableLoad(i))
+      setDailyBaseLoad(fillDailyBaseLoad(week*Constants.DAYS_OF_WEEK+i))
+      setDailyControllableLoad(fillDailyControllableLoad(week*Constants.DAYS_OF_WEEK+i))
       weeklyBaseLoad.add(dailyBaseLoad)
       weeklyControllableLoad.add(dailyControllableLoad)
       setDailyBaseLoadInHours(fillDailyBaseLoadInHours())
@@ -113,7 +119,46 @@ class Household {
       weeklyControllableLoadInHours.add(dailyControllableLoadInHours)
     }
 
-    for (week;week < 8;week++){
+    //Filling another week for the bootstrap data
+    week = 1
+    refresh(conf,gen)
+
+    this.appliances.each{ appliance ->
+      appliance.setVectors()
+    }
+  }
+
+  /** After the creation of the household and the filling of the two weeks bootstrap data
+   * the next thing to do is to fill the actual data for the competition functioning.
+   * 
+   * @param conf
+   * @param gen
+   * @return
+   */
+  def createActualData(ConfigObject conf, Random gen) {
+
+    // Reset the variables for the new data
+    weeklyBaseLoad = new Vector()
+    weeklyControllableLoad = new Vector()
+    weeklyBaseLoadInHours = new Vector()
+    weeklyControllableLoadInHours = new Vector()
+
+    appliances.each { appliance ->
+
+      // Remove the mappings in order to remake them
+      householdConsumersService.appliancesOperations.remove(appliance.name)
+      householdConsumersService.appliancesLoads.remove(appliance.name)
+      householdConsumersService.appliancesPossibilityOperations.remove(appliance.name)
+      householdConsumersService.appliancesOperationDays.remove(appliance.name)
+
+      // Reset the variables for the new data
+      appliance.operationVector = new Vector()
+      appliance.possibilityOperationVector = new Vector()
+      appliance.weeklyOperation = new Vector()
+      appliance.weeklyLoadVector = new Vector()
+    }
+
+    for (week = 0;week < Constants.WEEKS_OF_COMPETITION;week++){
       refresh(conf,gen)
     }
 
@@ -125,8 +170,9 @@ class Household {
   /** This function is creating a random number of person (given by the next
    * function) and add them to the current household, filling it up with life.
    * @param counter
-   * @param hm
+   * @param conf
    * @param publicVacationVector
+   * @param gen
    * @return
    */
   def addPerson(int counter, ConfigObject conf, Vector publicVacationVector, Random gen) {
@@ -155,7 +201,8 @@ class Household {
 
   /** This is the function that utilizes the possibilities of the number of persons
    * in a household and gives back a number randomly.
-   * @param hm
+   * @param conf
+   * @param gen
    * @return
    */
   def memberRandomizer(ConfigObject conf, Random gen) {
@@ -169,22 +216,22 @@ class Household {
     int x = gen.nextInt(Constants.PERCENTAGE);
     if (x < one) {
       setYearConsumption((int) conf.household.person.consumption.OnePersonConsumption)
-      returnValue = 1
+      returnValue = Constants.ONE_PERSON
     } else  {
       if (x >= one &  x < (one + two)) {
         setYearConsumption((int) conf.household.person.consumption.TwoPersonsConsumption)
-        returnValue = 2
+        returnValue = Constants.TWO_PERSONS
       } else  {
         if (x >= (one + two) & x < (one + two + three)) {
           setYearConsumption((int) conf.household.person.consumption.ThreePersonsConsumption)
-          returnValue = 3
+          returnValue = Constants.THREE_PERSONS
         } else  {
           if (x >= (one + two + three) & x < (one + two + three + four)) {
             setYearConsumption((int) conf.household.person.consumption.FourPersonsConsumption)
-            returnValue = 4
+            returnValue = Constants.FOUR_PERSONS
           } else  {
             setYearConsumption((int) conf.household.person.consumption.FivePersonsConsumption)
-            returnValue = 5
+            returnValue = Constants.FIVE_PERSONS
           }
         }
       }
@@ -195,6 +242,7 @@ class Household {
   /** This function is using the appliance's saturation in order to make a possibility
    * check and install or not the appliance in the current household.
    * @param app
+   * @param gen
    * @return
    */
   def checkProbability(Appliance app, Random gen) {
@@ -212,10 +260,49 @@ class Household {
   /** This function is responsible for the filling of the household with the appliances
    * and their schedule for the first week using a statistic formula and the members 
    * of the household.
-   * @param hm
+   * @param conf
+   * @param gen
    * @return
    */
   def fillAppliances(ConfigObject conf, Random gen) {
+
+    // NOT SHIFTING ================================
+
+    // Consumer Electronics
+    ConsumerElectronics ce = new ConsumerElectronics();
+    this.addToAppliances(ce)
+    ce.initialize(this.name,conf,gen);
+    ce.fillWeeklyFunction(gen)
+    ce.createWeeklyPossibilityOperationVector()
+
+    // ICT
+    ICT ict = new ICT();
+    this.addToAppliances(ict)
+    ict.initialize(this.name,conf,gen);
+    ict.fillWeeklyFunction(gen)
+    ict.createWeeklyPossibilityOperationVector()
+
+    // Lights
+    Lights lights = new Lights();
+    this.addToAppliances(lights)
+    lights.initialize(this.name,conf,gen);
+    lights.fillWeeklyFunction(gen)
+    lights.createWeeklyPossibilityOperationVector()
+
+    //Others
+    Others others = new Others();
+    this.addToAppliances(others)
+    others.initialize(this.name,conf,gen);
+    others.fillWeeklyFunction(gen)
+    others.createWeeklyPossibilityOperationVector()
+
+    //Circulation Pump
+    CirculationPump cp = new CirculationPump()
+    this.addToAppliances(cp)
+    cp.initialize(this.name,conf,gen)
+    checkProbability(cp,gen)
+
+    // FULLY SHIFTING ================================
 
     // Refrigerator
     Refrigerator ref = new Refrigerator();
@@ -223,74 +310,56 @@ class Household {
     ref.initialize(this.name, conf,gen);
     ref.fillWeeklyFunction(gen)
     ref.createWeeklyPossibilityOperationVector()
-    // Washing Machine
-    WashingMachine wm = new WashingMachine();
-    this.addToAppliances(wm)
-    wm.initialize(this.name,conf,gen);
-    wm.fillWeeklyFunction(gen)
-    wm.createWeeklyPossibilityOperationVector()
-    // Consumer Electronics
-    ConsumerElectronics ce = new ConsumerElectronics();
-    this.addToAppliances(ce)
-    ce.initialize(this.name,conf,gen);
-    ce.fillWeeklyFunction(gen)
-    ce.createWeeklyPossibilityOperationVector()
-    // ICT
-    ICT ict = new ICT();
-    this.addToAppliances(ict)
-    ict.initialize(this.name,conf,gen);
-    ict.fillWeeklyFunction(gen)
-    ict.createWeeklyPossibilityOperationVector()
-    // Lights
-    Lights lights = new Lights();
-    this.addToAppliances(lights)
-    lights.initialize(this.name,conf,gen);
-    lights.fillWeeklyFunction(gen)
-    lights.createWeeklyPossibilityOperationVector()
-    //Others
-    Others others = new Others();
-    this.addToAppliances(others)
-    others.initialize(this.name,conf,gen);
-    others.fillWeeklyFunction(gen)
-    others.createWeeklyPossibilityOperationVector()
+
     // Freezer
     Freezer fr = new Freezer()
+    this.addToAppliances(fr)
     fr.initialize(this.name,conf,gen)
     checkProbability(fr,gen)
-    // Dishwasher
-    Dishwasher dw = new Dishwasher()
-    this.addToAppliances(dw)
-    dw.initialize(this.name,conf,gen)
-    checkProbability(dw,gen)
-    //Stove
-    Stove st = new Stove()
-    this.addToAppliances(st)
-    st.initialize(this.name,conf,gen)
-    checkProbability(st,gen)
-    //Dryer
-    Dryer dr = new Dryer()
-    this.addToAppliances(dr)
-    dr.initialize(this.name,conf,gen)
-    checkProbability(dr,gen)
+
     //Water Heater
     WaterHeater wh = new WaterHeater()
     this.addToAppliances(wh)
     wh.initialize(this.name,conf,gen)
     checkProbability(wh,gen)
-    //Circulation Pump
-    CirculationPump cp = new CirculationPump()
-    this.addToAppliances(cp)
-    cp.initialize(this.name,conf,gen)
-    checkProbability(cp,gen)
+
     //Space Heater
     SpaceHeater sh = new SpaceHeater()
     this.addToAppliances(sh)
     sh.initialize(this.name,conf,gen)
     checkProbability(sh,gen)
+
+    // SEMI SHIFTING ================================
+
+    // Dishwasher
+    Dishwasher dw = new Dishwasher()
+    this.addToAppliances(dw)
+    dw.initialize(this.name,conf,gen)
+    checkProbability(dw,gen)
+
+    //Stove
+    Stove st = new Stove()
+    this.addToAppliances(st)
+    st.initialize(this.name,conf,gen)
+    checkProbability(st,gen)
+
+    // Washing Machine
+    WashingMachine wm = new WashingMachine()
+    this.addToAppliances(wm)
+    wm.initialize(this.name,conf,gen);
+    wm.fillWeeklyFunction(gen)
+    wm.createWeeklyPossibilityOperationVector()
+
+    //Dryer
+    Dryer dr = new Dryer()
+    this.addToAppliances(dr)
+    dr.initialize(this.name,conf,gen)
+    checkProbability(dr,gen)
+
   }
 
   /** This function checks if all the inhabitants of the household are out of the household.
-   * 
+   * @param weekday
    * @param quarter
    * @return
    */
@@ -340,62 +409,62 @@ class Household {
     }
   }
 
-  /** This function is used in order to fill the daily Base Load of the household for each quarter of the hour
-   * 
+  /** This function is used in order to fill the daily 
+   * Base Load of the household for each quarter of the hour
    * @param weekday
    * @return
    */
-  def fillDailyBaseLoad(int weekday) {
+  def fillDailyBaseLoad(int day) {
     // Creating auxiliary variables
     Vector v = new Vector(Constants.QUARTERS_OF_DAY)
     int sum = 0
     for (int i = 0;i < Constants.QUARTERS_OF_DAY; i++) {
       sum = 0
       this.appliances.each {
-        if (it instanceof NotShiftingAppliance) sum = sum + it.weeklyLoadVector.get(weekday).get(i)
+        if (it instanceof NotShiftingAppliance) sum = sum + it.weeklyLoadVector.get(day).get(i)
       }
       v.add(sum)
     }
     return v
   }
 
-  /** This function is used in order to fill the daily Controllable Load of the household for each quarter of the hour
-   *
+  /** This function is used in order to fill the daily Controllable Load of the 
+   * household for each quarter of the hour.
    * @param weekday
    * @return
    */
-  def fillDailyControllableLoad(int weekday) {
+  def fillDailyControllableLoad(int day) {
     // Creating auxiliary variables
     Vector v = new Vector(Constants.QUARTERS_OF_DAY)
     int sum = 0
     for (int i = 0;i < Constants.QUARTERS_OF_DAY; i++) {
       sum = 0
       this.appliances.each {
-        if (!(it instanceof NotShiftingAppliance)) sum = sum + it.weeklyLoadVector.get(weekday).get(i)
+        if (!(it instanceof NotShiftingAppliance)) sum = sum + it.weeklyLoadVector.get(day).get(i)
       }
       v.add(sum)
     }
     return v
   }
 
-  /** This function checks if all the inhabitants of the household are away on vacation on a certain quarter
-   * 
+  /** This function checks if all the inhabitants of the household are away 
+   * on vacation on a certain quarter
    * @param quarter
    * @return
    */
-  def isOnVacation(int quarter) {
+  def isOnVacation(int weekday,int quarter) {
     boolean x = false
     this.members.each {
-      if (it.getDailyRoutine().get(quarter) == Status.Vacation) {
+      if (it.weeklyRoutine.get(week*Constants.DAYS_OF_WEEK+weekday).get(quarter) == Status.Vacation) {
         x = true
       }
     }
     return x
   }
 
-  /** This function represents the function that shows the conditions in an household each moment in time
-   * 
-   * @param weekday
+  /** This function represents the function that shows the conditions in an 
+   * household each moment in time.
+   * @param day
    * @param quarter
    * @return
    */
@@ -416,7 +485,8 @@ class Household {
     log.info "Current Load: ${currentLoad} "
   }
 
-  /** This function fills out the daily Base Load in hours vector taking in consideration the load per quarter of an hour
+  /** This function fills out the daily Base Load in hours vector taking 
+   * in consideration the load per quarter of an hour.
    * 
    * @return
    */
@@ -433,8 +503,8 @@ class Household {
     return v
   }
 
-  /** This function fills out the daily Controllable Load in hours vector taking in consideration the load per quarter of an hour
-   *
+  /** This function fills out the daily Controllable Load in hours vector 
+   * taking in consideration the load per quarter of an hour.
    * @return
    */
   def fillDailyControllableLoadInHours() {
@@ -452,8 +522,7 @@ class Household {
 
 
   /** This function set the current load in accordance with the time of the competition
-   * 
-   * @param weekday
+   * @param day
    * @param quarter
    * @return
    */
@@ -464,7 +533,8 @@ class Household {
   /** At the end of each week the household models refresh their schedule. This way
    * we have a realistic and dynamic model, changing function hours, consuming power
    * and so on.
-   * @param hm
+   * @param conf
+   * @param gen
    * @return
    */
   def refresh(ConfigObject conf, Random gen) {
@@ -476,12 +546,14 @@ class Household {
 
     // For each appliance of the household
     this.appliances.each { appliance ->
-      appliance.refresh(gen)
+      appliance.operationVector = new Vector()
+      if (!(appliance instanceof Dryer)) appliance.refresh(gen)
+
     }
 
     for (int i =0;i < Constants.DAYS_OF_WEEK;i++) {
-      setDailyBaseLoad(fillDailyBaseLoad(i))
-      setDailyControllableLoad(fillDailyControllableLoad(i))
+      setDailyBaseLoad(fillDailyBaseLoad(week*Constants.DAYS_OF_WEEK+i))
+      setDailyControllableLoad(fillDailyControllableLoad(week*Constants.DAYS_OF_WEEK+i))
       weeklyBaseLoad.add(dailyBaseLoad)
       weeklyControllableLoad.add(dailyControllableLoad)
       setDailyBaseLoadInHours(fillDailyBaseLoadInHours())
@@ -492,6 +564,32 @@ class Household {
 
     this.save()
   }
+
+  /** This is the function that takes every appliance in the household and
+   * readies the shifted Controllable Consumption for the needs of the tariff evaluation.
+   * @param tariff
+   * @param now
+   * @param day
+   * @return
+   */
+  def dailyShifting(Random gen, Tariff tariff, Instant now, int day){
+
+    BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
+    for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
+
+    appliances.each { appliance ->
+      if (!(appliance instanceof NotShiftingAppliance)) {
+        def temp = appliance.dailyShifting(gen,tariff,now,day)
+        //log.info"Appliance ${appliance.toString()}"
+        //log.info"Load: ${householdConsumersService.getApplianceLoads(appliance,day).toString()}"
+        //log.info("Temp: " + temp.toString())
+        //log.info(newControllableLoad.toString())
+        for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] += temp[j]
+      }
+    }
+    return newControllableLoad
+  }
+
 
   /** This function prints to the screen the daily load of the household for the 
    * weekday at hand 
