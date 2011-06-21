@@ -114,13 +114,17 @@ class WaterHeater extends FullyShiftingAppliance{
 
     def possibilityDailyOperation = new Vector()
 
+    // If the heater is instant Heater
     if (type == HeaterType.InstantHeater) {
+      // It can operate each quarter someone is at home to turn it on
       for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
         if (applianceOf.isEmpty(day,j) == false) possibilityDailyOperation.add(true)
         else possibilityDailyOperation.add(false)
       }
     }
+    //If heater is storage
     else {
+      // It can operate all quarters of day
       for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
         possibilityDailyOperation.add(true)
       }
@@ -187,6 +191,7 @@ class WaterHeater extends FullyShiftingAppliance{
     // Filling the base variables
     name = household + " WaterHeater"
     saturation = conf.household.appliances.waterHeater.WaterHeaterSaturation
+    // If the heater is instant Heater
     if ( x < limit) {
       consumptionShare = (float) (Constants.PERCENTAGE * (Constants.INSTANT_HEATER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.INSTANT_HEATER_CONSUMPTION_SHARE_MEAN))
       baseLoadShare = Constants.PERCENTAGE * Constants.INSTANT_HEATER_BASE_LOAD_SHARE
@@ -199,7 +204,9 @@ class WaterHeater extends FullyShiftingAppliance{
       setType(HeaterType.InstantHeater)
       times = conf.household.appliances.waterHeater.InstantHeaterDailyTimes + (int)(applianceOf.members.size()/2)
       createWeeklyOperationVector(times, gen)
-    } else  {
+    }
+    //If heater is storage
+    else  {
       consumptionShare = (float) (Constants.PERCENTAGE * (Constants.STORAGE_HEATER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.STORAGE_HEATER_CONSUMPTION_SHARE_MEAN))
       baseLoadShare = Constants.PERCENTAGE * Constants.STORAGE_HEATER_BASE_LOAD_SHARE
       power = (int) (Constants.STORAGE_HEATER_POWER_VARIANCE * gen.nextGaussian() + Constants.STORAGE_HEATER_POWER_MEAN)
@@ -218,16 +225,20 @@ class WaterHeater extends FullyShiftingAppliance{
     BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
     for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
 
+    // If the heater is instant Heater
     if (type == HeaterType.InstantHeater) {
 
+      //If the heater is working the day of the shifting
       if (householdConsumersService.getApplianceOperationDays(this,day)) {
 
         def minindex = 0
         def functionMatrix = createShiftingOperationMatrix(day)
 
+        // case of fixed tariff rate
         if ((tariff.tariffSpec.rates.size() == 1) && (tariff.tariffSpec.rates.getAt(0).isFixed)) {
           def possibleHours = new Vector()
 
+          // find the all the available functioning hours of the appliance
           for (int i=0;i < Constants.HOURS_OF_DAY;i++){
             if (functionMatrix[i]){
               possibleHours.add(i)
@@ -235,11 +246,13 @@ class WaterHeater extends FullyShiftingAppliance{
           }
           minindex = possibleHours.get(gen.nextInt(possibleHours.size()))
         }
+        // case of variable tariff rate
         else {
 
           def minvalue = Double.POSITIVE_INFINITY
           Instant hour1 = now
 
+          // find the all the available functioning hours of the appliance
           for (int i=0;i < Constants.HOURS_OF_DAY;i++){
             if (functionMatrix[i]){
               if (minvalue >= tariff.getUsageCharge(hour1)){
@@ -253,15 +266,19 @@ class WaterHeater extends FullyShiftingAppliance{
         newControllableLoad[minindex] = times*power
       }
     }
+    //If heater is storage
     else {
 
+      //If the heater is working the day of the shifting
       if (householdConsumersService.getApplianceOperationDays(this,day)) {
         def minindex = 0
         def functionMatrix = createShiftingOperationMatrix(day)
 
+        // case of fixed tariff rate
         if ((tariff.tariffSpec.rates.size() == 1) && (tariff.tariffSpec.rates.getAt(0).isFixed)) {
           def possibleHours = new Vector()
 
+          // find the all the available functioning hours of the appliance
           for (int i=0;i < Constants.STORAGE_HEATER_SHIFTING_END;i++){
             if (functionMatrix[i]){
               possibleHours.add(i)
@@ -269,11 +286,14 @@ class WaterHeater extends FullyShiftingAppliance{
           }
           minindex = possibleHours.get(gen.nextInt(possibleHours.size()))
         }
+
+        // case of variable tariff rate
         else {
 
           def minvalue = Double.POSITIVE_INFINITY
           Instant hour1 = now
 
+          // find the all the available functioning hours of the appliance
           for (int i=0;i < Constants.STORAGE_HEATER_SHIFTING_END;i++){
             if (functionMatrix[i]){
               if (minvalue >= tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour1 + TimeService.HOUR)+tariff.getUsageCharge(hour1+ 2*TimeService.HOUR)+tariff.getUsageCharge(hour1 + 3*TimeService.HOUR)+tariff.getUsageCharge(hour1 + 4*TimeService.HOUR)){
