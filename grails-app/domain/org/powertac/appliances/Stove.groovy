@@ -137,14 +137,13 @@ class Stove extends SemiShiftingAppliance{
   @ Override
   def dailyShifting(Random gen,Tariff tariff,Instant now, int day){
 
-    BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
-    for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
+    long[] newControllableLoad = new long[Constants.HOURS_OF_DAY]
 
     def minindex = 0
     def minvalue = Double.POSITIVE_INFINITY
     def functionMatrix = createShiftingOperationMatrix(day)
     Instant hour1 = now
-    BigInteger sumPower = 0
+    long sumPower = 0
 
     // Gather the Load Summary of the day
     for (int i=0;i< Constants.QUARTERS_OF_DAY;i++) sumPower += householdConsumersService.getApplianceLoads(this,day,i)
