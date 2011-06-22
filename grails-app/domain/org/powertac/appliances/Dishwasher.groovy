@@ -181,8 +181,7 @@ class Dishwasher extends SemiShiftingAppliance {
   @ Override
   def dailyShifting(Random gen,Tariff tariff,Instant now, int day){
 
-    BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
-    for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
+    long[] newControllableLoad = new long[Constants.HOURS_OF_DAY]
 
     if (householdConsumersService.getApplianceOperationDays(this,day)) {
       def minindex = 0

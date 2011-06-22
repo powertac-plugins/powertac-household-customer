@@ -220,8 +220,7 @@ class Dryer extends SemiShiftingAppliance {
   @ Override
   def dailyShifting(Random gen,Tariff tariff,Instant now, int day){
     // Dryer's daily shifting is done by the washing machine for safety
-    BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
-    for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
+    long[] newControllableLoad = new long[Constants.HOURS_OF_DAY]
 
     return newControllableLoad
   }
