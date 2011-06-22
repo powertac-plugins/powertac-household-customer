@@ -369,31 +369,6 @@ class Village extends AbstractCustomer{
     }
   }
 
-
-  /** At the end of each week the village households' models refresh their schedule. 
-   * This way we have a realistic and dynamic model, changing function hours, consuming power
-   * and so on.
-   * @param conf
-   * @param gen
-   * @return
-   */
-  /*  def refresh(ConfigObject conf) {
-   for (int i=0; i < villageConsumersService.households.size();i++){
-   for (int j=0; j < villageConsumersService.getHouseholds(this,i).size();j++){
-   villageConsumersService.getHouseholds(this,i)[j].refresh(conf,gen)
-   }
-   }
-   villageConsumersService.baseConsumptions.remove(this.customerInfo.name)
-   villageConsumersService.createBaseConsumptionsMap(this,types)
-   villageConsumersService.controllableConsumptions.remove(this.customerInfo.name)
-   villageConsumersService.createControllableConsumptionsMap(this,types)
-   fillAggWeeklyLoad("NotShifting")
-   fillAggWeeklyLoad("RandomlyShifting")
-   fillAggWeeklyLoad("RegularlyShifting")
-   fillAggWeeklyLoad("SmartShifting")
-   }
-   */
-
   @ Override
   double costEstimation(Tariff tariff)
   {
@@ -457,7 +432,7 @@ class Village extends AbstractCustomer{
       float costSummary = 0
       float summary = 0, cumulativeSummary = 0
 
-      BigInteger[] newControllableLoad = dailyShifting(tariff,now,day)
+      long[] newControllableLoad = dailyShifting(tariff,now,day)
 
       for (int hour=0;hour < Constants.HOURS_OF_DAY;hour++){
         for (int j=0;j < types;j++){
@@ -483,8 +458,7 @@ class Village extends AbstractCustomer{
    */
   def dailyShifting(Tariff tariff,Instant now, int day){
 
-    BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
-    for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
+    long[] newControllableLoad = new long[Constants.HOURS_OF_DAY]
 
     villageConsumersService.getHouseholds(this).each { house ->
       def temp = house.dailyShifting(gen,tariff,now,day)
@@ -512,8 +486,7 @@ class Village extends AbstractCustomer{
    */
   def dailyShifting(Tariff tariff,Instant now, int type, int day){
 
-    BigInteger[] newControllableLoad = new BigInteger[Constants.HOURS_OF_DAY]
-    for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] = 0
+    long[] newControllableLoad = new long[Constants.HOURS_OF_DAY]
 
     villageConsumersService.getHouseholds(this,type).each { house ->
       def temp = house.dailyShifting(gen,tariff,now,day)
@@ -648,7 +621,7 @@ class Village extends AbstractCustomer{
     subscriptions.each { sub ->
       for (int i=0;i < types;i++){
         log.info "Old Consumption for day ${day} and Type ${i}: ${villageConsumersService.getControllableConsumptions(this,i,day)}"
-        BigInteger[] newControllableLoad = dailyShifting(sub.tariff,now,i,day)
+        long[] newControllableLoad = dailyShifting(sub.tariff,now,i,day)
         villageConsumersService.setControllableConsumption(this, i, day,newControllableLoad)
         log.info "New Consumption for day ${day} and Type ${i}: ${villageConsumersService.getControllableConsumptions(this,i,day)}"
       }
@@ -664,7 +637,6 @@ class Village extends AbstractCustomer{
     Instant now = timeService.currentTime
 
     for (int day = 0;day < Constants.DAYS_OF_BOOTSTRAP;day++){
-      println(now)
       subscriptions.each { sub ->
         for (int i=0;i < types;i++){
           BigInteger[] newControllableLoad = dailyShifting(sub.tariff,now,i,day)
