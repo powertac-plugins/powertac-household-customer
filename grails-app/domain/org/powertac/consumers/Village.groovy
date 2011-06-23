@@ -639,7 +639,7 @@ class Village extends AbstractCustomer{
     for (int day = 0;day < Constants.DAYS_OF_BOOTSTRAP;day++){
       subscriptions.each { sub ->
         for (int i=0;i < types;i++){
-          BigInteger[] newControllableLoad = dailyShifting(sub.tariff,now,i,day)
+          long[] newControllableLoad = dailyShifting(sub.tariff,now,i,day)
           villageConsumersService.setControllableConsumption(this, i, day,newControllableLoad)
         }
       }
