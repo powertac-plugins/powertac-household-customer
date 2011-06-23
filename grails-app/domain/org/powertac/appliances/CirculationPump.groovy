@@ -36,7 +36,7 @@ class CirculationPump extends NotShiftingAppliance {
   /** Variable that presents the mean possibility to utilize the appliance each quarter of the day 
    * that someone is present in the household.
    */
-  BigDecimal percentage
+  double percentage
 
 
   @ Override
