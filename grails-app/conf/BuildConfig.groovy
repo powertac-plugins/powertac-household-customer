@@ -2,12 +2,11 @@ grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
 //grails.project.war.file = "target/${appName}-${appVersion}.war"
+
 grails.plugin.location.PowertacCommon = "../powertac-common"
 grails.plugin.location.PowertacRandom = "../powertac-random"
 grails.plugin.location.PowertacServerInterface = "../powertac-server-interface"
 grails.plugin.location.PowertacAccountingService = "../powertac-accounting-service"
-
-
 
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
@@ -36,7 +35,3 @@ grails.project.dependency.resolution = {
         // runtime 'mysql:mysql-connector-java:5.1.13'
     }
 }
-grails.plugin.location.'powertac-common' = "../powertac-common"
-grails.plugin.location.'powertac-server-interface' = "../powertac-server-interface"
-grails.plugin.location.PowertacAccountingService = "../powertac-accounting-service"
-grails.plugin.location.'powertac-accounting-service' = "../powertac-accounting-service"
