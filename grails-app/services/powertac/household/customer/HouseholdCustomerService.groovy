@@ -16,6 +16,7 @@
 
 package powertac.household.customer
 
+import java.util.Map
 import java.util.Random
 
 import org.joda.time.Instant
@@ -34,6 +35,7 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
   def competitionControlService
   def randomSeedService // autowire
   def tariffMarketService
+  def villageConsumersService
 
   PluginConfig configuration
   HashMap hm
@@ -74,6 +76,12 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
       assert(village.save())
     }
   }
+
+  public Map generateBootstrapDataMap()
+  {
+    return villageConsumersService.bootstrapConsumptions
+  }
+
 
   void activate(Instant now, int phase) {
 
