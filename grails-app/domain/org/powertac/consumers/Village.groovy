@@ -647,6 +647,11 @@ class Village extends AbstractCustomer{
     }
   }
 
+  @ Override
+  def getBootstrapData(){
+    return villageConsumersService.getBootstrapConsumptions(this)
+  }
+
   static auditable = true
 
   public String toString() {
