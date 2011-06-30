@@ -17,7 +17,9 @@ package org.powertac.consumers
 
 import groovy.util.ConfigObject
 
+import java.util.List
 import java.util.Random
+import java.util.Vector
 
 import org.joda.time.Instant
 import org.powertac.common.*
@@ -222,6 +224,23 @@ class Village extends AbstractCustomer{
   }
 
   @ Override
+  void consumePower()
+  {
+    Timeslot ts =  Timeslot.currentTimeslot()
+    double summary = 0
+    int serial = ((timeService.currentTime.millis - timeService.base) / TimeService.HOUR)
+
+    subscriptions.each { sub ->
+      if (ts == null) summary = getConsumptionByTimeslot(serial)
+      else {
+        summary = getConsumptionByTimeslot(ts.serialNumber)
+      }
+      log.info "Consumption Load: ${summary} / ${subscriptions.size()} "
+      sub.usePower(summary/subscriptions.size())
+    }
+  }
+
+  @ Override
   double getConsumptionByTimeslot(int serial) {
 
     int day = (int) (serial / Constants.HOURS_OF_DAY)
@@ -369,12 +388,64 @@ class Village extends AbstractCustomer{
     }
   }
 
-  @ Override
+  void possibilityEvaluationNewTariffs(List<Tariff> newTariffs)
+  {
+    // if there are no current subscriptions, then this is the
+    // initial publication of default tariffs
+    if (subscriptions == null || subscriptions.size() == 0) {
+      subscribeDefault()
+      return
+    }
+    log.info "Tariffs: ${Tariff.list().toString()}"
+    Vector estimation = new Vector()
+
+    //adds current subscribed tariffs for reevaluation
+    def evaluationTariffs = new ArrayList(newTariffs)
+    Collections.copy(evaluationTariffs,newTariffs)
+    evaluationTariffs.addAll(subscriptions?.tariff)
+
+    log.debug("Estimation size for ${this.toString()}= " + evaluationTariffs.size())
+    if (evaluationTariffs.size()> 1) {
+      evaluationTariffs.each { tariff ->
+        log.info "Tariff : ${tariff.toString()} Tariff Type : ${tariff.powerType} Tariff Expired : ${tariff.isExpired()}"
+        if (!tariff.isExpired() && customerInfo.powerTypes.find{tariff.powerType == it}) {
+          estimation.add(-(costEstimation(tariff)))
+        }
+        else estimation.add(Double.NEGATIVE_INFINITY)
+      }
+      int minIndex = logitPossibilityEstimation(estimation)
+
+      subscriptions.each { sub ->
+        log.info "Equality: ${sub.tariff.tariffSpec} = ${evaluationTariffs.getAt(minIndex).tariffSpec} "
+        if (!(sub.tariff.tariffSpec == evaluationTariffs.getAt(minIndex).tariffSpec)) {
+          log.info "Existing subscription ${sub.toString()}"
+          int populationCount = sub.customersCommitted
+          this.unsubscribe(sub, populationCount)
+          this.subscribe(evaluationTariffs.getAt(minIndex),  populationCount)
+        }
+      }
+      this.save()
+    }
+  }
+
   double costEstimation(Tariff tariff)
   {
-    double costVariable = estimateShiftingVariableTariffPayment(tariff)
+    double costVariable = estimateVariableTariffPayment(tariff)
     double costFixed = estimateFixedTariffPayments(tariff)
     return (costVariable + costFixed)/Constants.MILLION
+  }
+
+  double estimateFixedTariffPayments(Tariff tariff)
+  {
+    double lifecyclePayment = (double)tariff.getEarlyWithdrawPayment() + (double)tariff.getSignupPayment()
+    double minDuration
+
+    // When there is not a Minimum Duration of the contract, you cannot divide with the duration because you don't know it.
+    if (tariff.getMinDuration() == 0) minDuration = Constants.MEAN_TARIFF_DURATION * TimeService.DAY
+    else minDuration = tariff.getMinDuration()
+
+    log.info("Minimum Duration: ${minDuration}")
+    return ((double)tariff.getPeriodicPayment() + (lifecyclePayment / minDuration))
   }
 
   @ Override
@@ -448,6 +519,36 @@ class Village extends AbstractCustomer{
     }
     return finalCostSummary / Constants.RANDOM_DAYS_NUMBER
   }
+
+  int logitPossibilityEstimation(Vector estimation) {
+
+    double lamda = 2500 // 0 the random - 10 the logic
+    double summedEstimations = 0
+    Vector randomizer = new Vector()
+    int[] possibilities = new int[estimation.size()]
+
+    for (int i=0;i < estimation.size();i++){
+      summedEstimations += Math.pow(Constants.EPSILON,lamda*estimation.get(i))
+      "Cost variable: ${estimation.get(i)}"
+      log.info"Summary of Estimation: ${summedEstimations}"
+    }
+
+    for (int i = 0;i < estimation.size();i++){
+      possibilities[i] = (int)(Constants.PERCENTAGE *(Math.pow(Constants.EPSILON,lamda*estimation.get(i)) / summedEstimations))
+      for (int j=0;j < possibilities[i]; j++){
+        randomizer.add(i)
+      }
+    }
+
+    log.info "Randomizer Vector: ${randomizer}"
+    log.info "Possibility Vector: ${possibilities.toString()}"
+    int index = randomizer.get((int)(randomizer.size()*Math.random()))
+    log.info "Resulting Index = ${index}"
+    return index
+
+  }
+
+
 
   /** This is the function that takes every household in the village and 
    * readies the shifted Controllable Consumption for the needs of the tariff evaluation.
@@ -603,7 +704,8 @@ class Village extends AbstractCustomer{
 
   @ Override
   void step(){
-    super.step();
+    checkRevokedSubscriptions()
+    consumePower()
     if (timeService.getHourOfDay() == 23) rescheduleNextDay()
   }
 
