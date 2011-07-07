@@ -24,6 +24,7 @@ import org.powertac.common.CustomerInfo
 import org.powertac.common.PluginConfig
 import org.powertac.common.enumerations.CustomerType
 import org.powertac.common.enumerations.PowerType
+import org.powertac.common.interfaces.NewTariffListener
 import org.powertac.common.interfaces.TimeslotPhaseProcessor
 import org.powertac.consumers.Village
 
@@ -41,12 +42,6 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
   HashMap hm
   Random randomGen = null
 
-  void afterPropertiesSet ()
-  {
-    competitionControlService.registerTimeslotPhase(this, 1)
-    competitionControlService.registerTimeslotPhase(this, 2)
-  }
-
   // ----------------- Configuration access ------------------
   String getConfigFile()
   {
@@ -56,7 +51,13 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
 
   void init(PluginConfig config) {
 
+    if (!(competitionControlService == null)) competitionControlService.registerTimeslotPhase(this, 1)
+
     configuration = config
+
+    //Implemented in each consumer model not here.
+    def listener = [publishNewTariffs:{tariffList -> Village.list().each{ it.possibilityEvaluationNewTariffs(tariffList)}}] as NewTariffListener
+    tariffMarketService?.registerNewTariffListener(listener)
 
     //Reading the config file
     ConfigObject conf = new ConfigSlurper().parse(new File(getConfigFile()).toURL())
@@ -89,7 +90,6 @@ class HouseholdCustomerService implements TimeslotPhaseProcessor {
     def villageList = Village.list()
 
     Random gen = ensureRandomSeed()
-
     if (phase == 1) villageList*.step()
     else villageList*.toString()
   }

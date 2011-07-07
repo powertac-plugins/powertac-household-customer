@@ -13,7 +13,6 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-
 package powertac.household.customer
 
 import grails.test.*
@@ -21,14 +20,21 @@ import grails.test.*
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.Instant
+import org.powertac.common.AbstractCustomer
 import org.powertac.common.Broker
 import org.powertac.common.Competition
+import org.powertac.common.CustomerInfo
 import org.powertac.common.PluginConfig
 import org.powertac.common.Rate
 import org.powertac.common.Tariff
 import org.powertac.common.TariffSpecification
+import org.powertac.common.TariffSubscription
+import org.powertac.common.TariffTransaction
 import org.powertac.common.TimeService
 import org.powertac.common.enumerations.PowerType
+import org.powertac.common.enumerations.TariffTransactionType
+import org.powertac.common.msg.TariffRevoke
+import org.powertac.common.msg.TariffStatus
 import org.powertac.consumers.Village
 
 class CustomerServiceTests extends GroovyTestCase {
@@ -344,8 +350,10 @@ class CustomerServiceTests extends GroovyTestCase {
    println(householdConsumersService.appliancesLoads.toString())
    }
    */
-  void testDailyShifting() {
+  void testDailyShifting()
+  {
     initializeService()
+
     def tsc1 = new TariffSpecification(broker: broker1,
         expiration: new Instant(now.millis + TimeService.DAY * 5),
         minDuration: TimeService.WEEK * 8, powerType: PowerType.CONSUMPTION)
@@ -425,13 +433,16 @@ class CustomerServiceTests extends GroovyTestCase {
     Tariff tc1 = Tariff.findBySpecId(tsc1.id)
     assertNotNull("first tariff found", tc1)
     def tclist = tariffMarketService.getActiveTariffList(PowerType.CONSUMPTION)
-
     Village.list().each{ customer ->
       customer.possibilityEvaluationNewTariffs(Tariff.list())
     }
     timeService.base = now.toInstant().millis
     timeService.currentTime = new Instant(timeService.currentTime.millis + TimeService.HOUR*11)
     householdCustomerService.activate(timeService.currentTime, 1)
-  }
 
+    for (int i=0;i < 60; i++) {
+      timeService.currentTime = new Instant(timeService.currentTime.millis + TimeService.HOUR*24)
+      householdCustomerService.activate(timeService.currentTime, 1)
+    }
+  }
 }
