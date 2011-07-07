@@ -135,10 +135,10 @@ household {
   }
 
   houses {
-    NotShiftingCustomers = 2
-    RandomlyShiftingCustomers = 2
-    RegularlyShiftingCustomers = 2
-    SmartShiftingCustomers = 2
+    NotShiftingCustomers = 5
+    RandomlyShiftingCustomers = 5
+    RegularlyShiftingCustomers = 5
+    SmartShiftingCustomers = 5
   }
 }
 environments {

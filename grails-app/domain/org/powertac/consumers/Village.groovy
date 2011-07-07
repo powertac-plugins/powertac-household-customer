@@ -469,13 +469,13 @@ class Village extends AbstractCustomer{
         for (int j=0;j < types;j++){
           summary = summary + (villageConsumersService.getBaseConsumptions(this,j)[day][hour] + villageConsumersService.getControllableConsumptions(this,j)[day][hour])
         }
-        log.info "Cost for hour ${hour}: ${tariff.getUsageCharge(now)}"
+        log.debug "Cost for hour ${hour}: ${tariff.getUsageCharge(now)}"
         summary = summary / Constants.PERCENTAGE
         cumulativeSummary += summary
         costSummary += tariff.getUsageCharge(now,summary,cumulativeSummary)
         now = now + TimeService.HOUR
       }
-      log.info "Variable Cost Summary: ${finalCostSummary}"
+      log.debug "Variable Cost Summary: ${finalCostSummary}"
       finalCostSummary += costSummary
     }
     return finalCostSummary / Constants.RANDOM_DAYS_NUMBER
