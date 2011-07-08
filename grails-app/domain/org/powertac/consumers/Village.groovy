@@ -24,6 +24,7 @@ import java.util.Vector
 import org.joda.time.Instant
 import org.powertac.common.*
 import org.powertac.common.configurations.HouseholdConstants
+import org.powertac.common.enumerations.PowerType
 
 /**
  * The village domain class in this first version is a set of households that comprise
@@ -396,19 +397,18 @@ class Village extends AbstractCustomer{
       subscribeDefault()
       return
     }
-    log.info "Tariffs: ${Tariff.list().toString()}"
     Vector estimation = new Vector()
 
     //adds current subscribed tariffs for reevaluation
     def evaluationTariffs = new ArrayList(newTariffs)
     Collections.copy(evaluationTariffs,newTariffs)
     evaluationTariffs.addAll(subscriptions?.tariff)
+    log.info "Evaluation Tariffs: ${evaluationTariffs.toString()}"
 
-    log.debug("Estimation size for ${this.toString()}= " + evaluationTariffs.size())
     if (evaluationTariffs.size()> 1) {
       evaluationTariffs.each { tariff ->
         log.info "Tariff : ${tariff.toString()} Tariff Type : ${tariff.powerType} Tariff Expired : ${tariff.isExpired()}"
-        if (!tariff.isExpired() && customerInfo.powerTypes.find{tariff.powerType == it}) {
+        if (!tariff.isExpired() && tariff.powerType == PowerType.CONSUMPTION) {
           estimation.add(-(costEstimation(tariff)))
         }
         else estimation.add(Double.NEGATIVE_INFINITY)
