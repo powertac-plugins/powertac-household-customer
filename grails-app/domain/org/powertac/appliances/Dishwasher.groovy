@@ -23,7 +23,7 @@ import java.util.Random
 import org.joda.time.Instant
 import org.powertac.common.Tariff
 import org.powertac.common.TimeService
-import org.powertac.common.configurations.Constants
+import org.powertac.common.configurations.HouseholdConstants
 
 
 /**
@@ -47,14 +47,14 @@ class Dishwasher extends SemiShiftingAppliance {
     // Filling the base variables
     name = household + " Dishwasher"
     saturation = conf.household.appliances.dishwasher.DishwasherSaturation
-    consumptionShare = (float) (Constants.PERCENTAGE * (Constants.DISHWASHER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.DISHWASHER_CONSUMPTION_SHARE_MEAN))
-    baseLoadShare = Constants.PERCENTAGE * Constants.DISHWASHER_BASE_LOAD_SHARE
-    power = (int) (Constants.DISHWASHER_POWER_VARIANCE * gen.nextGaussian() + Constants.DISHWASHER_POWER_MEAN)
-    cycleDuration = Constants.DISHWASHER_DURATION_CYCLE
+    consumptionShare = (float) (HouseholdConstants.PERCENTAGE * (HouseholdConstants.DISHWASHER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + HouseholdConstants.DISHWASHER_CONSUMPTION_SHARE_MEAN))
+    baseLoadShare = HouseholdConstants.PERCENTAGE * HouseholdConstants.DISHWASHER_BASE_LOAD_SHARE
+    power = (int) (HouseholdConstants.DISHWASHER_POWER_VARIANCE * gen.nextGaussian() + HouseholdConstants.DISHWASHER_POWER_MEAN)
+    cycleDuration = HouseholdConstants.DISHWASHER_DURATION_CYCLE
     od = false
     inUse = false
-    probabilitySeason = fillSeason(Constants.DISHWASHER_POSSIBILITY_SEASON_1,Constants.DISHWASHER_POSSIBILITY_SEASON_2,Constants.DISHWASHER_POSSIBILITY_SEASON_3)
-    probabilityWeekday = fillDay(Constants.DISHWASHER_POSSIBILITY_DAY_1,Constants.DISHWASHER_POSSIBILITY_DAY_2,Constants.DISHWASHER_POSSIBILITY_DAY_3)
+    probabilitySeason = fillSeason(HouseholdConstants.DISHWASHER_POSSIBILITY_SEASON_1,HouseholdConstants.DISHWASHER_POSSIBILITY_SEASON_2,HouseholdConstants.DISHWASHER_POSSIBILITY_SEASON_3)
+    probabilityWeekday = fillDay(HouseholdConstants.DISHWASHER_POSSIBILITY_DAY_1,HouseholdConstants.DISHWASHER_POSSIBILITY_DAY_2,HouseholdConstants.DISHWASHER_POSSIBILITY_DAY_3)
     times = conf.household.appliances.dishwasher.DishwasherWeeklyTimes + applianceOf.members.size()
     createWeeklyOperationVector(times,gen)
   }
@@ -98,20 +98,20 @@ class Dishwasher extends SemiShiftingAppliance {
     // Printing Operation Vector
     iter = operationVector.listIterator();
     log.info("Operation Vector = ")
-    for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
+    for (int i = 0; i < HouseholdConstants.DAYS_OF_WEEK;i++) {
       log.info("Day " + (i+1))
       iter = operationVector.get(i).listIterator();
-      for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) log.info("Quarter : " + (j+1) + "  " + iter.next())
+      for (int j = 0;j < HouseholdConstants.QUARTERS_OF_DAY; j++) log.info("Quarter : " + (j+1) + "  " + iter.next())
     }
 
     // Printing Weekly Operation Vector and Load Vector
     log.info("Weekly Operation Vector and Load = ")
 
-    for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
+    for (int i = 0; i < HouseholdConstants.DAYS_OF_WEEK;i++) {
       log.info("Day " + (i+1))
       iter = weeklyOperation.get(i).listIterator();
       ListIterator iter2 = weeklyLoadVector.get(i).listIterator();
-      for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) log.info("Quarter " + (j+1) + " = " + iter.next() + "   Load = " + iter2.next())
+      for (int j = 0;j < HouseholdConstants.QUARTERS_OF_DAY; j++) log.info("Quarter " + (j+1) + " = " + iter.next() + "   Load = " + iter2.next())
     }
   }
 
@@ -121,7 +121,7 @@ class Dishwasher extends SemiShiftingAppliance {
     def possibilityDailyOperation = new Vector()
 
     // The dishwasher needs for someone to be in the house at the beginning and the end of its function
-    for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
+    for (int j = 0;j < HouseholdConstants.QUARTERS_OF_DAY;j++) {
       if (checkHouse(day,j) == true) possibilityDailyOperation.add(false)
       else possibilityDailyOperation.add(true)
     }
@@ -135,24 +135,24 @@ class Dishwasher extends SemiShiftingAppliance {
     loadVector = new Vector()
     dailyOperation = new Vector()
     Vector operation = operationVector.get(weekday)
-    for (int l = 0;l < Constants.QUARTERS_OF_DAY; l++) {
+    for (int l = 0;l < HouseholdConstants.QUARTERS_OF_DAY; l++) {
       loadVector.add(0)
       dailyOperation.add(false)
     }
 
     // Check all quarters of the day
-    for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
+    for (int i = 0;i < HouseholdConstants.QUARTERS_OF_DAY;i++) {
       if (operation.get(i) == true) {
         boolean flag = true
-        while (flag && i < (Constants.QUARTERS_OF_DAY - Constants.DISHWASHER_DURATION_CYCLE + 1)) {
+        while (flag && i < (HouseholdConstants.QUARTERS_OF_DAY - HouseholdConstants.DISHWASHER_DURATION_CYCLE + 1)) {
           boolean empty = checkHouse(weekday,i)
           if (empty == false) {
-            for (int k = i;k < i + Constants.DISHWASHER_DURATION_CYCLE;k++) {
+            for (int k = i;k < i + HouseholdConstants.DISHWASHER_DURATION_CYCLE;k++) {
               loadVector.set(k,power)
               dailyOperation.set(k,true)
-              if (k == Constants.QUARTERS_OF_DAY - 1) break
+              if (k == HouseholdConstants.QUARTERS_OF_DAY - 1) break
             }
-            i = Constants.QUARTERS_OF_DAY
+            i = HouseholdConstants.QUARTERS_OF_DAY
             flag = false
           } else  {
             i++
@@ -173,15 +173,15 @@ class Dishwasher extends SemiShiftingAppliance {
    */
   def checkHouse(int weekday,int quarter) {
 
-    if (quarter+Constants.DISHWASHER_DURATION_CYCLE >= Constants.QUARTERS_OF_DAY) return true
-    else return applianceOf.isEmpty(weekday,quarter+Constants.DISHWASHER_DURATION_CYCLE)
+    if (quarter+HouseholdConstants.DISHWASHER_DURATION_CYCLE >= HouseholdConstants.QUARTERS_OF_DAY) return true
+    else return applianceOf.isEmpty(weekday,quarter+HouseholdConstants.DISHWASHER_DURATION_CYCLE)
 
   }
 
   @ Override
   def dailyShifting(Random gen,Tariff tariff,Instant now, int day){
 
-    long[] newControllableLoad = new long[Constants.HOURS_OF_DAY]
+    long[] newControllableLoad = new long[HouseholdConstants.HOURS_OF_DAY]
 
     if (householdConsumersService.getApplianceOperationDays(this,day)) {
       def minindex = 0
@@ -192,7 +192,7 @@ class Dishwasher extends SemiShiftingAppliance {
         def possibleHours = new Vector()
 
         // find the all the available functioning hours of the appliance
-        for (int i=0;i < Constants.HOURS_OF_DAY;i++){
+        for (int i=0;i < HouseholdConstants.HOURS_OF_DAY;i++){
           if (functionMatrix[i] && functionMatrix[i+1]){
             possibleHours.add(i)
           }
@@ -207,7 +207,7 @@ class Dishwasher extends SemiShiftingAppliance {
         Instant hour2 = now + TimeService.HOUR
 
         // find the all the available functioning hours of the appliance
-        for (int i=0;i < Constants.HOURS_OF_DAY;i++){
+        for (int i=0;i < HouseholdConstants.HOURS_OF_DAY;i++){
           if (functionMatrix[i] && functionMatrix[i+1]){
             if (minvalue >= tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour2)){
               minvalue = tariff.getUsageCharge(hour1)+tariff.getUsageCharge(hour2)
@@ -218,8 +218,8 @@ class Dishwasher extends SemiShiftingAppliance {
           hour2 = hour2 + TimeService.HOUR
         }
       }
-      newControllableLoad[minindex] = Constants.QUARTERS_OF_HOUR*power
-      newControllableLoad[minindex+1] = Constants.QUARTERS_OF_HOUR*power
+      newControllableLoad[minindex] = HouseholdConstants.QUARTERS_OF_HOUR*power
+      newControllableLoad[minindex+1] = HouseholdConstants.QUARTERS_OF_HOUR*power
     }
     return newControllableLoad
   }

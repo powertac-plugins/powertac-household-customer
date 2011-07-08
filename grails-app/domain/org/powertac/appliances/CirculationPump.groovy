@@ -20,7 +20,7 @@ package org.powertac.appliances
 import java.util.HashMap
 import java.util.Random
 
-import org.powertac.common.configurations.Constants
+import org.powertac.common.configurations.HouseholdConstants
 
 /**
  * Circulation Pump is the appliance that brings water to the household. It works most
@@ -46,14 +46,14 @@ class CirculationPump extends NotShiftingAppliance {
     name = household + " CirculationPump"
     saturation = conf.household.appliances.circulationPump.CirculationPumpSaturation
     percentage = conf.household.appliances.circulationPump.CirculationPumpPercentage
-    consumptionShare = (float) (Constants.PERCENTAGE * (Constants.CIRCULATION_PUMP_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.CIRCULATION_PUMP_CONSUMPTION_SHARE_MEAN))
-    baseLoadShare = Constants.PERCENTAGE * Constants.CIRCULATION_PUMP_BASE_LOAD_SHARE
-    power = (int) (Constants.CIRCULATION_PUMP_POWER_VARIANCE * gen.nextGaussian() + Constants.CIRCULATION_PUMP_POWER_MEAN)
-    cycleDuration = Constants.CIRCULATION_PUMP_DURATION_CYCLE
+    consumptionShare = (float) (HouseholdConstants.PERCENTAGE * (HouseholdConstants.CIRCULATION_PUMP_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + HouseholdConstants.CIRCULATION_PUMP_CONSUMPTION_SHARE_MEAN))
+    baseLoadShare = HouseholdConstants.PERCENTAGE * HouseholdConstants.CIRCULATION_PUMP_BASE_LOAD_SHARE
+    power = (int) (HouseholdConstants.CIRCULATION_PUMP_POWER_VARIANCE * gen.nextGaussian() + HouseholdConstants.CIRCULATION_PUMP_POWER_MEAN)
+    cycleDuration = HouseholdConstants.CIRCULATION_PUMP_DURATION_CYCLE
     od = false
     inUse = false
-    probabilitySeason = fillSeason(Constants.CIRCULATION_PUMP_POSSIBILITY_SEASON_1,Constants.CIRCULATION_PUMP_POSSIBILITY_SEASON_2,Constants.CIRCULATION_PUMP_POSSIBILITY_SEASON_3)
-    probabilityWeekday = fillDay(Constants.CIRCULATION_PUMP_POSSIBILITY_DAY_1,Constants.CIRCULATION_PUMP_POSSIBILITY_DAY_2,Constants.CIRCULATION_PUMP_POSSIBILITY_DAY_3)
+    probabilitySeason = fillSeason(HouseholdConstants.CIRCULATION_PUMP_POSSIBILITY_SEASON_1,HouseholdConstants.CIRCULATION_PUMP_POSSIBILITY_SEASON_2,HouseholdConstants.CIRCULATION_PUMP_POSSIBILITY_SEASON_3)
+    probabilityWeekday = fillDay(HouseholdConstants.CIRCULATION_PUMP_POSSIBILITY_DAY_1,HouseholdConstants.CIRCULATION_PUMP_POSSIBILITY_DAY_2,HouseholdConstants.CIRCULATION_PUMP_POSSIBILITY_DAY_3)
 
   }
 
@@ -63,7 +63,7 @@ class CirculationPump extends NotShiftingAppliance {
     def possibilityDailyOperation = new Vector()
 
     // The pump can work each quarter someone is in the premises
-    for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
+    for (int j = 0;j < HouseholdConstants.QUARTERS_OF_DAY;j++) {
       if (applianceOf.isEmpty(day,j) == false) possibilityDailyOperation.add(true)
       else possibilityDailyOperation.add(false)
     }
@@ -81,7 +81,7 @@ class CirculationPump extends NotShiftingAppliance {
     Vector v = new Vector()
 
     // For each quarter of a day
-    for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
+    for (int i = 0;i < HouseholdConstants.QUARTERS_OF_DAY;i++) {
       if (applianceOf.isEmpty(weekday,i) == false && (gen.nextFloat() > percentage)) {
         loadVector.add(power)
         dailyOperation.add(true)

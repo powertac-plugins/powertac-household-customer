@@ -19,7 +19,7 @@ package org.powertac.persons
 
 import java.util.Vector
 
-import org.powertac.common.configurations.Constants
+import org.powertac.common.configurations.HouseholdConstants
 import org.powertac.common.enumerations.Status
 
 /**
@@ -83,8 +83,8 @@ class RandomlyAbsentPerson extends WorkingPerson {
 
   def createWorkingStartHour(Random gen) {
 
-    int x = gen.nextInt(Constants.NUMBER_OF_SHIFTS)
-    return (x * Constants.HOURS_OF_SHIFT_WORK * Constants.QUARTERS_OF_HOUR)
+    int x = gen.nextInt(HouseholdConstants.NUMBER_OF_SHIFTS)
+    return (x * HouseholdConstants.HOURS_OF_SHIFT_WORK * HouseholdConstants.QUARTERS_OF_HOUR)
   }
 
   /** This function fills out the leisure activities in the daily schedule
@@ -100,27 +100,27 @@ class RandomlyAbsentPerson extends WorkingPerson {
     while (iter.hasNext()) {
       if (iter.next() == weekday) {
         int start = workingStartHour + workingDuration
-        if (workingStartHour == Constants.SHIFT_START_1) {
-          int startq = gen.nextInt((Constants.LEISURE_WINDOW+1) - start) + (start + Constants.SHIFT_START_2)
+        if (workingStartHour == HouseholdConstants.SHIFT_START_1) {
+          int startq = gen.nextInt((HouseholdConstants.LEISURE_WINDOW+1) - start) + (start + HouseholdConstants.SHIFT_START_2)
           for (int i = startq;i < startq + leisureDuration;i++) {
             st = Status.Leisure
             dailyRoutine.set(i,st)
-            if (i == Constants.QUARTERS_OF_DAY - 1) break
+            if (i == HouseholdConstants.QUARTERS_OF_DAY - 1) break
           }
         } else  {
-          if (workingStartHour == Constants.SHIFT_START_2) {
-            int startq = start + gen.nextInt(Constants.LEISURE_WINDOW_SHIFT - start)
+          if (workingStartHour == HouseholdConstants.SHIFT_START_2) {
+            int startq = start + gen.nextInt(HouseholdConstants.LEISURE_WINDOW_SHIFT - start)
             for (int i = startq;i < startq + leisureDuration;i++) {
               st = Status.Leisure
               dailyRoutine.set(i,st)
-              if (i == Constants.QUARTERS_OF_DAY - 1) break
+              if (i == HouseholdConstants.QUARTERS_OF_DAY - 1) break
             }
           } else  {
-            int startq = Constants.SHIFT_START_2 + gen.nextInt(Constants.SHIFT_START_3 - (Constants.LEISURE_WINDOW - 1))
+            int startq = HouseholdConstants.SHIFT_START_2 + gen.nextInt(HouseholdConstants.SHIFT_START_3 - (HouseholdConstants.LEISURE_WINDOW - 1))
             for (int i = startq;i < startq +leisureDuration;i++) {
               st = Status.Leisure
               dailyRoutine.set(i,st)
-              if (i == Constants.QUARTERS_OF_DAY - 1) break
+              if (i == HouseholdConstants.QUARTERS_OF_DAY - 1) break
             }
           }
         }
@@ -133,62 +133,62 @@ class RandomlyAbsentPerson extends WorkingPerson {
   {
     // Create auxiliary variables
     Status st
-    if (workingStartHour == Constants.SHIFT_START_1) {
-      for (int i = Constants.SHIFT_START_1;i < workingDuration;i++) {
+    if (workingStartHour == HouseholdConstants.SHIFT_START_1) {
+      for (int i = HouseholdConstants.SHIFT_START_1;i < workingDuration;i++) {
         st = Status.Working
         dailyRoutine.set(i,st)
       }
-      for (int i = workingDuration;i < workingDuration + Constants.SHIFT_START_2 ;i++) {
+      for (int i = workingDuration;i < workingDuration + HouseholdConstants.SHIFT_START_2 ;i++) {
         st = Status.Sleeping
         dailyRoutine.set(i,st)
       }
-      for (int i = workingDuration + Constants.SHIFT_START_2;i < Constants.QUARTERS_OF_DAY;i++) {
+      for (int i = workingDuration + HouseholdConstants.SHIFT_START_2;i < HouseholdConstants.QUARTERS_OF_DAY;i++) {
         st = Status.Normal
         dailyRoutine.set(i,st)
       }
     } else  {
-      if (workingStartHour == Constants.SHIFT_START_2) {
-        for (int i = Constants.START_OF_SLEEPING_1;i < Constants.END_OF_SLEEPING_1;i++) {
+      if (workingStartHour == HouseholdConstants.SHIFT_START_2) {
+        for (int i = HouseholdConstants.START_OF_SLEEPING_1;i < HouseholdConstants.END_OF_SLEEPING_1;i++) {
           st = Status.Sleeping
           dailyRoutine.set(i,st)
         }
-        for (int i = Constants.END_OF_SLEEPING_1;i < Constants.SHIFT_START_2;i++) {
+        for (int i = HouseholdConstants.END_OF_SLEEPING_1;i < HouseholdConstants.SHIFT_START_2;i++) {
           st = Status.Normal
           dailyRoutine.set(i,st)
         }
-        for (int i = Constants.SHIFT_START_2;i < workingDuration + Constants.SHIFT_START_2 ;i++) {
+        for (int i = HouseholdConstants.SHIFT_START_2;i < workingDuration + HouseholdConstants.SHIFT_START_2 ;i++) {
           st = Status.Working
           dailyRoutine.set(i,st)
         }
-        for (int i = workingDuration + Constants.SHIFT_START_2;i < Constants.START_OF_SLEEPING_1;i++) {
+        for (int i = workingDuration + HouseholdConstants.SHIFT_START_2;i < HouseholdConstants.START_OF_SLEEPING_1;i++) {
           st = Status.Normal
           dailyRoutine.set(i,st)
         }
-        for (int i = Constants.START_OF_SLEEPING_1;i < Constants.QUARTERS_OF_DAY;i++) {
+        for (int i = HouseholdConstants.START_OF_SLEEPING_1;i < HouseholdConstants.QUARTERS_OF_DAY;i++) {
           st = Status.Sleeping
           dailyRoutine.set(i,st)
         }
       } else  {
-        for (int i = Constants.START_OF_SLEEPING_1;i < Constants.END_OF_SLEEPING_1;i++) {
+        for (int i = HouseholdConstants.START_OF_SLEEPING_1;i < HouseholdConstants.END_OF_SLEEPING_1;i++) {
           st = Status.Sleeping
           dailyRoutine.set(i,st)
         }
-        for (int i = Constants.END_OF_SLEEPING_1;i < Constants.SHIFT_START_3 ;i++) {
+        for (int i = HouseholdConstants.END_OF_SLEEPING_1;i < HouseholdConstants.SHIFT_START_3 ;i++) {
           st = Status.Normal
           dailyRoutine.set(i,st)
         }
-        if (workingDuration > Constants.HOURS_OF_SHIFT_WORK * Constants.QUARTERS_OF_HOUR) {
-          for (int i = Constants.SHIFT_START_3;i < Constants.QUARTERS_OF_DAY;i++) {
+        if (workingDuration > HouseholdConstants.HOURS_OF_SHIFT_WORK * HouseholdConstants.QUARTERS_OF_HOUR) {
+          for (int i = HouseholdConstants.SHIFT_START_3;i < HouseholdConstants.QUARTERS_OF_DAY;i++) {
             st = Status.Working
             dailyRoutine.set(i,st)
           }
         } else  {
-          for (int i = Constants.SHIFT_START_3;i < Constants.SHIFT_START_3 + workingDuration;i++) {
-            if (i >= Constants.QUARTERS_OF_DAY) break
+          for (int i = HouseholdConstants.SHIFT_START_3;i < HouseholdConstants.SHIFT_START_3 + workingDuration;i++) {
+            if (i >= HouseholdConstants.QUARTERS_OF_DAY) break
               st = Status.Working
             dailyRoutine.set(i,st)
           }
-          for (int i =  Constants.SHIFT_START_3 + workingDuration;i < Constants.QUARTERS_OF_DAY;i++) {
+          for (int i =  HouseholdConstants.SHIFT_START_3 + workingDuration;i < HouseholdConstants.QUARTERS_OF_DAY;i++) {
             st = Status.Sleeping
             dailyRoutine.set(i,st)
           }
@@ -213,7 +213,7 @@ class RandomlyAbsentPerson extends WorkingPerson {
     leisureDuration = (int) (leisureDurationDev * gen.nextGaussian() + leisureDurationMean)
     leisureVector = createLeisureVector(x,gen)
 
-    for (int i =0;i < Constants.DAYS_OF_WEEK;i++) {
+    for (int i =0;i < HouseholdConstants.DAYS_OF_WEEK;i++) {
       fillDailyRoutine(i,vacationAbsence, gen)
       weeklyRoutine.add(dailyRoutine)
     }

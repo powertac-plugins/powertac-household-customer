@@ -19,7 +19,7 @@ package org.powertac.persons
 
 import java.util.Vector
 
-import org.powertac.common.configurations.Constants
+import org.powertac.common.configurations.HouseholdConstants
 import org.powertac.common.enumerations.Status
 
 /**
@@ -64,7 +64,7 @@ class PeriodicPresentPerson extends WorkingPerson {
     leisureVector = createLeisureVector(x, gen)
     leisureDuration = (int) (leisureDurationDev * gen.nextGaussian() + leisureDurationMean)
     // Filling Working variables
-    workingStartHour = Constants.START_OF_WORK
+    workingStartHour = HouseholdConstants.START_OF_WORK
     int work = workingDaysRandomizer(conf, gen)
     workingDays = createWorkingDaysVector(work, gen)
     workingDuration = (int) (workingDurationDev * gen.nextGaussian() + workingDurationMean)
@@ -90,11 +90,11 @@ class PeriodicPresentPerson extends WorkingPerson {
     while (iter.hasNext()) {
       if (iter.next() == weekday) {
         int start = workingStartHour + workingDuration
-        int startq = gen.nextInt(Math.max(1 ,Constants.LEISURE_END_WINDOW - start)) + start
+        int startq = gen.nextInt(Math.max(1 ,HouseholdConstants.LEISURE_END_WINDOW - start)) + start
         for (int i = startq;i < startq +leisureDuration;i++) {
           st = Status.Leisure
           dailyRoutine.set(i,st)
-          if (i == Constants.QUARTERS_OF_DAY - 1) break
+          if (i == HouseholdConstants.QUARTERS_OF_DAY - 1) break
         }
       }
     }
@@ -123,7 +123,7 @@ class PeriodicPresentPerson extends WorkingPerson {
     int x = (int) (gen.nextGaussian() + PPLeisure)
     leisureDuration = (int) (leisureDurationDev * gen.nextGaussian() + leisureDurationMean)
     leisureVector = createLeisureVector(x,gen)
-    for (int i =0;i < Constants.DAYS_OF_WEEK;i++) {
+    for (int i =0;i < HouseholdConstants.DAYS_OF_WEEK;i++) {
       fillDailyRoutine(i,vacationAbsence, gen)
       weeklyRoutine.add(dailyRoutine)
     }

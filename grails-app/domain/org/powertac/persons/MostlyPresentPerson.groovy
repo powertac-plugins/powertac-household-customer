@@ -20,7 +20,7 @@ package org.powertac.persons
 import java.math.*
 import java.util.Vector
 
-import org.powertac.common.configurations.Constants
+import org.powertac.common.configurations.HouseholdConstants
 import org.powertac.common.enumerations.Status
 
 /**
@@ -87,10 +87,10 @@ class MostlyPresentPerson extends Person {
     log.info("Weekly Routine Length : " + weeklyRoutine.size())
     log.info("Weekly Routine : ")
 
-    for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
+    for (int i = 0; i < HouseholdConstants.DAYS_OF_WEEK;i++) {
       log.info("Day " + (i))
       iter = weeklyRoutine.get(i).listIterator();
-      for (int j =0;j < Constants.QUARTERS_OF_DAY;j++) log.info("Quarter : " + (j+1) + " Status : " + iter.next())
+      for (int j =0;j < HouseholdConstants.QUARTERS_OF_DAY;j++) log.info("Quarter : " + (j+1) + " Status : " + iter.next())
     }
   }
 
@@ -106,7 +106,7 @@ class MostlyPresentPerson extends Person {
     int x = (int) (gen.nextGaussian() + MPLeisure)
     leisureDuration = (int) (leisureDurationDev * gen.nextGaussian() + leisureDurationMean)
     leisureVector = createLeisureVector(x,gen)
-    for (int i =0;i < Constants.DAYS_OF_WEEK;i++) {
+    for (int i =0;i < HouseholdConstants.DAYS_OF_WEEK;i++) {
       fillDailyRoutine(i,vacationAbsence, gen)
       weeklyRoutine.add(dailyRoutine)
     }

@@ -16,7 +16,7 @@
 package powertac.household.customer
 
 import org.powertac.appliances.Appliance
-import org.powertac.common.configurations.Constants
+import org.powertac.common.configurations.HouseholdConstants
 
 /**
  * Stores Households in each category of consumers and consumption vectors on behalf of Household Customers, bypassing the database.
@@ -41,22 +41,22 @@ class HouseholdConsumersService {
 
   void createAppliancesOperationsMap (Appliance appliance) {
     log.debug "create appliance Operations map for Appliance ${appliance.toString()}"
-    appliancesOperations[appliance.name] = new boolean[Constants.DAYS_OF_COMPETITION][Constants.QUARTERS_OF_DAY]
+    appliancesOperations[appliance.name] = new boolean[HouseholdConstants.DAYS_OF_COMPETITION][HouseholdConstants.QUARTERS_OF_DAY]
   }
 
   void createAppliancesLoadsMap (Appliance appliance) {
     log.debug "create appliance load map for Appliance ${appliance.toString()}"
-    appliancesLoads[appliance.name] = new long[Constants.DAYS_OF_COMPETITION][Constants.QUARTERS_OF_DAY]
+    appliancesLoads[appliance.name] = new long[HouseholdConstants.DAYS_OF_COMPETITION][HouseholdConstants.QUARTERS_OF_DAY]
   }
 
   void createAppliancesPossibilityOperationsMap (Appliance appliance) {
     log.debug "create appliance Possibility Operations map for Appliance ${appliance.toString()}"
-    appliancesPossibilityOperations[appliance.name] = new boolean[Constants.DAYS_OF_COMPETITION][Constants.QUARTERS_OF_DAY]
+    appliancesPossibilityOperations[appliance.name] = new boolean[HouseholdConstants.DAYS_OF_COMPETITION][HouseholdConstants.QUARTERS_OF_DAY]
   }
 
   void createAppliancesOperationDaysMap (Appliance appliance) {
     log.debug "create appliance operation days map for Appliance ${appliance.toString()}"
-    appliancesOperationDays[appliance.name] = new boolean[Constants.DAYS_OF_COMPETITION]
+    appliancesOperationDays[appliance.name] = new boolean[HouseholdConstants.DAYS_OF_COMPETITION]
   }
 
   void setApplianceOperation(Appliance appliance, int day, int quarter, Boolean function) {

@@ -19,7 +19,7 @@ package org.powertac.persons
 import java.util.Random
 import java.util.Vector
 
-import org.powertac.common.configurations.Constants
+import org.powertac.common.configurations.HouseholdConstants
 import org.powertac.common.enumerations.Status
 import org.powertac.consumers.*
 
@@ -122,7 +122,7 @@ class Person {
 
     //Loop for the amount of days
     for (int i = 0; i < counter; i++) {
-      int day = gen.nextInt(Constants.DAYS_OF_WEEK)
+      int day = gen.nextInt(HouseholdConstants.DAYS_OF_WEEK)
       v.add(day)
     }
     java.util.Collections.sort(v);
@@ -138,17 +138,17 @@ class Person {
    */
   def fillDailyRoutine(int day, float vacationAbsence, Random gen) {
     // Create auxiliary variable
-    Vector v = new Vector(Constants.QUARTERS_OF_DAY)
+    Vector v = new Vector(HouseholdConstants.QUARTERS_OF_DAY)
     Status st
 
-    int weekday = day % Constants.DAYS_OF_WEEK
+    int weekday = day % HouseholdConstants.DAYS_OF_WEEK
     setDailyRoutine(new Vector())
     if (sicknessVector.contains(day)) {
       fillSick()
     } else  {
       if (publicVacationVector.contains(day) || (this instanceof WorkingPerson && vacationVector.contains(day))) {
         if (gen.nextFloat() < vacationAbsence ) {
-          for (int i = 0;i < Constants.QUARTERS_OF_DAY; i++) {
+          for (int i = 0;i < HouseholdConstants.QUARTERS_OF_DAY; i++) {
             st = Status.Vacation
             dailyRoutine.add(st)
           }
@@ -187,7 +187,7 @@ class Person {
     Vector v = new Vector(days)
 
     for (int i = 0; i < days; i++) {
-      int x = gen.nextInt(Constants.DAYS_OF_COMPETITION) + 1;
+      int x = gen.nextInt(HouseholdConstants.DAYS_OF_COMPETITION) + 1;
       ListIterator iter = v.listIterator();
       while (iter.hasNext()) {
         int temp = (int)iter.next()
@@ -215,11 +215,11 @@ class Person {
 
     while (iter.hasNext()) {
       if (iter.next() == weekday) {
-        int start = Constants.START_OF_LEISURE  + gen.nextInt(Constants.LEISURE_WINDOW)
+        int start = HouseholdConstants.START_OF_LEISURE  + gen.nextInt(HouseholdConstants.LEISURE_WINDOW)
         for (int i = start;i < start + leisureDuration;i++) {
           st = Status.Leisure
           dailyRoutine.set(i,st)
-          if (i == Constants.QUARTERS_OF_DAY - 1) break
+          if (i == HouseholdConstants.QUARTERS_OF_DAY - 1) break
         }
       }
     }
@@ -231,15 +231,15 @@ class Person {
    */
   def normalFill() {
     Status st
-    for (int i = Constants.START_OF_SLEEPING_1;i < Constants.END_OF_SLEEPING_1;i++) {
+    for (int i = HouseholdConstants.START_OF_SLEEPING_1;i < HouseholdConstants.END_OF_SLEEPING_1;i++) {
       st = Status.Sleeping
       dailyRoutine.add(st)
     }
-    for (int i = Constants.END_OF_SLEEPING_1;i < Constants.START_OF_SLEEPING_2;i++) {
+    for (int i = HouseholdConstants.END_OF_SLEEPING_1;i < HouseholdConstants.START_OF_SLEEPING_2;i++) {
       st = Status.Normal
       dailyRoutine.add(st)
     }
-    for (int i = Constants.START_OF_SLEEPING_2;i < Constants.END_OF_SLEEPING_2;i++) {
+    for (int i = HouseholdConstants.START_OF_SLEEPING_2;i < HouseholdConstants.END_OF_SLEEPING_2;i++) {
       st = Status.Sleeping
       dailyRoutine.add(st)
     }
@@ -252,15 +252,15 @@ class Person {
    */
   def fillSick() {
     Status st
-    for (int i = Constants.START_OF_SLEEPING_1;i < Constants.END_OF_SLEEPING_1;i++) {
+    for (int i = HouseholdConstants.START_OF_SLEEPING_1;i < HouseholdConstants.END_OF_SLEEPING_1;i++) {
       st = Status.Sleeping
       dailyRoutine.add(st)
     }
-    for (int i = Constants.END_OF_SLEEPING_1;i < Constants.START_OF_SLEEPING_2;i++) {
+    for (int i = HouseholdConstants.END_OF_SLEEPING_1;i < HouseholdConstants.START_OF_SLEEPING_2;i++) {
       st = Status.Sick
       dailyRoutine.add(st)
     }
-    for (int i = Constants.START_OF_SLEEPING_2;i < Constants.END_OF_SLEEPING_2;i++) {
+    for (int i = HouseholdConstants.START_OF_SLEEPING_2;i < HouseholdConstants.END_OF_SLEEPING_2;i++) {
       st = Status.Sleeping
       dailyRoutine.add(st)
     }

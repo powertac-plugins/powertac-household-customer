@@ -18,7 +18,7 @@ package org.powertac.common.configurations;
  * @author Antonios Chrysopoulos
  * @version 1.0, Date: 13.12.10
  */
-public class Constants {
+public class HouseholdConstants {
 
   // GENERAL VARIABLES -----------------------------//
   public static final int PERCENTAGE = 100;
