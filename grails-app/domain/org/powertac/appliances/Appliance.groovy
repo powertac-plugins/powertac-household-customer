@@ -24,7 +24,7 @@ import java.util.Vector
 
 import org.joda.time.Instant
 import org.powertac.common.Tariff
-import org.powertac.common.configurations.Constants
+import org.powertac.common.configurations.HouseholdConstants
 import org.powertac.consumers.*
 
 /**
@@ -120,7 +120,7 @@ class Appliance {
    * @return
    */
   def createWeeklyPossibilityOperationVector() {
-    for (int i = 0;i < Constants.DAYS_OF_WEEK; i++) possibilityOperationVector.add(createDailyPossibilityOperationVector(i))
+    for (int i = 0;i < HouseholdConstants.DAYS_OF_WEEK; i++) possibilityOperationVector.add(createDailyPossibilityOperationVector(i))
   }
 
   /** This function takes into consideration the year season, the weekday and the
@@ -166,10 +166,10 @@ class Appliance {
    */
   def createShiftingOperationMatrix(int day) {
 
-    boolean[] shiftingOperationMatrix = new boolean[Constants.HOURS_OF_DAY]
+    boolean[] shiftingOperationMatrix = new boolean[HouseholdConstants.HOURS_OF_DAY]
 
-    for (int i=0;i < Constants.HOURS_OF_DAY;i++){
-      boolean function = householdConsumersService.getAppliancePossibilityOperations(this,day,i*Constants.QUARTERS_OF_HOUR) || householdConsumersService.getAppliancePossibilityOperations(this,day,i*Constants.QUARTERS_OF_HOUR+1)  || householdConsumersService.getAppliancePossibilityOperations(this,day,i*Constants.QUARTERS_OF_HOUR+2) || householdConsumersService.getAppliancePossibilityOperations(this,day,i*Constants.QUARTERS_OF_HOUR+3)
+    for (int i=0;i < HouseholdConstants.HOURS_OF_DAY;i++){
+      boolean function = householdConsumersService.getAppliancePossibilityOperations(this,day,i*HouseholdConstants.QUARTERS_OF_HOUR) || householdConsumersService.getAppliancePossibilityOperations(this,day,i*HouseholdConstants.QUARTERS_OF_HOUR+1)  || householdConsumersService.getAppliancePossibilityOperations(this,day,i*HouseholdConstants.QUARTERS_OF_HOUR+2) || householdConsumersService.getAppliancePossibilityOperations(this,day,i*HouseholdConstants.QUARTERS_OF_HOUR+3)
       shiftingOperationMatrix[i] = function
     }
     return shiftingOperationMatrix
@@ -256,19 +256,19 @@ class Appliance {
 
     // Printing weekly Operation Vector
     log.info("Weekly Operation Vector = ")
-    for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
+    for (int i = 0; i < HouseholdConstants.DAYS_OF_WEEK;i++) {
       log.info("Day " + (i))
       ListIterator iter =operationVector.get(i).listIterator();
-      for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) log.info("Quarter : " + (j+1) + "  " + iter.next())
+      for (int j = 0;j < HouseholdConstants.QUARTERS_OF_DAY; j++) log.info("Quarter : " + (j+1) + "  " + iter.next())
     }
 
     // Printing Weekly Function Vector and Load
     log.info("Weekly Operation Vector and Load = ")
-    for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
+    for (int i = 0; i < HouseholdConstants.DAYS_OF_WEEK;i++) {
       log.info("Day " + (i))
       ListIterator iter = weeklyOperation.get(i).listIterator();
       ListIterator iter2 = weeklyLoadVector.get(i).listIterator();
-      for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) log.info("Quarter " + (j+1) + " = " + iter.next() + "   Load = " + iter2.next())
+      for (int j = 0;j < HouseholdConstants.QUARTERS_OF_DAY; j++) log.info("Quarter " + (j+1) + " = " + iter.next() + "   Load = " + iter2.next())
     }
   }
 
@@ -301,7 +301,7 @@ class Appliance {
     // Add the data values for each day of competition and each quarter of each day.
     for (int i=0;i < weeklyOperation.size();i++){
       boolean function = false
-      for (int j=0;j < Constants.QUARTERS_OF_DAY;j++){
+      for (int j=0;j < HouseholdConstants.QUARTERS_OF_DAY;j++){
         householdConsumersService.setApplianceOperation (this, i, j, weeklyOperation.get(i).get(j))
         householdConsumersService.setApplianceLoad(this, i, j, weeklyLoadVector.get(i).get(j))
         if (!(this instanceof Dryer)) householdConsumersService.setAppliancePossibilityOperation (this, i, j, possibilityOperationVector.get(i).get(j))

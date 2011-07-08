@@ -24,7 +24,7 @@ import java.util.Random
 
 import org.joda.time.Instant
 import org.powertac.common.Tariff
-import org.powertac.common.configurations.Constants
+import org.powertac.common.configurations.HouseholdConstants
 
 
 /**
@@ -49,14 +49,14 @@ class SpaceHeater extends FullyShiftingAppliance{
     name = household + " SpaceHeater"
     saturation = conf.household.appliances.spaceHeater.SpaceHeaterSaturation
     percentage = conf.household.appliances.spaceHeater.SpaceHeaterPercentage
-    consumptionShare = (float) (Constants.PERCENTAGE * (Constants.SPACE_HEATER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.SPACE_HEATER_CONSUMPTION_SHARE_MEAN))
-    baseLoadShare = Constants.PERCENTAGE * Constants.SPACE_HEATER_BASE_LOAD_SHARE
-    power = (int) (Constants.SPACE_HEATER_POWER_VARIANCE * gen.nextGaussian() + Constants.SPACE_HEATER_POWER_MEAN)
-    cycleDuration = Constants.SPACE_HEATER_DURATION_CYCLE
+    consumptionShare = (float) (HouseholdConstants.PERCENTAGE * (HouseholdConstants.SPACE_HEATER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + HouseholdConstants.SPACE_HEATER_CONSUMPTION_SHARE_MEAN))
+    baseLoadShare = HouseholdConstants.PERCENTAGE * HouseholdConstants.SPACE_HEATER_BASE_LOAD_SHARE
+    power = (int) (HouseholdConstants.SPACE_HEATER_POWER_VARIANCE * gen.nextGaussian() + HouseholdConstants.SPACE_HEATER_POWER_MEAN)
+    cycleDuration = HouseholdConstants.SPACE_HEATER_DURATION_CYCLE
     od = false
     inUse = false
-    probabilitySeason = fillSeason(Constants.SPACE_HEATER_POSSIBILITY_SEASON_1,Constants.SPACE_HEATER_POSSIBILITY_SEASON_2,Constants.SPACE_HEATER_POSSIBILITY_SEASON_3)
-    probabilityWeekday = fillDay(Constants.SPACE_HEATER_POSSIBILITY_DAY_1,Constants.SPACE_HEATER_POSSIBILITY_DAY_2,Constants.SPACE_HEATER_POSSIBILITY_DAY_3)
+    probabilitySeason = fillSeason(HouseholdConstants.SPACE_HEATER_POSSIBILITY_SEASON_1,HouseholdConstants.SPACE_HEATER_POSSIBILITY_SEASON_2,HouseholdConstants.SPACE_HEATER_POSSIBILITY_SEASON_3)
+    probabilityWeekday = fillDay(HouseholdConstants.SPACE_HEATER_POSSIBILITY_DAY_1,HouseholdConstants.SPACE_HEATER_POSSIBILITY_DAY_2,HouseholdConstants.SPACE_HEATER_POSSIBILITY_DAY_3)
   }
 
   @ Override
@@ -66,7 +66,7 @@ class SpaceHeater extends FullyShiftingAppliance{
     loadVector = new Vector()
     dailyOperation = new Vector()
     if (applianceOf.isOnVacation(weekday,0) || gen.nextFloat() > percentage) {
-      for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
+      for (int i = 0;i < HouseholdConstants.QUARTERS_OF_DAY;i++) {
         loadVector.add(0)
         dailyOperation.add(false)
       }
@@ -74,15 +74,15 @@ class SpaceHeater extends FullyShiftingAppliance{
       weeklyOperation.add(dailyOperation)
       operationVector.add(dailyOperation)
     } else  {
-      for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
+      for (int i = 0;i < HouseholdConstants.QUARTERS_OF_DAY;i++) {
         loadVector.add(0)
         dailyOperation.add(true)
       }
-      for (int i = 0;i < Constants.SPACE_HEATER_PHASE_1;i++) loadVector.set(i,power)
-      for (int i = Constants.SPACE_HEATER_PHASE_1;i < Constants.SPACE_HEATER_PHASE_2;i++) loadVector.set(i,loadVector.get(i-1) - Constants.SPACE_HEATER_PHASE_LOAD)
-      for (int i = Constants.SPACE_HEATER_PHASE_2;i < Constants.SPACE_HEATER_PHASE_3; i++) loadVector.set(i,loadVector.get(i-1))
-      for (int i=Constants.SPACE_HEATER_PHASE_3;i < Constants.SPACE_HEATER_PHASE_4;i++) loadVector.set(i, loadVector.get(i-1) + 2*Constants.SPACE_HEATER_PHASE_LOAD)
-      for (int i= Constants.SPACE_HEATER_PHASE_4;i < Constants.QUARTERS_OF_DAY;i++) loadVector.set(i,power)
+      for (int i = 0;i < HouseholdConstants.SPACE_HEATER_PHASE_1;i++) loadVector.set(i,power)
+      for (int i = HouseholdConstants.SPACE_HEATER_PHASE_1;i < HouseholdConstants.SPACE_HEATER_PHASE_2;i++) loadVector.set(i,loadVector.get(i-1) - HouseholdConstants.SPACE_HEATER_PHASE_LOAD)
+      for (int i = HouseholdConstants.SPACE_HEATER_PHASE_2;i < HouseholdConstants.SPACE_HEATER_PHASE_3; i++) loadVector.set(i,loadVector.get(i-1))
+      for (int i=HouseholdConstants.SPACE_HEATER_PHASE_3;i < HouseholdConstants.SPACE_HEATER_PHASE_4;i++) loadVector.set(i, loadVector.get(i-1) + 2*HouseholdConstants.SPACE_HEATER_PHASE_LOAD)
+      for (int i= HouseholdConstants.SPACE_HEATER_PHASE_4;i < HouseholdConstants.QUARTERS_OF_DAY;i++) loadVector.set(i,power)
       weeklyLoadVector.add(loadVector)
       weeklyOperation.add(dailyOperation)
       operationVector.add(dailyOperation)
@@ -96,12 +96,12 @@ class SpaceHeater extends FullyShiftingAppliance{
 
     // In case the attenants are not in vacation, the spaceheater works all day
     if (applianceOf.isOnVacation(day,0)) {
-      for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
+      for (int j = 0;j < HouseholdConstants.QUARTERS_OF_DAY;j++) {
         possibilityDailyOperation.add(false)
       }
     }
     else {
-      for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
+      for (int j = 0;j < HouseholdConstants.QUARTERS_OF_DAY;j++) {
         possibilityDailyOperation.add(true)
       }
     }
@@ -111,11 +111,11 @@ class SpaceHeater extends FullyShiftingAppliance{
   @ Override
   def dailyShifting(Random gen,Tariff tariff,Instant now, int day){
 
-    long[] newControllableLoad = new long[Constants.HOURS_OF_DAY]
+    long[] newControllableLoad = new long[HouseholdConstants.HOURS_OF_DAY]
 
     // In this case the daily shifting is useless because it works all day
-    for (int i=0;i < Constants.HOURS_OF_DAY;i++){
-      for (int j=0; j < Constants.QUARTERS_OF_HOUR;j++) newControllableLoad[i] += householdConsumersService.getApplianceLoads(this,day,(i*Constants.QUARTERS_OF_HOUR)+j)
+    for (int i=0;i < HouseholdConstants.HOURS_OF_DAY;i++){
+      for (int j=0; j < HouseholdConstants.QUARTERS_OF_HOUR;j++) newControllableLoad[i] += householdConsumersService.getApplianceLoads(this,day,(i*HouseholdConstants.QUARTERS_OF_HOUR)+j)
     }
     return newControllableLoad
   }

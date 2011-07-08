@@ -23,7 +23,7 @@ import java.util.Vector
 import org.joda.time.Instant
 import org.powertac.appliances.*
 import org.powertac.common.Tariff
-import org.powertac.common.configurations.Constants
+import org.powertac.common.configurations.HouseholdConstants
 import org.powertac.common.enumerations.Status
 import org.powertac.persons.*
 
@@ -99,7 +99,7 @@ class Household {
     for (int i = 0;i < persons; i++) addPerson(i+1,conf,publicVacationVector, gen)
 
     this.members.each { member ->
-      for (int i =0;i < Constants.DAYS_OF_WEEK;i++) {
+      for (int i =0;i < HouseholdConstants.DAYS_OF_WEEK;i++) {
         member.fillDailyRoutine(i,va, gen)
         member.weeklyRoutine.add(member.dailyRoutine)
       }
@@ -107,9 +107,9 @@ class Household {
 
     fillAppliances(conf, gen)
 
-    for (int i =0;i < Constants.DAYS_OF_WEEK;i++) {
-      setDailyBaseLoad(fillDailyBaseLoad(week*Constants.DAYS_OF_WEEK+i))
-      setDailyControllableLoad(fillDailyControllableLoad(week*Constants.DAYS_OF_WEEK+i))
+    for (int i =0;i < HouseholdConstants.DAYS_OF_WEEK;i++) {
+      setDailyBaseLoad(fillDailyBaseLoad(week*HouseholdConstants.DAYS_OF_WEEK+i))
+      setDailyControllableLoad(fillDailyControllableLoad(week*HouseholdConstants.DAYS_OF_WEEK+i))
       weeklyBaseLoad.add(dailyBaseLoad)
       weeklyControllableLoad.add(dailyControllableLoad)
       setDailyBaseLoadInHours(fillDailyBaseLoadInHours())
@@ -157,7 +157,7 @@ class Household {
       appliance.weeklyLoadVector = new Vector()
     }
 
-    for (week = 0;week < Constants.WEEKS_OF_COMPETITION;week++){
+    for (week = 0;week < HouseholdConstants.WEEKS_OF_COMPETITION;week++){
       refresh(conf,gen)
     }
 
@@ -180,7 +180,7 @@ class Household {
     int mp = (int)conf.household.person.personType.MostlyPresent
     int ra = (int)conf.household.person.personType.RandomlyAbsent
 
-    int x = gen.nextInt(Constants.PERCENTAGE);
+    int x = gen.nextInt(HouseholdConstants.PERCENTAGE);
     if (x < pp) {
       PeriodicPresentPerson ppp = new PeriodicPresentPerson()
       ppp.initialize("PPP" + counter,conf,publicVacationVector,gen)
@@ -212,25 +212,25 @@ class Household {
     int five = conf.household.person.personsInHousehold.FivePersons
     int returnValue
 
-    int x = gen.nextInt(Constants.PERCENTAGE);
+    int x = gen.nextInt(HouseholdConstants.PERCENTAGE);
     if (x < one) {
       setYearConsumption((int) conf.household.person.consumption.OnePersonConsumption)
-      returnValue = Constants.ONE_PERSON
+      returnValue = HouseholdConstants.ONE_PERSON
     } else  {
       if (x >= one &  x < (one + two)) {
         setYearConsumption((int) conf.household.person.consumption.TwoPersonsConsumption)
-        returnValue = Constants.TWO_PERSONS
+        returnValue = HouseholdConstants.TWO_PERSONS
       } else  {
         if (x >= (one + two) & x < (one + two + three)) {
           setYearConsumption((int) conf.household.person.consumption.ThreePersonsConsumption)
-          returnValue = Constants.THREE_PERSONS
+          returnValue = HouseholdConstants.THREE_PERSONS
         } else  {
           if (x >= (one + two + three) & x < (one + two + three + four)) {
             setYearConsumption((int) conf.household.person.consumption.FourPersonsConsumption)
-            returnValue = Constants.FOUR_PERSONS
+            returnValue = HouseholdConstants.FOUR_PERSONS
           } else  {
             setYearConsumption((int) conf.household.person.consumption.FivePersonsConsumption)
-            returnValue = Constants.FIVE_PERSONS
+            returnValue = HouseholdConstants.FIVE_PERSONS
           }
         }
       }
@@ -247,8 +247,8 @@ class Household {
   def checkProbability(Appliance app, Random gen) {
     // Creating auxiliary variables
 
-    int x = gen.nextInt(Constants.PERCENTAGE);
-    int threshold = app.saturation * Constants.PERCENTAGE
+    int x = gen.nextInt(HouseholdConstants.PERCENTAGE);
+    int threshold = app.saturation * HouseholdConstants.PERCENTAGE
     if (x < threshold) {
       app.fillWeeklyFunction(gen)
       app.createWeeklyPossibilityOperationVector()
@@ -365,7 +365,7 @@ class Household {
   def isEmpty(int weekday, int quarter) {
     boolean x = true
     this.members.each {
-      if (it.weeklyRoutine.get(week*Constants.DAYS_OF_WEEK+weekday).get(quarter) == Status.Normal || it.weeklyRoutine.get(week*Constants.DAYS_OF_WEEK+weekday).get(quarter) == Status.Sick) {
+      if (it.weeklyRoutine.get(week*HouseholdConstants.DAYS_OF_WEEK+weekday).get(quarter) == Status.Normal || it.weeklyRoutine.get(week*HouseholdConstants.DAYS_OF_WEEK+weekday).get(quarter) == Status.Sick) {
         x = false
       }
     }
@@ -391,20 +391,20 @@ class Household {
     while (iter.hasNext()) iter.next().showStatus();
     // Printing daily load
     log.info(" Daily Load = ")
-    for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
+    for (int i = 0; i < HouseholdConstants.DAYS_OF_WEEK;i++) {
       log.info("Day " + (i))
       ListIterator iter2 = weeklyBaseLoad.get(i).listIterator();
       ListIterator iter3 = weeklyControllableLoad.get(i).listIterator();
-      for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) log.info("Quarter : " + (j+1) + " Base Load : " + iter2.next() + " Controllable Load: " + iter3.next())
+      for (int j = 0;j < HouseholdConstants.QUARTERS_OF_DAY; j++) log.info("Quarter : " + (j+1) + " Base Load : " + iter2.next() + " Controllable Load: " + iter3.next())
     }
 
     // Printing daily load in hours
     log.info(" Load In Hours = ")
-    for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
+    for (int i = 0; i < HouseholdConstants.DAYS_OF_WEEK;i++) {
       log.info("Day " + (i))
       ListIterator iter2 = weeklyBaseLoadInHours.get(i).listIterator();
       ListIterator iter3 = weeklyControllableLoadInHours.get(i).listIterator();
-      for (int j = 0;j < Constants.HOURS_OF_DAY; j++) log.info("Hours : " + (j+1) + " Base Load : " + iter2.next() + " Controllable Load: " + iter3.next())
+      for (int j = 0;j < HouseholdConstants.HOURS_OF_DAY; j++) log.info("Hours : " + (j+1) + " Base Load : " + iter2.next() + " Controllable Load: " + iter3.next())
     }
   }
 
@@ -415,9 +415,9 @@ class Household {
    */
   def fillDailyBaseLoad(int day) {
     // Creating auxiliary variables
-    Vector v = new Vector(Constants.QUARTERS_OF_DAY)
+    Vector v = new Vector(HouseholdConstants.QUARTERS_OF_DAY)
     int sum = 0
-    for (int i = 0;i < Constants.QUARTERS_OF_DAY; i++) {
+    for (int i = 0;i < HouseholdConstants.QUARTERS_OF_DAY; i++) {
       sum = 0
       this.appliances.each {
         if (it instanceof NotShiftingAppliance) sum = sum + it.weeklyLoadVector.get(day).get(i)
@@ -434,9 +434,9 @@ class Household {
    */
   def fillDailyControllableLoad(int day) {
     // Creating auxiliary variables
-    Vector v = new Vector(Constants.QUARTERS_OF_DAY)
+    Vector v = new Vector(HouseholdConstants.QUARTERS_OF_DAY)
     int sum = 0
-    for (int i = 0;i < Constants.QUARTERS_OF_DAY; i++) {
+    for (int i = 0;i < HouseholdConstants.QUARTERS_OF_DAY; i++) {
       sum = 0
       this.appliances.each {
         if (!(it instanceof NotShiftingAppliance)) sum = sum + it.weeklyLoadVector.get(day).get(i)
@@ -454,7 +454,7 @@ class Household {
   def isOnVacation(int weekday,int quarter) {
     boolean x = false
     this.members.each {
-      if (it.weeklyRoutine.get(week*Constants.DAYS_OF_WEEK+weekday).get(quarter) == Status.Vacation) {
+      if (it.weeklyRoutine.get(week*HouseholdConstants.DAYS_OF_WEEK+weekday).get(quarter) == Status.Vacation) {
         x = true
       }
     }
@@ -492,11 +492,11 @@ class Household {
   def fillDailyBaseLoadInHours() {
 
     // Creating Auxiliary Variables
-    Vector v = new Vector(Constants.HOURS_OF_DAY)
+    Vector v = new Vector(HouseholdConstants.HOURS_OF_DAY)
     int sum = 0
-    for (int i = 0;i < Constants.HOURS_OF_DAY; i++) {
+    for (int i = 0;i < HouseholdConstants.HOURS_OF_DAY; i++) {
       sum = 0
-      sum = dailyBaseLoad.get(i*Constants.QUARTERS_OF_HOUR) + dailyBaseLoad.get(i*Constants.QUARTERS_OF_HOUR +1) + dailyBaseLoad.get(i*Constants.QUARTERS_OF_HOUR+2) + dailyBaseLoad.get(i*Constants.QUARTERS_OF_HOUR+3)
+      sum = dailyBaseLoad.get(i*HouseholdConstants.QUARTERS_OF_HOUR) + dailyBaseLoad.get(i*HouseholdConstants.QUARTERS_OF_HOUR +1) + dailyBaseLoad.get(i*HouseholdConstants.QUARTERS_OF_HOUR+2) + dailyBaseLoad.get(i*HouseholdConstants.QUARTERS_OF_HOUR+3)
       v.add(sum)
     }
     return v
@@ -509,11 +509,11 @@ class Household {
   def fillDailyControllableLoadInHours() {
 
     // Creating Auxiliary Variables
-    Vector v = new Vector(Constants.HOURS_OF_DAY)
+    Vector v = new Vector(HouseholdConstants.HOURS_OF_DAY)
     int sum = 0
-    for (int i = 0;i < Constants.HOURS_OF_DAY; i++) {
+    for (int i = 0;i < HouseholdConstants.HOURS_OF_DAY; i++) {
       sum = 0
-      sum = dailyControllableLoad.get(i*Constants.QUARTERS_OF_HOUR) + dailyControllableLoad.get(i*Constants.QUARTERS_OF_HOUR +1) + dailyControllableLoad.get(i*Constants.QUARTERS_OF_HOUR+2) + dailyControllableLoad.get(i*Constants.QUARTERS_OF_HOUR+3)
+      sum = dailyControllableLoad.get(i*HouseholdConstants.QUARTERS_OF_HOUR) + dailyControllableLoad.get(i*HouseholdConstants.QUARTERS_OF_HOUR +1) + dailyControllableLoad.get(i*HouseholdConstants.QUARTERS_OF_HOUR+2) + dailyControllableLoad.get(i*HouseholdConstants.QUARTERS_OF_HOUR+3)
       v.add(sum)
     }
     return v
@@ -550,9 +550,9 @@ class Household {
 
     }
 
-    for (int i =0;i < Constants.DAYS_OF_WEEK;i++) {
-      setDailyBaseLoad(fillDailyBaseLoad(week*Constants.DAYS_OF_WEEK+i))
-      setDailyControllableLoad(fillDailyControllableLoad(week*Constants.DAYS_OF_WEEK+i))
+    for (int i =0;i < HouseholdConstants.DAYS_OF_WEEK;i++) {
+      setDailyBaseLoad(fillDailyBaseLoad(week*HouseholdConstants.DAYS_OF_WEEK+i))
+      setDailyControllableLoad(fillDailyControllableLoad(week*HouseholdConstants.DAYS_OF_WEEK+i))
       weeklyBaseLoad.add(dailyBaseLoad)
       weeklyControllableLoad.add(dailyControllableLoad)
       setDailyBaseLoadInHours(fillDailyBaseLoadInHours())
@@ -573,7 +573,7 @@ class Household {
    */
   def dailyShifting(Random gen, Tariff tariff, Instant now, int day){
 
-    long[] newControllableLoad = new long[Constants.HOURS_OF_DAY]
+    long[] newControllableLoad = new long[HouseholdConstants.HOURS_OF_DAY]
 
     appliances.each { appliance ->
       if (!(appliance instanceof NotShiftingAppliance)) {
@@ -582,7 +582,7 @@ class Household {
         //log.info"Load: ${householdConsumersService.getApplianceLoads(appliance,day).toString()}"
         //log.info("Temp: " + temp.toString())
         //log.info(newControllableLoad.toString())
-        for (int j=0;j < Constants.HOURS_OF_DAY;j++) newControllableLoad[j] += temp[j]
+        for (int j=0;j < HouseholdConstants.HOURS_OF_DAY;j++) newControllableLoad[j] += temp[j]
       }
     }
     return newControllableLoad
@@ -598,7 +598,7 @@ class Household {
     ListIterator iter = weeklyBaseLoadInHours.get(day).listIterator()
     ListIterator iter2 = weeklyControllableLoadInHours.get(day).listIterator()
     log.info "Summary of Daily Load of House ${name} "
-    for (int j = 0;j < Constants.HOURS_OF_DAY; j++) log.info "Hour : ${j+1} Base Load : ${iter.next()} Controllable Load : ${iter2.next()} "
+    for (int j = 0;j < HouseholdConstants.HOURS_OF_DAY; j++) log.info "Hour : ${j+1} Base Load : ${iter.next()} Controllable Load : ${iter2.next()} "
   }
 
   public String toString() {

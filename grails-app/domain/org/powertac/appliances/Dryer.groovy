@@ -25,7 +25,7 @@ import java.util.Random
 
 import org.joda.time.Instant
 import org.powertac.common.Tariff
-import org.powertac.common.configurations.Constants
+import org.powertac.common.configurations.HouseholdConstants
 
 /**
  * Dryer appliances are utilized by the inhabitants to order to dry the freshly
@@ -46,14 +46,14 @@ class Dryer extends SemiShiftingAppliance {
     // Filling the base variables
     name = household + " Dryer"
     saturation = conf.household.appliances.dryer.DryerSaturation
-    consumptionShare = (float) (Constants.PERCENTAGE * (Constants.DRYER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.DRYER_CONSUMPTION_SHARE_MEAN))
-    baseLoadShare = Constants.PERCENTAGE * Constants.DRYER_BASE_LOAD_SHARE
-    power = (int) (Constants.DRYER_POWER_VARIANCE * gen.nextGaussian() + Constants.DRYER_POWER_MEAN)
-    cycleDuration = Constants.DRYER_DURATION_CYCLE
+    consumptionShare = (float) (HouseholdConstants.PERCENTAGE * (HouseholdConstants.DRYER_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + HouseholdConstants.DRYER_CONSUMPTION_SHARE_MEAN))
+    baseLoadShare = HouseholdConstants.PERCENTAGE * HouseholdConstants.DRYER_BASE_LOAD_SHARE
+    power = (int) (HouseholdConstants.DRYER_POWER_VARIANCE * gen.nextGaussian() + HouseholdConstants.DRYER_POWER_MEAN)
+    cycleDuration = HouseholdConstants.DRYER_DURATION_CYCLE
     od = false
     inUse = false
-    probabilitySeason = fillSeason(Constants.DRYER_POSSIBILITY_SEASON_1,Constants.DRYER_POSSIBILITY_SEASON_2,Constants.DRYER_POSSIBILITY_SEASON_3)
-    probabilityWeekday = fillDay(Constants.DRYER_POSSIBILITY_DAY_1,Constants.DRYER_POSSIBILITY_DAY_2,Constants.DRYER_POSSIBILITY_DAY_3)
+    probabilitySeason = fillSeason(HouseholdConstants.DRYER_POSSIBILITY_SEASON_1,HouseholdConstants.DRYER_POSSIBILITY_SEASON_2,HouseholdConstants.DRYER_POSSIBILITY_SEASON_3)
+    probabilityWeekday = fillDay(HouseholdConstants.DRYER_POSSIBILITY_DAY_1,HouseholdConstants.DRYER_POSSIBILITY_DAY_2,HouseholdConstants.DRYER_POSSIBILITY_DAY_3)
     times = conf.household.appliances.dryer.DryerWeeklyTimes + (int)(applianceOf.members.size() / 2)
 
     // Inform the washing machine for the existence of the dryer
@@ -74,25 +74,25 @@ class Dryer extends SemiShiftingAppliance {
     loadVector = new Vector()
     dailyOperation = new Vector()
     Vector operation = operationVector.get(weekday)
-    for (int l = 0;l < Constants.QUARTERS_OF_DAY; l++) {
+    for (int l = 0;l < HouseholdConstants.QUARTERS_OF_DAY; l++) {
       loadVector.add(0)
       dailyOperation.add(false)
     }
     int start = washingEnds(weekday)
     if (start > 0) {
-      for (int i = start;i < Constants.QUARTERS_OF_DAY - 1;i++) {
+      for (int i = start;i < HouseholdConstants.QUARTERS_OF_DAY - 1;i++) {
         if (applianceOf.isEmpty(weekday,i) == false) {
           operation.set(i, true)
-          for (int j = i;j < i + Constants.DRYER_SECOND_PHASE;j++) {
+          for (int j = i;j < i + HouseholdConstants.DRYER_SECOND_PHASE;j++) {
             loadVector.set(j,power)
             dailyOperation.set(j,true)
           }
-          for (int k = i+Constants.DRYER_SECOND_PHASE;k < i+Constants.DRYER_THIRD_PHASE;k++) {
-            loadVector.set(k,loadVector.get(k-1)-Constants.DRYER_THIRD_PHASE_LOAD)
+          for (int k = i+HouseholdConstants.DRYER_SECOND_PHASE;k < i+HouseholdConstants.DRYER_THIRD_PHASE;k++) {
+            loadVector.set(k,loadVector.get(k-1)-HouseholdConstants.DRYER_THIRD_PHASE_LOAD)
             dailyOperation.set(k,true)
-            if (k == Constants.QUARTERS_OF_DAY-1) break
+            if (k == HouseholdConstants.QUARTERS_OF_DAY-1) break
           }
-          i = Constants.QUARTERS_OF_DAY
+          i = HouseholdConstants.QUARTERS_OF_DAY
         }
       }
       weeklyLoadVector.add(loadVector)
@@ -110,7 +110,7 @@ class Dryer extends SemiShiftingAppliance {
 
     def possibilityDailyOperation = new Vector()
 
-    for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
+    for (int j = 0;j < HouseholdConstants.QUARTERS_OF_DAY;j++) {
       // The dishwasher needs for someone to be in the house at the beginning of its function
       if (applianceOf.isEmpty(day,j) == false) possibilityDailyOperation.add(true)
       else possibilityDailyOperation.add(false)
@@ -135,7 +135,7 @@ class Dryer extends SemiShiftingAppliance {
       Object o = (Object) it
       if (o instanceof WashingMachine) v = o.getWeeklyOperation().get(weekday)
     }
-    for (int i = (Constants.QUARTERS_OF_DAY - 1);i > 0;i--) {
+    for (int i = (HouseholdConstants.QUARTERS_OF_DAY - 1);i > 0;i--) {
       if (v.get(i) == true) {
         start = i+1
         i = 0
@@ -182,19 +182,19 @@ class Dryer extends SemiShiftingAppliance {
     // Printing Operation Vector
     iter = operationVector.listIterator();
     log.info("Operation Vector = ")
-    for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
+    for (int i = 0; i < HouseholdConstants.DAYS_OF_WEEK;i++) {
       log.info("Day " + (i))
       iter =operationVector.get(i).listIterator()
-      for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) log.info("Quarter : " + (j+1) + "  " + iter.next())
+      for (int j = 0;j < HouseholdConstants.QUARTERS_OF_DAY; j++) log.info("Quarter : " + (j+1) + "  " + iter.next())
     }
 
     // Printing Weekly Operation Vector and Load Vector
     log.info("Weekly Operation Vector and Load = ")
-    for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
+    for (int i = 0; i < HouseholdConstants.DAYS_OF_WEEK;i++) {
       log.info("Day " + (i))
       iter = weeklyOperation.get(i).listIterator();
       ListIterator iter2 = weeklyLoadVector.get(i).listIterator();
-      for (int j = 0;j < Constants.QUARTERS_OF_DAY; j++) log.info("Quarter " + (j+1) + " = " + iter.next() + "   Load = " + iter2.next())
+      for (int j = 0;j < HouseholdConstants.QUARTERS_OF_DAY; j++) log.info("Quarter " + (j+1) + " = " + iter.next() + "   Load = " + iter2.next())
     }
   }
 
@@ -220,7 +220,7 @@ class Dryer extends SemiShiftingAppliance {
   @ Override
   def dailyShifting(Random gen,Tariff tariff,Instant now, int day){
     // Dryer's daily shifting is done by the washing machine for safety
-    long[] newControllableLoad = new long[Constants.HOURS_OF_DAY]
+    long[] newControllableLoad = new long[HouseholdConstants.HOURS_OF_DAY]
 
     return newControllableLoad
   }

@@ -18,7 +18,7 @@ package org.powertac.persons
 
 import java.util.Vector
 
-import org.powertac.common.configurations.Constants
+import org.powertac.common.configurations.HouseholdConstants
 
 /**
  * This is the instance of the person type that works. In addition to the simple
@@ -58,9 +58,9 @@ class WorkingPerson extends Person{
     // Creating an auxiliary variables
     Vector v = new Vector(days)
 
-    if (days < Constants.WEEKDAYS) {
+    if (days < HouseholdConstants.WEEKDAYS) {
       for (int i = 0; i < days; i++) {
-        int x =  (gen.nextInt(1) * (Constants.WEEKDAYS - 1)) + 1
+        int x =  (gen.nextInt(1) * (HouseholdConstants.WEEKDAYS - 1)) + 1
         ListIterator iter = v.listIterator();
         while (iter.hasNext()) {
           int temp = (int)iter.next()
@@ -74,21 +74,21 @@ class WorkingPerson extends Person{
       java.util.Collections.sort(v);
       return v
     } else  {
-      v.add(Constants.MONDAY)
-      v.add(Constants.TUESDAY)
-      v.add(Constants.WEDNESDAY)
-      v.add(Constants.THURSDAY)
-      v.add(Constants.FRIDAY)
-      if (days == Constants.WEEKDAYS) {
+      v.add(HouseholdConstants.MONDAY)
+      v.add(HouseholdConstants.TUESDAY)
+      v.add(HouseholdConstants.WEDNESDAY)
+      v.add(HouseholdConstants.THURSDAY)
+      v.add(HouseholdConstants.FRIDAY)
+      if (days == HouseholdConstants.WEEKDAYS) {
       } else  {
-        if (days == Constants.DAYS_OF_WEEK) {
-          v.add(Constants.SATURDAY)
-          v.add(Constants.SUNDAY)
+        if (days == HouseholdConstants.DAYS_OF_WEEK) {
+          v.add(HouseholdConstants.SATURDAY)
+          v.add(HouseholdConstants.SUNDAY)
         } else  {
           if (gen.nextFloat() > 0.5 ) {
-            v.add(Constants.SATURDAY)
+            v.add(HouseholdConstants.SATURDAY)
           } else  {
-            v.add(Constants.SUNDAY)
+            v.add(HouseholdConstants.SUNDAY)
           }
         }
       }
@@ -112,7 +112,7 @@ class WorkingPerson extends Person{
     int counter = duration
     int counter2 = 0
     while (counter > 0) {
-      int x = (int) gen.nextInt(Constants.DAYS_OF_COMPETITION - 1) + 1
+      int x = (int) gen.nextInt(HouseholdConstants.DAYS_OF_COMPETITION - 1) + 1
       counter2 = 1 + (int)(gen.nextInt(counter))
       ListIterator iter = v.listIterator()
       while (counter2 > 0) {
@@ -144,26 +144,26 @@ class WorkingPerson extends Person{
     int sixDays = conf.household.work.daysPerWeek.SixDays
     int sevenDays = conf.household.work.daysPerWeek.SevenDays
 
-    int x = (int) gen.nextInt(Constants.PERCENTAGE)
+    int x = (int) gen.nextInt(HouseholdConstants.PERCENTAGE)
     if (x < fiveDays) {
-      returnValue = Constants.FIVE_WORKING_DAYS
+      returnValue = HouseholdConstants.FIVE_WORKING_DAYS
     } else  {
       if (x >= fiveDays & x < (fiveDays + sixDays)) {
-        returnValue = Constants.SIX_WORKING_DAYS
+        returnValue = HouseholdConstants.SIX_WORKING_DAYS
       } else  {
         if (x >= (fiveDays + sixDays) & x < (fiveDays + sixDays + fourDays)) {
-          returnValue = Constants.FOUR_WORKING_DAYS
+          returnValue = HouseholdConstants.FOUR_WORKING_DAYS
         } else  {
           if (x >= (fiveDays + sixDays + fourDays) & x < (fiveDays + sixDays + fourDays + threeDays)) {
-            returnValue = Constants.THREE_WORKING_DAYS
+            returnValue = HouseholdConstants.THREE_WORKING_DAYS
           } else  {
             if (x >= (fiveDays + sixDays + fourDays + threeDays) & x < (fiveDays + sixDays + fourDays + threeDays+twoDays)) {
-              returnValue = Constants.TWO_WORKING_DAYS
+              returnValue = HouseholdConstants.TWO_WORKING_DAYS
             } else  {
               if (x >= (fiveDays + sixDays + fourDays + threeDays+twoDays) & x < (fiveDays + sixDays + fourDays + threeDays+twoDays+sevenDays)) {
-                returnValue  = Constants.SEVEN_WORKING_DAYS
+                returnValue  = HouseholdConstants.SEVEN_WORKING_DAYS
               } else  {
-                returnValue = Constants.ONE_WORKING_DAY
+                returnValue = HouseholdConstants.ONE_WORKING_DAY
               }
             }
           }
@@ -212,10 +212,10 @@ class WorkingPerson extends Person{
     log.info("Weekly Routine : ")
     iter = weeklyRoutine.get(0).listIterator();
 
-    for (int i = 0; i < Constants.DAYS_OF_WEEK;i++) {
+    for (int i = 0; i < HouseholdConstants.DAYS_OF_WEEK;i++) {
       log.info("Day " + (i))
       iter = weeklyRoutine.get(i).listIterator();
-      for (int j =0;j < Constants.QUARTERS_OF_DAY;j++) log.info("Quarter : " + (j+1) + " Status : " + iter.next())
+      for (int j =0;j < HouseholdConstants.QUARTERS_OF_DAY;j++) log.info("Quarter : " + (j+1) + " Status : " + iter.next())
     }
   }
 
