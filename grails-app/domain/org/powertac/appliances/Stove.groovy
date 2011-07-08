@@ -25,7 +25,7 @@ import java.util.Random
 import org.joda.time.Instant
 import org.powertac.common.Tariff
 import org.powertac.common.TimeService
-import org.powertac.common.configurations.Constants
+import org.powertac.common.configurations.HouseholdConstants
 
 
 /**
@@ -44,14 +44,14 @@ class Stove extends SemiShiftingAppliance{
     // Filling the base variables
     name = household + " Stove"
     saturation = conf.household.appliances.stove.StoveSaturation
-    consumptionShare = (float) (Constants.PERCENTAGE * (Constants.STOVE_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.STOVE_CONSUMPTION_SHARE_MEAN))
-    baseLoadShare = Constants.PERCENTAGE * Constants.STOVE_BASE_LOAD_SHARE
-    power = (int) (Constants.STOVE_POWER_VARIANCE * gen.nextGaussian() + Constants.STOVE_POWER_MEAN)
-    cycleDuration = Constants.STOVE_DURATION_CYCLE
+    consumptionShare = (float) (HouseholdConstants.PERCENTAGE * (HouseholdConstants.STOVE_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + HouseholdConstants.STOVE_CONSUMPTION_SHARE_MEAN))
+    baseLoadShare = HouseholdConstants.PERCENTAGE * HouseholdConstants.STOVE_BASE_LOAD_SHARE
+    power = (int) (HouseholdConstants.STOVE_POWER_VARIANCE * gen.nextGaussian() + HouseholdConstants.STOVE_POWER_MEAN)
+    cycleDuration = HouseholdConstants.STOVE_DURATION_CYCLE
     od = false
     inUse = false
-    probabilitySeason = fillSeason(Constants.STOVE_POSSIBILITY_SEASON_1,Constants.STOVE_POSSIBILITY_SEASON_2,Constants.STOVE_POSSIBILITY_SEASON_3)
-    probabilityWeekday = fillDay(Constants.STOVE_POSSIBILITY_DAY_1,Constants.STOVE_POSSIBILITY_DAY_2,Constants.STOVE_POSSIBILITY_DAY_3)
+    probabilitySeason = fillSeason(HouseholdConstants.STOVE_POSSIBILITY_SEASON_1,HouseholdConstants.STOVE_POSSIBILITY_SEASON_2,HouseholdConstants.STOVE_POSSIBILITY_SEASON_3)
+    probabilityWeekday = fillDay(HouseholdConstants.STOVE_POSSIBILITY_DAY_1,HouseholdConstants.STOVE_POSSIBILITY_DAY_2,HouseholdConstants.STOVE_POSSIBILITY_DAY_3)
     times = conf.household.appliances.stove.StoveDailyTimes
     createWeeklyOperationVector(times,gen)
 
@@ -62,12 +62,12 @@ class Stove extends SemiShiftingAppliance{
 
     // Creating Auxiliary Variables
     Random rand = new Random()
-    Vector v = new Vector(Constants.QUARTERS_OF_DAY)
+    Vector v = new Vector(HouseholdConstants.QUARTERS_OF_DAY)
 
     // First initialize all to false
-    for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) v.add(false)
+    for (int i = 0;i < HouseholdConstants.QUARTERS_OF_DAY;i++) v.add(false)
     for (int i = 0;i < times;i++) {
-      int quarter = gen.nextInt(Constants.QUARTERS_OF_DAY - cycleDuration)
+      int quarter = gen.nextInt(HouseholdConstants.QUARTERS_OF_DAY - cycleDuration)
       if (v.get(quarter)== false) v.set(quarter,true)
       else v.set(quarter+2,true)
     }
@@ -77,7 +77,7 @@ class Stove extends SemiShiftingAppliance{
   @ Override
   def createWeeklyOperationVector(int times, Random gen)
   {
-    for (int i=0;i < Constants.DAYS_OF_WEEK;i++) operationVector.add(createDailyOperationVector(times,gen))
+    for (int i=0;i < HouseholdConstants.DAYS_OF_WEEK;i++) operationVector.add(createDailyOperationVector(times,gen))
   }
 
   @ Override
@@ -89,11 +89,11 @@ class Stove extends SemiShiftingAppliance{
     Vector operation = operationVector.get(weekday)
 
     // Check all quarters of the day
-    for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
+    for (int i = 0;i < HouseholdConstants.QUARTERS_OF_DAY;i++) {
       if (operation.get(i) == true) {
         boolean flag = true
         int counter = 0
-        while ((flag) && (i < Constants.QUARTERS_OF_DAY) && (counter >= 0)) {
+        while ((flag) && (i < HouseholdConstants.QUARTERS_OF_DAY) && (counter >= 0)) {
           if (applianceOf.isEmpty(weekday,i) == false && applianceOf.isEmpty(weekday,i+1) == false) {
             loadVector.add(power)
             dailyOperation.add(true)
@@ -106,7 +106,7 @@ class Stove extends SemiShiftingAppliance{
             loadVector.add(0)
             dailyOperation.add(false)
             i++
-            if (i < Constants.QUARTERS_OF_DAY && operation.get(i) == true) counter++
+            if (i < HouseholdConstants.QUARTERS_OF_DAY && operation.get(i) == true) counter++
           }
         }
       } else  {
@@ -124,7 +124,7 @@ class Stove extends SemiShiftingAppliance{
     def possibilityDailyOperation = new Vector()
 
     // In order for stove to work someone must be in the house for half hour
-    for (int j = 0;j < Constants.QUARTERS_OF_DAY - 1;j++) {
+    for (int j = 0;j < HouseholdConstants.QUARTERS_OF_DAY - 1;j++) {
       if (applianceOf.isEmpty(day,j) == false && applianceOf.isEmpty(day,j+1) == false) possibilityDailyOperation.add(true)
       else possibilityDailyOperation.add(false)
     }
@@ -137,7 +137,7 @@ class Stove extends SemiShiftingAppliance{
   @ Override
   def dailyShifting(Random gen,Tariff tariff,Instant now, int day){
 
-    long[] newControllableLoad = new long[Constants.HOURS_OF_DAY]
+    long[] newControllableLoad = new long[HouseholdConstants.HOURS_OF_DAY]
 
     def minindex = 0
     def minvalue = Double.POSITIVE_INFINITY
@@ -146,14 +146,14 @@ class Stove extends SemiShiftingAppliance{
     long sumPower = 0
 
     // Gather the Load Summary of the day
-    for (int i=0;i< Constants.QUARTERS_OF_DAY;i++) sumPower += householdConsumersService.getApplianceLoads(this,day,i)
+    for (int i=0;i< HouseholdConstants.QUARTERS_OF_DAY;i++) sumPower += householdConsumersService.getApplianceLoads(this,day,i)
 
     // If we have a fixed tariff rate
     if ((tariff.tariffSpec.rates.size() == 1) && (tariff.tariffSpec.rates.getAt(0).isFixed)) {
       def possibleHours = new Vector()
 
       // find the all the available functioning hours of the appliance
-      for (int i=0;i < Constants.HOURS_OF_DAY;i++){
+      for (int i=0;i < HouseholdConstants.HOURS_OF_DAY;i++){
         if (functionMatrix[i]) possibleHours.add(i)
       }
       log.debug("Stove Bag Size: ${possibleHours.size()}")
@@ -162,7 +162,7 @@ class Stove extends SemiShiftingAppliance{
     // case of variable tariff rate
     else {
       // find the all the available functioning hours of the appliance
-      for (int i=0;i < Constants.HOURS_OF_DAY;i++){
+      for (int i=0;i < HouseholdConstants.HOURS_OF_DAY;i++){
         if (functionMatrix[i]){
           if (minvalue >= tariff.getUsageCharge(hour1)){
             minvalue = tariff.getUsageCharge(hour1)

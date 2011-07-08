@@ -16,7 +16,7 @@
 
 package org.powertac.appliances
 
-import org.powertac.common.configurations.Constants
+import org.powertac.common.configurations.HouseholdConstants
 
 /**
  * This is the class for the appliance domain instances that can change / shift their load
@@ -35,7 +35,7 @@ class FullyShiftingAppliance extends Appliance{
    * @return
    */
   def fillWeeklyFunction(Random gen) {
-    for (int i = 0;i < Constants.DAYS_OF_WEEK; i++) fillDailyFunction(i,gen)
+    for (int i = 0;i < HouseholdConstants.DAYS_OF_WEEK; i++) fillDailyFunction(i,gen)
   }
 
   /** This function creates the weekly operation vector after the shifting for each day of the week
@@ -44,7 +44,7 @@ class FullyShiftingAppliance extends Appliance{
    * @return
    */
   def createWeeklyOperationVector(int times,Random gen) {
-    for (int i = 0;i < Constants.DAYS_OF_WEEK; i++) operationVector.add(createDailyOperationVector(times,gen))
+    for (int i = 0;i < HouseholdConstants.DAYS_OF_WEEK; i++) operationVector.add(createDailyOperationVector(times,gen))
   }
 
   /** This function creates the daily operation vector after the shifting
@@ -55,14 +55,14 @@ class FullyShiftingAppliance extends Appliance{
   def createDailyOperationVector(int times, Random gen) {
 
     // Creating Auxiliary Variables
-    Vector v = new Vector(Constants.QUARTERS_OF_DAY)
+    Vector v = new Vector(HouseholdConstants.QUARTERS_OF_DAY)
 
     // First initialize all to false
-    for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) v.add(false)
+    for (int i = 0;i < HouseholdConstants.QUARTERS_OF_DAY;i++) v.add(false)
 
     // Then for the times it work add function quarters
     for (int i = 0;i < times;i++) {
-      int quarter = gen.nextInt(Constants.QUARTERS_OF_DAY)
+      int quarter = gen.nextInt(HouseholdConstants.QUARTERS_OF_DAY)
       v.set(quarter,true)
     }
     return v

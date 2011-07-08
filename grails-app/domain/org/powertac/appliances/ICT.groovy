@@ -22,7 +22,7 @@ import groovy.util.ConfigObject
 import java.util.HashMap
 import java.util.Random
 
-import org.powertac.common.configurations.Constants
+import org.powertac.common.configurations.HouseholdConstants
 
 /**
  * ICT are the appliances that are utilized mainly for work or to communicate with others
@@ -41,15 +41,15 @@ class ICT extends NotShiftingAppliance{
     // Filling the base variables
     name = household + " ICT"
     saturation = conf.household.appliances.ict.ICTSaturation
-    consumptionShare = (float) (Constants.PERCENTAGE * (Constants.ICT_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + Constants.ICT_CONSUMPTION_SHARE_MEAN))
-    baseLoadShare = Constants.PERCENTAGE * Constants.ICT_BASE_LOAD_SHARE
-    power = (int) (Constants.ICT_POWER_VARIANCE * gen.nextGaussian() + Constants.ICT_POWER_MEAN)
-    cycleDuration = Constants.ICT_DURATION_CYCLE
+    consumptionShare = (float) (HouseholdConstants.PERCENTAGE * (HouseholdConstants.ICT_CONSUMPTION_SHARE_VARIANCE * gen.nextGaussian() + HouseholdConstants.ICT_CONSUMPTION_SHARE_MEAN))
+    baseLoadShare = HouseholdConstants.PERCENTAGE * HouseholdConstants.ICT_BASE_LOAD_SHARE
+    power = (int) (HouseholdConstants.ICT_POWER_VARIANCE * gen.nextGaussian() + HouseholdConstants.ICT_POWER_MEAN)
+    cycleDuration = HouseholdConstants.ICT_DURATION_CYCLE
     times = conf.household.appliances.ict.ICTDailyTimes + applianceOf.members.size()
     od = false
     inUse = false
-    probabilitySeason = fillSeason(Constants.ICT_POSSIBILITY_SEASON_1,Constants.ICT_POSSIBILITY_SEASON_2,Constants.ICT_POSSIBILITY_SEASON_3)
-    probabilityWeekday = fillDay(Constants.ICT_POSSIBILITY_DAY_1,Constants.ICT_POSSIBILITY_DAY_2,Constants.ICT_POSSIBILITY_DAY_3)
+    probabilitySeason = fillSeason(HouseholdConstants.ICT_POSSIBILITY_SEASON_1,HouseholdConstants.ICT_POSSIBILITY_SEASON_2,HouseholdConstants.ICT_POSSIBILITY_SEASON_3)
+    probabilityWeekday = fillDay(HouseholdConstants.ICT_POSSIBILITY_DAY_1,HouseholdConstants.ICT_POSSIBILITY_DAY_2,HouseholdConstants.ICT_POSSIBILITY_DAY_3)
     createWeeklyOperationVector(times, gen)
   }
 
@@ -59,7 +59,7 @@ class ICT extends NotShiftingAppliance{
     def possibilityDailyOperation = new Vector()
 
     // The ICT appliances need someone to be there to operate them
-    for (int j = 0;j < Constants.QUARTERS_OF_DAY;j++) {
+    for (int j = 0;j < HouseholdConstants.QUARTERS_OF_DAY;j++) {
       if (applianceOf.isEmpty(day,j) == false) possibilityDailyOperation.add(true)
       else possibilityDailyOperation.add(false)
     }
@@ -75,11 +75,11 @@ class ICT extends NotShiftingAppliance{
     Vector operation = operationVector.get(weekday)
 
     // For each quarter of a day
-    for (int i = 0;i < Constants.QUARTERS_OF_DAY;i++) {
+    for (int i = 0;i < HouseholdConstants.QUARTERS_OF_DAY;i++) {
       if (operation.get(i) == true) {
         boolean flag = true
         int counter = 0
-        while ((flag) && (i < Constants.QUARTERS_OF_DAY) && (counter >= 0)) {
+        while ((flag) && (i < HouseholdConstants.QUARTERS_OF_DAY) && (counter >= 0)) {
           if (applianceOf.isEmpty(weekday,i) == false) {
             loadVector.add(power)
             dailyOperation.add(true)
@@ -89,7 +89,7 @@ class ICT extends NotShiftingAppliance{
             loadVector.add(0)
             dailyOperation.add(false)
             i++
-            if (i < Constants.QUARTERS_OF_DAY && operation.get(i) == true) counter++
+            if (i < HouseholdConstants.QUARTERS_OF_DAY && operation.get(i) == true) counter++
           }
         }
       } else  {
