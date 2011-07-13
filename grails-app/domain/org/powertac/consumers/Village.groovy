@@ -253,7 +253,7 @@ class Village extends AbstractCustomer{
     for (int i=0;i < types;i++){
       ran = ran + (villageConsumersService.getBaseConsumptions(this,i)[day][hour] + villageConsumersService.getControllableConsumptions(this,i)[day][hour])
     }
-    ran = ran / HouseholdConstants.PERCENTAGE
+    ran = ran
     return ran
   }
 
