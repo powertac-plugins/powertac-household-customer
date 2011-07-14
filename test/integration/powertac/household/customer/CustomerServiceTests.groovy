@@ -20,21 +20,14 @@ import grails.test.*
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.Instant
-import org.powertac.common.AbstractCustomer
 import org.powertac.common.Broker
 import org.powertac.common.Competition
-import org.powertac.common.CustomerInfo
 import org.powertac.common.PluginConfig
 import org.powertac.common.Rate
 import org.powertac.common.Tariff
 import org.powertac.common.TariffSpecification
-import org.powertac.common.TariffSubscription
-import org.powertac.common.TariffTransaction
 import org.powertac.common.TimeService
 import org.powertac.common.enumerations.PowerType
-import org.powertac.common.enumerations.TariffTransactionType
-import org.powertac.common.msg.TariffRevoke
-import org.powertac.common.msg.TariffStatus
 import org.powertac.consumers.Village
 
 class CustomerServiceTests extends GroovyTestCase {
@@ -123,237 +116,233 @@ class CustomerServiceTests extends GroovyTestCase {
       'DefaultBroker'
     ])
   }
-
-  void testNormalInitialization () {
-    householdCustomerInitializationService.setDefaults()
-    PluginConfig config = PluginConfig.findByRoleName('HouseholdCustomer')
-    assertNotNull("config created correctly", config)
-    def result = householdCustomerInitializationService.initialize(comp, [
-      'TariffMarket',
-      'DefaultBroker'
-    ])
-    assertEquals("correct return value", 'HouseholdCustomer', result)
-    assertEquals("correct configuration file", '../powertac-household-customer/grails-app/conf/HouseholdConfig.groovy', householdCustomerService.getConfigFile())
-  }
-  void testBogusInitialization () {
-    PluginConfig config = PluginConfig.findByRoleName('HouseholdCustomer')
-    assertNull("config not created", config)
-    def result = householdCustomerInitializationService.initialize(comp, [
-      'TariffMarket',
-      'DefaultBroker'
-    ])
-    assertEquals("failure return value", 'fail', result)
-  }
-  void testConfiguration(){
-    def config = new ConfigSlurper("LA").parse(new File('grails-app/conf/HouseholdConfig.groovy').toURL())
-    assert config.household.general.NumberOfVillages == 2
-    assert config.household.houses.NewShiftingCustomers == 200
-  }
-  void testVillagesInitialization() {
-    initializeService()
-    assertEquals("Two Villages Created", Village.count(), AbstractCustomer.count())
-    assertFalse("Village 1 subscribed", AbstractCustomer.findByCustomerInfo(CustomerInfo.findByName("Village 1")).subscriptions == null)
-    assertFalse("Village 2 subscribed", AbstractCustomer.findByCustomerInfo(CustomerInfo.findByName("Village 2")).subscriptions == null)
-    assertFalse("Village 1 subscribed to default", AbstractCustomer.findByCustomerInfo(CustomerInfo.findByName("Village 1")).subscriptions == tariffMarketService.getDefaultTariff(PowerType.CONSUMPTION))
-    assertFalse("Village 2 subscribed to default", AbstractCustomer.findByCustomerInfo(CustomerInfo.findByName("Village 2")).subscriptions == tariffMarketService.getDefaultTariff(PowerType.CONSUMPTION))
-  }
-
-  void testPowerConsumption() {
-    initializeService()
-    timeService.setCurrentTime(new Instant(now.millis + (TimeService.HOUR)))
-    householdCustomerService.activate(timeService.currentTime, 1)
-    Village.list().each { village ->
-      assertFalse("Customer consumed power", village.subscriptions?.totalUsage == null || village.subscriptions?.totalUsage == 0)
-    }
-    assertEquals("Tariff Transactions Created", Village.count()+2, TariffTransaction.findByTxType(TariffTransactionType.CONSUME).count())
-  }
-
-  void testChangingSubscriptions() {
-    initializeService()
-    def tsc1 = new TariffSpecification(broker: broker2,
-        expiration: new Instant(now.millis + TimeService.DAY),
-        minDuration: TimeService.WEEK * 8, powerType: PowerType.CONSUMPTION)
-    def tsc2 = new TariffSpecification(broker: broker2,
-        expiration: new Instant(now.millis + TimeService.DAY * 2),
-        minDuration: TimeService.WEEK * 8, powerType: PowerType.CONSUMPTION)
-    def tsc3 = new TariffSpecification(broker: broker2,
-        expiration: new Instant(now.millis + TimeService.DAY * 3),
-        minDuration: TimeService.WEEK * 8, powerType: PowerType.CONSUMPTION)
-    Rate r2 = new Rate(value: 0.222)
-    tsc1.addToRates(r2)
-    tsc2.addToRates(r2)
-    tsc3.addToRates(r2)
-    tariffMarketService.processTariff(tsc1)
-    tariffMarketService.processTariff(tsc2)
-    tariffMarketService.processTariff(tsc3)
-    assertEquals("Five tariff specifications", 5, TariffSpecification.count())
-    assertEquals("Four tariffs", 4, Tariff.count())
-    Village.list().each {village ->
-      village.changeSubscription(tariffMarketService.getDefaultTariff(defaultTariffSpec.powerType))
-      List<Tariff> lastTariff = village.subscriptions?.tariff
-      lastTariff.each { tariff ->
-        village.changeSubscription(tariff,tariffMarketService.getDefaultTariff(defaultTariffSpec.powerType))
-        village.changeSubscription(tariffMarketService.getDefaultTariff(defaultTariffSpec.powerType), tariff, 5)
-      }
-      assertFalse("Changed from default tariff", village.subscriptions?.tariff.toString() == tariffMarketService.getDefaultTariff(defaultTariffSpec.powerType).toString())
-    }
-  }
-  void testRevokingSubscriptions() {
-    initializeService()
-    println("Number Of Subscriptions in DB: ${TariffSubscription.count()}")
-    // create some tariffs
-    def tsc1 = new TariffSpecification(broker: broker1,
-        expiration: new Instant(now.millis + TimeService.DAY * 5),
-        minDuration: TimeService.WEEK * 8, powerType: PowerType.CONSUMPTION)
-    def tsc2 = new TariffSpecification(broker: broker1,
-        expiration: new Instant(now.millis + TimeService.DAY * 7),
-        minDuration: TimeService.WEEK * 8, powerType: PowerType.CONSUMPTION)
-    def tsc3 = new TariffSpecification(broker: broker1,
-        expiration: new Instant(now.millis + TimeService.DAY * 9),
-        minDuration: TimeService.WEEK * 8, powerType: PowerType.CONSUMPTION)
-    Rate r1 = new Rate(value: 0.222)
-    tsc1.addToRates(r1)
-    tsc2.addToRates(r1)
-    tsc3.addToRates(r1)
-    tariffMarketService.processTariff(tsc1)
-    tariffMarketService.processTariff(tsc2)
-    tariffMarketService.processTariff(tsc3)
-    Tariff tc1 = Tariff.findBySpecId(tsc1.id)
-    assertNotNull("first tariff found", tc1)
-    Tariff tc2 = Tariff.findBySpecId(tsc2.id)
-    assertNotNull("second tariff found", tc2)
-    Tariff tc3 = Tariff.findBySpecId(tsc3.id)
-    assertNotNull("third tariff found", tc3)
-    // make sure we have three active tariffs
-    def tclist = tariffMarketService.getActiveTariffList(PowerType.CONSUMPTION)
-    assertEquals("4 consumption tariffs", 4, tclist.size())
-    assertEquals("Five transaction", 5, TariffTransaction.count())
-    // householdCustomerService.activate(timeService.currentTime, 1)
-    Village.list().each{ village ->
-      TariffSubscription tsd =
-          TariffSubscription.findByTariffAndCustomer(tariffMarketService.getDefaultTariff(PowerType.CONSUMPTION), village)
-      village.unsubscribe(tsd,3)
-      village.subscribe(tc1, 3)
-      village.subscribe(tc2, 3)
-      village.subscribe(tc3, 4)
-      TariffSubscription ts1 =
-          TariffSubscription.findByTariffAndCustomer(tc1, village)
-      village.unsubscribe(ts1, 2)
-      TariffSubscription ts2 =
-          TariffSubscription.findByTariffAndCustomer(tc2, village)
-      village.unsubscribe(ts2, 1)
-      TariffSubscription ts3 =
-          TariffSubscription.findByTariffAndCustomer(tc3, village)
-      village.unsubscribe(ts3, 2)
-      println("Number Of Subscriptions in DB: ${TariffSubscription.count()}")
-      assertEquals("4 Subscriptions for customer",4, village.subscriptions?.size())
-      timeService.currentTime = new Instant(timeService.currentTime.millis + TimeService.HOUR)
-    }
-    TariffRevoke tex = new TariffRevoke(tariffId: tsc2.id, broker: tc2.broker)
-    def status = tariffMarketService.processTariff(tex)
-    assertNotNull("non-null status", status)
-    assertEquals("success", TariffStatus.Status.success, status.status)
-    assertTrue("tariff revoked", tc2.isRevoked())
-    // should now be just two active tariffs
-    tclist = tariffMarketService.getActiveTariffList(PowerType.CONSUMPTION)
-    assertEquals("3 consumption tariffs", 3, tclist.size())
-    Village.list().each{ village ->
-      // retrieve revoked-subscription list
-      def revokedCustomer = tariffMarketService.getRevokedSubscriptionList(village)
-      assertEquals("one item in list", 1, revokedCustomer.size())
-      assertEquals("it's the correct one", TariffSubscription.findByTariffAndCustomer(tc2,village), revokedCustomer[0])
-    }
-    householdCustomerService.activate(timeService.currentTime, 1)
-    Village.list().each{ village ->
-      assertEquals("3 Subscriptions for customer", 3, village.subscriptions?.size())
-    }
-    println("Number Of Subscriptions in DB: ${TariffSubscription.count()}")
-    TariffRevoke tex3 = new TariffRevoke(tariffId: tsc3.id, broker: tc1.broker)
-    def status3 = tariffMarketService.processTariff(tex3)
-    assertNotNull("non-null status", status3)
-    assertEquals("success", TariffStatus.Status.success, status3.status)
-    assertTrue("tariff revoked", tc3.isRevoked())
-    // should now be just two active tariffs
-    def tclist3 = tariffMarketService.getActiveTariffList(PowerType.CONSUMPTION)
-    assertEquals("2 consumption tariffs", 2, tclist3.size())
-    // retrieve revoked-subscription list
-    Village.list().each{ village ->
-      def revokedCustomer3 = tariffMarketService.getRevokedSubscriptionList(village)
-      assertEquals("one item in list", 1, revokedCustomer3.size())
-      assertEquals("it's the correct one", TariffSubscription.findByTariffAndCustomer(tc3,village), revokedCustomer3[0])
-      log.info "Revoked Tariffs ${revokedCustomer3.toString()} "
-    }
-    householdCustomerService.activate(timeService.currentTime, 1)
-    Village.list().each{ village ->
-      assertEquals("2 Subscriptions for customer", 2, village.subscriptions?.size())
-    }
-    TariffRevoke tex2 = new TariffRevoke(tariffId: tsc1.id, broker: tc1.broker)
-    def status2 = tariffMarketService.processTariff(tex2)
-    assertNotNull("non-null status", status2)
-    assertEquals("success", TariffStatus.Status.success, status2.status)
-    assertTrue("tariff revoked", tc1.isRevoked())
-    // should now be just two active tariffs
-    def tclist2 = tariffMarketService.getActiveTariffList(PowerType.CONSUMPTION)
-    assertEquals("1 consumption tariffs", 1, tclist2.size())
-    Village.list().each{ village ->
-      // retrieve revoked-subscription list
-      def revokedCustomer2 = tariffMarketService.getRevokedSubscriptionList(village)
-      assertEquals("one item in list", 1, revokedCustomer2.size())
-      assertEquals("it's the correct one", TariffSubscription.findByTariffAndCustomer(tc1,village), revokedCustomer2[0])
-      log.info "Revoked Tariffs ${revokedCustomer2.toString()} "
-    }
-    householdCustomerService.activate(timeService.currentTime, 1)
-    Village.list().each{ village ->
-      assertEquals("1 Subscriptions for customer", 1, village.subscriptions?.size())
-    }
-  }
-
-  void testEvaluatingTariffs() {
-    initializeService()
-    println("Number Of Subscriptions in DB: ${TariffSubscription.count()}")
-    // create some tariffs
-    def tsc1 = new TariffSpecification(broker: broker1,
-        expiration: new Instant(now.millis + TimeService.DAY * 5),
-        minDuration: TimeService.WEEK * 8, powerType: PowerType.PRODUCTION)
-    def tsc2 = new TariffSpecification(broker: broker1,
-        expiration: new Instant(now.millis + TimeService.DAY * 7),
-        minDuration: TimeService.WEEK * 8, powerType: PowerType.PRODUCTION)
-    def tsc3 = new TariffSpecification(broker: broker1,
-        expiration: new Instant(now.millis + TimeService.DAY * 9),
-        minDuration: TimeService.WEEK * 8, powerType: PowerType.PRODUCTION)
-    Rate r1 = new Rate(value: 0.222)
-    tsc1.addToRates(r1)
-    tsc2.addToRates(r1)
-    tsc3.addToRates(r1)
-    tariffMarketService.processTariff(tsc1)
-    tariffMarketService.processTariff(tsc2)
-    tariffMarketService.processTariff(tsc3)
-    Tariff tc1 = Tariff.findBySpecId(tsc1.id)
-    assertNotNull("first tariff found", tc1)
-    Tariff tc2 = Tariff.findBySpecId(tsc2.id)
-    assertNotNull("second tariff found", tc2)
-    Tariff tc3 = Tariff.findBySpecId(tsc3.id)
-    assertNotNull("third tariff found", tc3)
-    // make sure we have three active tariffs
-    def tclist = tariffMarketService.getActiveTariffList(PowerType.CONSUMPTION)
-    assertEquals("4 consumption tariffs", 1, tclist.size())
-    assertEquals("five transaction", 5, TariffTransaction.count())
-    Village.list().each{ customer ->
-      customer.possibilityEvaluationNewTariffs(Tariff.list())
-    }
-  }
-
-
-  void testVillageRefreshModels() {
-    initializeService()
-    timeService.base = now.toInstant().millis
-    timeService.currentTime = new Instant(timeService.currentTime.millis + TimeService.HOUR*22)
-    timeService.currentTime = new Instant(timeService.currentTime.millis + TimeService.DAY*6)
-    householdCustomerService.activate(timeService.currentTime, 1)
-    println(householdConsumersService.appliancesPossibilityOperations.toString())
-    println(householdConsumersService.appliancesOperations.toString())
-    println(householdConsumersService.appliancesLoads.toString())
-  }
+  /*
+   void testNormalInitialization () {
+   householdCustomerInitializationService.setDefaults()
+   PluginConfig config = PluginConfig.findByRoleName('HouseholdCustomer')
+   assertNotNull("config created correctly", config)
+   def result = householdCustomerInitializationService.initialize(comp, [
+   'TariffMarket',
+   'DefaultBroker'
+   ])
+   assertEquals("correct return value", 'HouseholdCustomer', result)
+   assertEquals("correct configuration file", '../powertac-household-customer/grails-app/conf/HouseholdConfig.groovy', householdCustomerService.getConfigFile())
+   }
+   void testBogusInitialization () {
+   PluginConfig config = PluginConfig.findByRoleName('HouseholdCustomer')
+   assertNull("config not created", config)
+   def result = householdCustomerInitializationService.initialize(comp, [
+   'TariffMarket',
+   'DefaultBroker'
+   ])
+   assertEquals("failure return value", 'fail', result)
+   }
+   void testConfiguration(){
+   def config = new ConfigSlurper("LA").parse(new File('grails-app/conf/HouseholdConfig.groovy').toURL())
+   assert config.household.general.NumberOfVillages == 2
+   assert config.household.houses.NewShiftingCustomers == 200
+   }
+   void testVillagesInitialization() {
+   initializeService()
+   assertEquals("Two Villages Created", Village.count(), AbstractCustomer.count())
+   assertFalse("Village 1 subscribed", AbstractCustomer.findByCustomerInfo(CustomerInfo.findByName("Village 1")).subscriptions == null)
+   assertFalse("Village 2 subscribed", AbstractCustomer.findByCustomerInfo(CustomerInfo.findByName("Village 2")).subscriptions == null)
+   assertFalse("Village 1 subscribed to default", AbstractCustomer.findByCustomerInfo(CustomerInfo.findByName("Village 1")).subscriptions == tariffMarketService.getDefaultTariff(PowerType.CONSUMPTION))
+   assertFalse("Village 2 subscribed to default", AbstractCustomer.findByCustomerInfo(CustomerInfo.findByName("Village 2")).subscriptions == tariffMarketService.getDefaultTariff(PowerType.CONSUMPTION))
+   }
+   void testPowerConsumption() {
+   initializeService()
+   timeService.setCurrentTime(new Instant(now.millis + (TimeService.HOUR)))
+   householdCustomerService.activate(timeService.currentTime, 1)
+   Village.list().each { village ->
+   assertFalse("Customer consumed power", village.subscriptions?.totalUsage == null || village.subscriptions?.totalUsage == 0)
+   }
+   assertEquals("Tariff Transactions Created", Village.count()+2, TariffTransaction.findByTxType(TariffTransactionType.CONSUME).count())
+   }
+   void testChangingSubscriptions() {
+   initializeService()
+   def tsc1 = new TariffSpecification(broker: broker2,
+   expiration: new Instant(now.millis + TimeService.DAY),
+   minDuration: TimeService.WEEK * 8, powerType: PowerType.CONSUMPTION)
+   def tsc2 = new TariffSpecification(broker: broker2,
+   expiration: new Instant(now.millis + TimeService.DAY * 2),
+   minDuration: TimeService.WEEK * 8, powerType: PowerType.CONSUMPTION)
+   def tsc3 = new TariffSpecification(broker: broker2,
+   expiration: new Instant(now.millis + TimeService.DAY * 3),
+   minDuration: TimeService.WEEK * 8, powerType: PowerType.CONSUMPTION)
+   Rate r2 = new Rate(value: 0.222)
+   tsc1.addToRates(r2)
+   tsc2.addToRates(r2)
+   tsc3.addToRates(r2)
+   tariffMarketService.processTariff(tsc1)
+   tariffMarketService.processTariff(tsc2)
+   tariffMarketService.processTariff(tsc3)
+   assertEquals("Five tariff specifications", 5, TariffSpecification.count())
+   assertEquals("Four tariffs", 4, Tariff.count())
+   Village.list().each {village ->
+   village.changeSubscription(tariffMarketService.getDefaultTariff(defaultTariffSpec.powerType))
+   List<Tariff> lastTariff = village.subscriptions?.tariff
+   lastTariff.each { tariff ->
+   village.changeSubscription(tariff,tariffMarketService.getDefaultTariff(defaultTariffSpec.powerType))
+   village.changeSubscription(tariffMarketService.getDefaultTariff(defaultTariffSpec.powerType), tariff, 5)
+   }
+   assertFalse("Changed from default tariff", village.subscriptions?.tariff.toString() == tariffMarketService.getDefaultTariff(defaultTariffSpec.powerType).toString())
+   }
+   }
+   void testRevokingSubscriptions() {
+   initializeService()
+   println("Number Of Subscriptions in DB: ${TariffSubscription.count()}")
+   // create some tariffs
+   def tsc1 = new TariffSpecification(broker: broker1,
+   expiration: new Instant(now.millis + TimeService.DAY * 5),
+   minDuration: TimeService.WEEK * 8, powerType: PowerType.CONSUMPTION)
+   def tsc2 = new TariffSpecification(broker: broker1,
+   expiration: new Instant(now.millis + TimeService.DAY * 7),
+   minDuration: TimeService.WEEK * 8, powerType: PowerType.CONSUMPTION)
+   def tsc3 = new TariffSpecification(broker: broker1,
+   expiration: new Instant(now.millis + TimeService.DAY * 9),
+   minDuration: TimeService.WEEK * 8, powerType: PowerType.CONSUMPTION)
+   Rate r1 = new Rate(value: 0.222)
+   tsc1.addToRates(r1)
+   tsc2.addToRates(r1)
+   tsc3.addToRates(r1)
+   tariffMarketService.processTariff(tsc1)
+   tariffMarketService.processTariff(tsc2)
+   tariffMarketService.processTariff(tsc3)
+   Tariff tc1 = Tariff.findBySpecId(tsc1.id)
+   assertNotNull("first tariff found", tc1)
+   Tariff tc2 = Tariff.findBySpecId(tsc2.id)
+   assertNotNull("second tariff found", tc2)
+   Tariff tc3 = Tariff.findBySpecId(tsc3.id)
+   assertNotNull("third tariff found", tc3)
+   // make sure we have three active tariffs
+   def tclist = tariffMarketService.getActiveTariffList(PowerType.CONSUMPTION)
+   assertEquals("4 consumption tariffs", 4, tclist.size())
+   assertEquals("Five transaction", 5, TariffTransaction.count())
+   // householdCustomerService.activate(timeService.currentTime, 1)
+   Village.list().each{ village ->
+   TariffSubscription tsd =
+   TariffSubscription.findByTariffAndCustomer(tariffMarketService.getDefaultTariff(PowerType.CONSUMPTION), village)
+   village.unsubscribe(tsd,3)
+   village.subscribe(tc1, 3)
+   village.subscribe(tc2, 3)
+   village.subscribe(tc3, 4)
+   TariffSubscription ts1 =
+   TariffSubscription.findByTariffAndCustomer(tc1, village)
+   village.unsubscribe(ts1, 2)
+   TariffSubscription ts2 =
+   TariffSubscription.findByTariffAndCustomer(tc2, village)
+   village.unsubscribe(ts2, 1)
+   TariffSubscription ts3 =
+   TariffSubscription.findByTariffAndCustomer(tc3, village)
+   village.unsubscribe(ts3, 2)
+   println("Number Of Subscriptions in DB: ${TariffSubscription.count()}")
+   assertEquals("4 Subscriptions for customer",4, village.subscriptions?.size())
+   timeService.currentTime = new Instant(timeService.currentTime.millis + TimeService.HOUR)
+   }
+   TariffRevoke tex = new TariffRevoke(tariffId: tsc2.id, broker: tc2.broker)
+   def status = tariffMarketService.processTariff(tex)
+   assertNotNull("non-null status", status)
+   assertEquals("success", TariffStatus.Status.success, status.status)
+   assertTrue("tariff revoked", tc2.isRevoked())
+   // should now be just two active tariffs
+   tclist = tariffMarketService.getActiveTariffList(PowerType.CONSUMPTION)
+   assertEquals("3 consumption tariffs", 3, tclist.size())
+   Village.list().each{ village ->
+   // retrieve revoked-subscription list
+   def revokedCustomer = tariffMarketService.getRevokedSubscriptionList(village)
+   assertEquals("one item in list", 1, revokedCustomer.size())
+   assertEquals("it's the correct one", TariffSubscription.findByTariffAndCustomer(tc2,village), revokedCustomer[0])
+   }
+   householdCustomerService.activate(timeService.currentTime, 1)
+   Village.list().each{ village ->
+   assertEquals("3 Subscriptions for customer", 3, village.subscriptions?.size())
+   }
+   println("Number Of Subscriptions in DB: ${TariffSubscription.count()}")
+   TariffRevoke tex3 = new TariffRevoke(tariffId: tsc3.id, broker: tc1.broker)
+   def status3 = tariffMarketService.processTariff(tex3)
+   assertNotNull("non-null status", status3)
+   assertEquals("success", TariffStatus.Status.success, status3.status)
+   assertTrue("tariff revoked", tc3.isRevoked())
+   // should now be just two active tariffs
+   def tclist3 = tariffMarketService.getActiveTariffList(PowerType.CONSUMPTION)
+   assertEquals("2 consumption tariffs", 2, tclist3.size())
+   // retrieve revoked-subscription list
+   Village.list().each{ village ->
+   def revokedCustomer3 = tariffMarketService.getRevokedSubscriptionList(village)
+   assertEquals("one item in list", 1, revokedCustomer3.size())
+   assertEquals("it's the correct one", TariffSubscription.findByTariffAndCustomer(tc3,village), revokedCustomer3[0])
+   log.info "Revoked Tariffs ${revokedCustomer3.toString()} "
+   }
+   householdCustomerService.activate(timeService.currentTime, 1)
+   Village.list().each{ village ->
+   assertEquals("2 Subscriptions for customer", 2, village.subscriptions?.size())
+   }
+   TariffRevoke tex2 = new TariffRevoke(tariffId: tsc1.id, broker: tc1.broker)
+   def status2 = tariffMarketService.processTariff(tex2)
+   assertNotNull("non-null status", status2)
+   assertEquals("success", TariffStatus.Status.success, status2.status)
+   assertTrue("tariff revoked", tc1.isRevoked())
+   // should now be just two active tariffs
+   def tclist2 = tariffMarketService.getActiveTariffList(PowerType.CONSUMPTION)
+   assertEquals("1 consumption tariffs", 1, tclist2.size())
+   Village.list().each{ village ->
+   // retrieve revoked-subscription list
+   def revokedCustomer2 = tariffMarketService.getRevokedSubscriptionList(village)
+   assertEquals("one item in list", 1, revokedCustomer2.size())
+   assertEquals("it's the correct one", TariffSubscription.findByTariffAndCustomer(tc1,village), revokedCustomer2[0])
+   log.info "Revoked Tariffs ${revokedCustomer2.toString()} "
+   }
+   householdCustomerService.activate(timeService.currentTime, 1)
+   Village.list().each{ village ->
+   assertEquals("1 Subscriptions for customer", 1, village.subscriptions?.size())
+   }
+   }
+   void testEvaluatingTariffs() {
+   initializeService()
+   println("Number Of Subscriptions in DB: ${TariffSubscription.count()}")
+   // create some tariffs
+   def tsc1 = new TariffSpecification(broker: broker1,
+   expiration: new Instant(now.millis + TimeService.DAY * 5),
+   minDuration: TimeService.WEEK * 8, powerType: PowerType.PRODUCTION)
+   def tsc2 = new TariffSpecification(broker: broker1,
+   expiration: new Instant(now.millis + TimeService.DAY * 7),
+   minDuration: TimeService.WEEK * 8, powerType: PowerType.PRODUCTION)
+   def tsc3 = new TariffSpecification(broker: broker1,
+   expiration: new Instant(now.millis + TimeService.DAY * 9),
+   minDuration: TimeService.WEEK * 8, powerType: PowerType.PRODUCTION)
+   Rate r1 = new Rate(value: 0.222)
+   tsc1.addToRates(r1)
+   tsc2.addToRates(r1)
+   tsc3.addToRates(r1)
+   tariffMarketService.processTariff(tsc1)
+   tariffMarketService.processTariff(tsc2)
+   tariffMarketService.processTariff(tsc3)
+   Tariff tc1 = Tariff.findBySpecId(tsc1.id)
+   assertNotNull("first tariff found", tc1)
+   Tariff tc2 = Tariff.findBySpecId(tsc2.id)
+   assertNotNull("second tariff found", tc2)
+   Tariff tc3 = Tariff.findBySpecId(tsc3.id)
+   assertNotNull("third tariff found", tc3)
+   // make sure we have three active tariffs
+   def tclist = tariffMarketService.getActiveTariffList(PowerType.CONSUMPTION)
+   assertEquals("4 consumption tariffs", 1, tclist.size())
+   assertEquals("five transaction", 5, TariffTransaction.count())
+   Village.list().each{ customer ->
+   customer.possibilityEvaluationNewTariffs(Tariff.list())
+   }
+   }
+   void testVillageRefreshModels() {
+   initializeService()
+   timeService.base = now.toInstant().millis
+   timeService.currentTime = new Instant(timeService.currentTime.millis + TimeService.HOUR*22)
+   timeService.currentTime = new Instant(timeService.currentTime.millis + TimeService.DAY*6)
+   householdCustomerService.activate(timeService.currentTime, 1)
+   println(householdConsumersService.appliancesPossibilityOperations.toString())
+   println(householdConsumersService.appliancesOperations.toString())
+   println(householdConsumersService.appliancesLoads.toString())
+   }
+   */
   void testDailyShifting()
   {
     initializeService()
