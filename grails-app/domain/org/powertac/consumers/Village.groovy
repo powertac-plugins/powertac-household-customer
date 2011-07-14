@@ -563,7 +563,7 @@ class Village extends AbstractCustomer{
 
     villageConsumersService.getHouseholds(this).each { house ->
       def temp = house.dailyShifting(gen,tariff,now,day)
-      for (int j=0;j < HouseholdConstants.HOURS_OF_DAY;j++) newControllableLoad[j] += temp[j]
+      for (int j=0;j < HouseholdConstants.HOURS_OF_DAY;j++) newControllableLoad[j] += temp[j]/HouseholdConstants.THOUSAND
     }
 
     log.debug("New Controllable Load of Village ${this.toString()} for Tariff ${tariff.toString()}")
