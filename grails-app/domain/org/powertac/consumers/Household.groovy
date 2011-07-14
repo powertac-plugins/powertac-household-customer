@@ -573,7 +573,7 @@ class Household {
    */
   def dailyShifting(Random gen, Tariff tariff, Instant now, int day){
 
-    long[] newControllableLoad = new long[HouseholdConstants.HOURS_OF_DAY]
+    double[] newControllableLoad = new double[HouseholdConstants.HOURS_OF_DAY]
 
     appliances.each { appliance ->
       if (!(appliance instanceof NotShiftingAppliance)) {

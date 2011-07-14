@@ -354,7 +354,7 @@ class Village extends AbstractCustomer{
     for (int i = 0;i < HouseholdConstants.HOURS_OF_DAY; i++) {
       sum = 0
       sum = aggDailyBaseLoad.get(i*HouseholdConstants.QUARTERS_OF_HOUR) + aggDailyBaseLoad.get(i*HouseholdConstants.QUARTERS_OF_HOUR +1) + aggDailyBaseLoad.get(i*HouseholdConstants.QUARTERS_OF_HOUR+2) + aggDailyBaseLoad.get(i*HouseholdConstants.QUARTERS_OF_HOUR+3)
-      villageConsumersService.setBaseConsumption(this,houses,day,i,sum)
+      villageConsumersService.setBaseConsumption(this,houses,day,i,sum/HouseholdConstants.THOUSAND)
     }
   }
 
@@ -385,7 +385,7 @@ class Village extends AbstractCustomer{
     for (int i = 0;i < HouseholdConstants.HOURS_OF_DAY; i++) {
       sum = 0
       sum = aggDailyControllableLoad.get(i*HouseholdConstants.QUARTERS_OF_HOUR) + aggDailyControllableLoad.get(i*HouseholdConstants.QUARTERS_OF_HOUR +1) + aggDailyControllableLoad.get(i*HouseholdConstants.QUARTERS_OF_HOUR+2) + aggDailyControllableLoad.get(i*HouseholdConstants.QUARTERS_OF_HOUR+3)
-      villageConsumersService.setControllableConsumption(this,houses,day,i,sum)
+      villageConsumersService.setControllableConsumption(this,houses,day,i,sum/HouseholdConstants.THOUSAND)
     }
   }
 
@@ -470,7 +470,7 @@ class Village extends AbstractCustomer{
           summary = summary + (villageConsumersService.getBaseConsumptions(this,j)[day][hour] + villageConsumersService.getControllableConsumptions(this,j)[day][hour])
         }
         log.debug "Cost for hour ${hour}: ${tariff.getUsageCharge(now)}"
-        summary = summary / HouseholdConstants.PERCENTAGE
+        summary = summary
         cumulativeSummary += summary
         costSummary += tariff.getUsageCharge(now,summary,cumulativeSummary)
         now = now + TimeService.HOUR
@@ -503,13 +503,13 @@ class Village extends AbstractCustomer{
       float costSummary = 0
       float summary = 0, cumulativeSummary = 0
 
-      long[] newControllableLoad = dailyShifting(tariff,now,day)
+      double[] newControllableLoad = dailyShifting(tariff,now,day)
 
       for (int hour=0;hour < HouseholdConstants.HOURS_OF_DAY;hour++){
         for (int j=0;j < types;j++){
           summary = summary + (villageConsumersService.getBaseConsumptions(this,j)[day][hour] + newControllableLoad[hour])
         }
-        summary = summary / HouseholdConstants.PERCENTAGE
+        summary = summary
         cumulativeSummary += summary
         costSummary += tariff.getUsageCharge(now,summary,cumulativeSummary)
         now = now + TimeService.HOUR
@@ -559,11 +559,11 @@ class Village extends AbstractCustomer{
    */
   def dailyShifting(Tariff tariff,Instant now, int day){
 
-    long[] newControllableLoad = new long[HouseholdConstants.HOURS_OF_DAY]
+    double[] newControllableLoad = new double[HouseholdConstants.HOURS_OF_DAY]
 
     villageConsumersService.getHouseholds(this).each { house ->
       def temp = house.dailyShifting(gen,tariff,now,day)
-      for (int j=0;j < HouseholdConstants.HOURS_OF_DAY;j++) newControllableLoad[j] += temp[j]
+      for (int j=0;j < HouseholdConstants.HOURS_OF_DAY;j++) newControllableLoad[j] += temp[j]/HouseholdConstants.THOUSAND
     }
 
     log.debug("New Controllable Load of Village ${this.toString()} for Tariff ${tariff.toString()}")
@@ -587,11 +587,11 @@ class Village extends AbstractCustomer{
    */
   def dailyShifting(Tariff tariff,Instant now, int type, int day){
 
-    long[] newControllableLoad = new long[HouseholdConstants.HOURS_OF_DAY]
+    double[] newControllableLoad = new double[HouseholdConstants.HOURS_OF_DAY]
 
     villageConsumersService.getHouseholds(this,type).each { house ->
       def temp = house.dailyShifting(gen,tariff,now,day)
-      for (int j=0;j < HouseholdConstants.HOURS_OF_DAY;j++) newControllableLoad[j] += temp[j]
+      for (int j=0;j < HouseholdConstants.HOURS_OF_DAY;j++) newControllableLoad[j] += temp[j]/HouseholdConstants.THOUSAND
     }
     log.debug("New Controllable Load of Village ${this.toString()} for Tariff ${tariff.toString()}")
 
@@ -723,7 +723,7 @@ class Village extends AbstractCustomer{
     subscriptions.each { sub ->
       for (int i=0;i < types;i++){
         log.info "Old Consumption for day ${day} and Type ${i}: ${villageConsumersService.getControllableConsumptions(this,i,day)}"
-        long[] newControllableLoad = dailyShifting(sub.tariff,now,i,day)
+        double[] newControllableLoad = dailyShifting(sub.tariff,now,i,day)
         villageConsumersService.setControllableConsumption(this, i, day,newControllableLoad)
         log.info "New Consumption for day ${day} and Type ${i}: ${villageConsumersService.getControllableConsumptions(this,i,day)}"
       }
@@ -741,7 +741,7 @@ class Village extends AbstractCustomer{
     for (int day = 0;day < HouseholdConstants.DAYS_OF_BOOTSTRAP;day++){
       subscriptions.each { sub ->
         for (int i=0;i < types;i++){
-          long[] newControllableLoad = dailyShifting(sub.tariff,now,i,day)
+          double[] newControllableLoad = dailyShifting(sub.tariff,now,i,day)
           villageConsumersService.setControllableConsumption(this, i, day,newControllableLoad)
         }
       }

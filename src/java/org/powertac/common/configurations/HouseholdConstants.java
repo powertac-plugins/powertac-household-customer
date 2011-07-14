@@ -22,6 +22,7 @@ public class HouseholdConstants {
 
   // GENERAL VARIABLES -----------------------------//
   public static final int PERCENTAGE = 100;
+  public static final int THOUSAND = 1000;
   public static final int KWH = 1000;
   public static final int MWH = 1000000;
   public static final int MILLION = 1000000;

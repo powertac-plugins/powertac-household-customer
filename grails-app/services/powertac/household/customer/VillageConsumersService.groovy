@@ -84,7 +84,7 @@ class VillageConsumersService {
   void createBaseConsumptionsMap (Village village, int types)
   {
     log.debug "create Base Consumption map for Household Customer ${village.customerInfo.name} [${types}]"
-    baseConsumptions[village.customerInfo.name] = new long[types][HouseholdConstants.DAYS_OF_COMPETITION][HouseholdConstants.HOURS_OF_DAY]
+    baseConsumptions[village.customerInfo.name] = new double[types][HouseholdConstants.DAYS_OF_COMPETITION][HouseholdConstants.HOURS_OF_DAY]
   }
 
   def getBaseConsumptions(Village village, int type)
@@ -92,7 +92,7 @@ class VillageConsumersService {
     return baseConsumptions[village.customerInfo.name][type]
   }
 
-  void setBaseConsumption(Village village, int type, int day, int hour, long value)
+  void setBaseConsumption(Village village, int type, int day, int hour, double value)
   {
     def baseConsumptionMap = baseConsumptions[village.customerInfo.name]
     if (baseConsumptionMap == null) {
@@ -105,12 +105,12 @@ class VillageConsumersService {
   void createControllableConsumptionsMap (Village village, int types)
   {
     log.debug "create Controllable consumption map for Household Customer ${village.customerInfo.name} [${types}]"
-    controllableConsumptions[village.customerInfo.name] = new long[types][HouseholdConstants.DAYS_OF_COMPETITION][HouseholdConstants.HOURS_OF_DAY]
+    controllableConsumptions[village.customerInfo.name] = new double[types][HouseholdConstants.DAYS_OF_COMPETITION][HouseholdConstants.HOURS_OF_DAY]
   }
 
   def getControllableConsumptions(Village village, int type, int day)
   {
-    def sumControllableLoad = new long[HouseholdConstants.HOURS_OF_DAY]
+    def sumControllableLoad = new double[HouseholdConstants.HOURS_OF_DAY]
 
     for (int j=0;j < HouseholdConstants.HOURS_OF_DAY;j++){
       sumControllableLoad[j] = controllableConsumptions[village.customerInfo.name][type][day][j]
@@ -123,7 +123,7 @@ class VillageConsumersService {
     return controllableConsumptions[village.customerInfo.name][type]
   }
 
-  void setControllableConsumption(Village village, int type, int day, int hour, long value)
+  void setControllableConsumption(Village village, int type, int day, int hour, double value)
   {
     def controllableConsumptionMap = controllableConsumptions[village.customerInfo.name]
     if (controllableConsumptionMap == null) {
@@ -133,7 +133,7 @@ class VillageConsumersService {
     controllableConsumptionMap[type][day][hour] = value
   }
 
-  void setControllableConsumption(Village village, int type, int day, long[] value)
+  void setControllableConsumption(Village village, int type, int day, double[] value)
   {
     def controllableConsumptionMap = controllableConsumptions[village.customerInfo.name]
     if (controllableConsumptionMap == null) {
@@ -177,7 +177,7 @@ class VillageConsumersService {
   void createBootstrapConsumptionsMap (Village village)
   {
     log.debug "create Base Consumption map for Household Customer ${village.customerInfo.name}"
-    bootstrapConsumptions[village.customerInfo.name] = new long[HouseholdConstants.DAYS_OF_BOOTSTRAP][HouseholdConstants.HOURS_OF_DAY]
+    bootstrapConsumptions[village.customerInfo.name] = new double[HouseholdConstants.DAYS_OF_BOOTSTRAP][HouseholdConstants.HOURS_OF_DAY]
   }
 
   def getBootstrapConsumptions(Village village)
@@ -195,7 +195,7 @@ class VillageConsumersService {
 
     for (int j=0;j < HouseholdConstants.DAYS_OF_BOOTSTRAP;j++) {
       for (int k=0;k < HouseholdConstants.HOURS_OF_DAY;k++){
-        long temp = 0
+        double temp = 0
         for (int i=0;i < village.types;i++)  temp += getBaseConsumptions(village,i)[j][k] + getControllableConsumptions(village,i)[j][k]
         bootstrapConsumptionMap[j][k] = temp
       }
@@ -204,11 +204,11 @@ class VillageConsumersService {
 
   def getSumConsumptions(Village village){
 
-    def sumConsumption = new long[HouseholdConstants.DAYS_OF_COMPETITION][HouseholdConstants.HOURS_OF_DAY]
+    def sumConsumption = new double[HouseholdConstants.DAYS_OF_COMPETITION][HouseholdConstants.HOURS_OF_DAY]
 
     for (int j=0;j < HouseholdConstants.DAYS_OF_COMPETITION;j++) {
       for (int k=0;k < HouseholdConstants.HOURS_OF_DAY;k++){
-        long temp = 0
+        double temp = 0
         for (int i=0;i < village.types;i++) temp += getBaseConsumptions(village,i)[j][k] + getControllableConsumptions(village,i)[j][k]
         sumConsumption[j][k] = temp
       }

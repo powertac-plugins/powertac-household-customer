@@ -157,7 +157,6 @@ class CustomerServiceTests extends GroovyTestCase {
     assertFalse("Village 1 subscribed to default", AbstractCustomer.findByCustomerInfo(CustomerInfo.findByName("Village 1")).subscriptions == tariffMarketService.getDefaultTariff(PowerType.CONSUMPTION))
     assertFalse("Village 2 subscribed to default", AbstractCustomer.findByCustomerInfo(CustomerInfo.findByName("Village 2")).subscriptions == tariffMarketService.getDefaultTariff(PowerType.CONSUMPTION))
   }
-
   void testPowerConsumption() {
     initializeService()
     timeService.setCurrentTime(new Instant(now.millis + (TimeService.HOUR)))
@@ -167,7 +166,6 @@ class CustomerServiceTests extends GroovyTestCase {
     }
     assertEquals("Tariff Transactions Created", Village.count()+2, TariffTransaction.findByTxType(TariffTransactionType.CONSUME).count())
   }
-
   void testChangingSubscriptions() {
     initializeService()
     def tsc1 = new TariffSpecification(broker: broker2,
@@ -307,7 +305,6 @@ class CustomerServiceTests extends GroovyTestCase {
       assertEquals("1 Subscriptions for customer", 1, village.subscriptions?.size())
     }
   }
-
   void testEvaluatingTariffs() {
     initializeService()
     println("Number Of Subscriptions in DB: ${TariffSubscription.count()}")
@@ -342,8 +339,6 @@ class CustomerServiceTests extends GroovyTestCase {
       customer.possibilityEvaluationNewTariffs(Tariff.list())
     }
   }
-
-
   void testVillageRefreshModels() {
     initializeService()
     timeService.base = now.toInstant().millis
@@ -354,6 +349,7 @@ class CustomerServiceTests extends GroovyTestCase {
     println(householdConsumersService.appliancesOperations.toString())
     println(householdConsumersService.appliancesLoads.toString())
   }
+
   void testDailyShifting()
   {
     initializeService()
