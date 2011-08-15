@@ -25,6 +25,7 @@ import org.joda.time.Instant
 import org.powertac.common.*
 import org.powertac.common.configurations.HouseholdConstants
 import org.powertac.common.enumerations.PowerType
+import org.powertac.common.msg.CustomerReport
 
 /**
  * The village domain class in this first version is a set of households that comprise
@@ -39,6 +40,8 @@ class Village extends AbstractCustomer{
 
   /** This is the service that is utilized to store the Mappings of each village.*/
   def villageConsumersService
+
+  def visualizationProxyService // autowire
 
   /** Number of customer types in the village.*/
   int types = 4
@@ -238,6 +241,11 @@ class Village extends AbstractCustomer{
       }
       log.info "Consumption Load: ${summary} / ${subscriptions.size()} "
       sub.usePower(summary/subscriptions.size())
+
+      // Visualizer
+      CustomerReport msg = new CustomerReport(name: this.customerInfo.name, powerUsage: new BigDecimal(summary/subscriptions.size()))
+      msg.save()
+      visualizationProxyService.forwardMessage(msg)
     }
   }
 

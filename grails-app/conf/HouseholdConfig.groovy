@@ -2,15 +2,15 @@ household {
 
   general {
     PublicVacationDuration = 3
-    NumberOfVillages = 2
+    NumberOfVillages =  1
   }
 
   person {
     consumption {
-      OnePersonConsumption = 1973
-      TwoPersonsConsumption = 3261
-      ThreePersonsConsumption = 4240
-      FourPersonsConsumption = 4902
+      OnePersonConsumption = 1902
+      TwoPersonsConsumption = 3365
+      ThreePersonsConsumption = 4309
+      FourPersonsConsumption = 5087
       FivePersonsConsumption = 6142
     }
 
@@ -63,7 +63,7 @@ household {
     }
 
     duration {
-      WorkingDurationMean = 32
+      WorkingDurationMean = 38
       WorkingDurationDev = 4
     }
   }
@@ -135,14 +135,14 @@ household {
   }
 
   houses {
-    NotShiftingCustomers = 2//5
-    RandomlyShiftingCustomers = 2//5
-    RegularlyShiftingCustomers = 2//5
-    SmartShiftingCustomers = 2//5
+    NotShiftingCustomers = 10
+    RandomlyShiftingCustomers = 10
+    RegularlyShiftingCustomers = 10
+    SmartShiftingCustomers = 10
   }
 }
 environments {
-  Phoenix {
+/*  Phoenix {
     household {
       houses {
         NotShiftingCustomers = 2
@@ -151,15 +151,14 @@ environments {
         SmartShiftingCustomers = 2
       }
     }
-  }
-  LA {
+  }*/
+  Freiamt {
     household {
       houses {
-        NotShiftingCustomers = 200
-        RandomlyShiftingCustomers = 200
-        RegularlyShiftingCustomers = 200
-        SmartShiftingCustomers = 200
-        NewShiftingCustomers = 200
+        NotShiftingCustomers = 10
+        RandomlyShiftingCustomers = 10
+        RegularlyShiftingCustomers = 10
+        SmartShiftingCustomers = 10
       }
     }
   }
